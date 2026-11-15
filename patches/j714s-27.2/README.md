@@ -8,7 +8,7 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
 Status (2026-11-15, latest): v272-13: #2018 reworked as Isaac-Duarte's DT change, #2012 updated,
-#17 as a DT always-on for the HDMI PHY; built, not booted. Same pin as v272-12 (`c0a2a7522b4e`);
+#17 as a DT always-on for the HDMI PHY (already in the tree, so no new patch); built, not booted. Same pin as v272-12 (`c0a2a7522b4e`);
 0001-0030 unchanged. 0031 is #2012's current last commit `56b02059cfc8` (`af590f044ca2` with
 only its commit message changed: it now points at the DT change instead of the PHY hold; the code
 is identical). 0032 is #2018's new single commit `64d473f5321d` ("arm64: dts: apple: t6050: keep
