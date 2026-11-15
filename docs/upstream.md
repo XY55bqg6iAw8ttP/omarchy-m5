@@ -41,6 +41,9 @@ Nothing left here. Checked 2026-11-14:
 | T2 | Jens Axboe: 27.2 AOP endpoints (#1645, merged) | sound cards, sensors, speakerguardd v2 gate passes, speakers heard | owners' thread [omacom/linux-aurora#293](https://github.com/omacom/linux-aurora/issues/293) | sent: [comment](https://github.com/omacom/linux-aurora/issues/293#issuecomment-6886977253) (whole J714s 27.2 status; the right-port DisplayPort line left out the fault count) |
 | T3 | Isaac-Duarte: #1921 dock third display | applied on v272-7 together with the HDMI device tree; boots; USB-C DisplayPort on the left non-DFU port works. No dock tried. With HDMI and #1921 together no display engine is left as a merged-mode peer | nothing to report until a dock is tried | waiting on a test |
 
+| T4 | Isaac-Duarte: J714s fan targets (aurora-silicon/linux #1944) | target 3000 gave 2989 rpm, 0 hands back; on v272-8..11 and the fresh install | [#1944 comment](https://github.com/aurora-silicon/linux/pull/1944#issuecomment-6900377583) | sent 2026-11-15 |
+| T5 | Isaac-Duarte: dock third display (#1921) with FatBoy721's HDMI DT | HDMI 5120x1440@144 and 3840x2160@60, left-front DP 5120x1440@144 work with both in the tree; no dock tried; merged-mode-peer observation from the code | [#1921 comment](https://github.com/aurora-silicon/linux/pull/1921#issuecomment-6900377857) | sent 2026-11-15 |
+
 ## Waiting on a test
 
 | # | Change | The test it waits for |
