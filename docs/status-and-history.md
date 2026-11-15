@@ -7,6 +7,7 @@ Apple's 27.2 firmware. The newest is on the [README](../README.md). The older on
 
 | Image | What it was | Why it was replaced |
 | --- | --- | --- |
+| `omarchy-j714s 7` | 6 plus the boot guard (#11, firmware j714s12) and the speaker switch-over waiting for the speaker card | replaced by 8 for lid sleep (kernel v272-12) and the shared M5 boot guard (j714s13) |
 | `omarchy-j714s 6` | kernel v272-11 (fans, thermal limit, Bluetooth RFCOMM, dock fixes) and hyprland-m5 0.57.2-3; the first from-scratch install | replaced by 7 for the boot guard (#11) and the speaker switch-over timing |
 | `omarchy-j714s 5` | kernel v272-7: HDMI 4K and USB-C DP on the left port | replaced by 6 for fans, thermal limit, Bluetooth RFCOMM, dock fixes |
 | `omarchy-j714s 4` | 3 plus the boot-mount fix for two installs on one disk (firmware j714s10) | HDMI 4K stayed blank and `ufw` failed: kernel v272-7 in 5 |

@@ -55,6 +55,12 @@ The ESP space check can't block a J714s update: `m5-boot-guard esp` returns befo
 the `compatible` has `apple,k114s`. Not seen yet: j714s13 through a reboot, and the K114s checks on a
 real K114s transaction (his report covers a direct run only).
 
+**Through a reboot and shipped (2026-11-15).** j714s13 with kernel v272-12 booted on that J714s
+(44 s, no failed units). Both went into
+[release 8](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-8)
+(`installer/patches-j714s-r2/0011`), the first J714s build with #13/#15's engine
+`d33f2cef00c4`. In the image build the guard did not run (the firmware is installed fresh). In update-check run 43768082534 the 01 ESP hook ran and did nothing, the 00 guard was not triggered, and pacman exited 0. The J714s catalog with the new engine still lists only `apple,j714s` (local `make-release-inputs.py` check and app run 43768084751's sealed catalogs).
+
 ## 2026-11-15: #15, the engine's firmware rebuild path picks this device's row (chrisohearn)
 
 [#15](https://github.com/betizzel/omarchy-m5/pull/15) from chrisohearn: `installer/patches-j714s-r2/0010`.

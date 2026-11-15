@@ -144,6 +144,7 @@ and light-sensor calibration).
 | 0008 | release 7: `omarchy-aurora-firmware 20261014.j714s12` (the boot guard for #11: a pacman hook that stops transactions replacing or removing `linux-aurora`, `m1n1-aurora`, `uboot-aurora` or `omarchy-aurora-firmware` with non-J714s builds; the speaker switch-over waits up to 60 s for the speaker card), `4486b6c5…`, 52467 bytes, from 101a6e6; set `j714s-dev-runtime-625fa91d3d01`; kernel pins unchanged; TREE `fe2218e7` |
 | 0009 | experimental, tested on one machine: the K114s (14-inch OLED, M5 Pro, `apple,k114s`) as a developer board: engine `k114sap` (27.2, board 0x14, the 26B8125 stub row, `stage1-k114s` Mach-O members, K-board trackpad firmware collection), `supported-models.json` and tests; engine `v0.9.2-omarchy.20261115.c979ebe82723`; TREE `fdd3eb0e`. Admission alone gives a keyboard-only system and there is no K114s image here: see [`docs/boards/k114s.md`](../docs/boards/k114s.md). The matching `make-release-inputs.py --board apple,k114s` and `CHECK_APP_BOARD=apple,k114s` (for `check-app.sh`) are in [`app/`](app); the default stays the J714s |
 | 0010 | the engine's firmware rebuild path (`action_rebuild_vendorfw`) picks the 27.2 row for this device class, not the first 27.2 row: a K114s gets 26B8125, a J714s still 26B123 (`omarchy_firmware.installed_ipsw`); engine `v0.9.2-omarchy.20261115.d33f2cef00c4`; TREE `764b1ee1`. Built and unit-tested only: not run on a Mac |
+| 0011 | release 8: `linux-aurora 7.3.0.aurora17.v272-12` (`integration/aurora` c0a2a752 + kernel 0001–0032: v272-11 rebased plus the J714s s2idle stack, Jens Axboe's #1647 and Isaac-Duarte's #2012 and #2018; four patches now upstream dropped; `CONFIG_APPLE_SOC_SLEEP` off), `d2dcbe31…`, 44289449 bytes, from 9b74652; `omarchy-aurora-firmware 20261014.j714s13` (chrisohearn's shared M5 boot guard, #16), `af8a8d00…`, 55533 bytes, from 82d914e; set `j714s-dev-runtime-fd29d86c50ef`; qualification pins `7.3.0-17.v272-12-ARCH`; TREE `b52db128` |
 
 Built (2026-11-13):
 - Engine: release `engine-v0.9.2-omarchy.20261113.774d9abc59d3`.
@@ -239,3 +240,26 @@ install) without a reboot; reinstalling it passed the guard, and a fake generic
 unchanged ([`docs/maintenance.md`](../docs/maintenance.md#11-the-boot-guard-and-its-test)). The
 speaker wait has not been through a boot yet, and release 7's image has not been installed from
 scratch.
+
+## omarchy-j714s 8 (built 2026-11-15)
+
+Release 7 plus `patches-j714s-r2` 0009–0011 (above): kernel v272-12 and firmware j714s13, and the
+first J714s build with engine `v0.9.2-omarchy.20261115.d33f2cef00c4` (0009 K114s admission, 0010
+firmware-row fix; chrisohearn). Same Aura (v272-3), U-Boot, hyprland-m5 (0.57.2-3) and Recovery app
+(run 43477703681; `Recovery/` tree still `2f10aee7`) as release 7; the other 18 packages in the
+signed set are byte-identical to release 7's. Every package outside the signed set resolved to the same version as in release 7's image.
+
+- Inputs: release `installer-build-inputs-j714s-4601e97e9413` (finish-inputs on the tree `rebuild-installer-tree.sh DEST upstream-27.3 j714s j714s-r2` makes, HEAD 8727989; the bundle carries engine `d33f2cef00c4`, `eac6cf71…`); the kernel and firmware packages are also attached there on their own for `pacman -U` on releases 2 to 7.
+- Image: `installer-image.yml` run 43766162528 (headSha 9e9cf29, `image-version` 8) → release `j714s-developer-image-omarchy-j714s-8`, `omarchy-j714s-8-aarch64-apple-silicon-mac-os-package.zip` sha256 `415dece81fbef4713d76ac3f12f070a18abe2f3c3d0e874526bc8ae5149bb72c`. Inspection and provenance checks passed; `m1n1/boot-ctxr.bin` is 10101130 bytes, sha256 `eb14ead04ae2363f395ed62b547801cd4e523b30989d77efb58d78d21176925c`: byte-identical to the file on TripleU613's J714s that booted v272-12 (read there read-only), and under the 11 MB Stage 1 loader limit. The boot guard did not run during the build.
+- update-check: run 43768082534. `pacman -Syu` kept every J714s package and upgraded one other, `limine-mkinitcpio-hook` 1.40.0-3 → 1.41.0-1 (as in release 7). The 00 guard hook was not triggered; the 01 ESP hook ran ("Checking free space on the EFI partition (K114s)...") and did nothing.
+- App: `installer-app.yml` run 43768084751 (app 2.3.16 build 2611152215) → prerelease `omarchy-j714s-8`. `check-app.sh` passed for both variants. The sealed catalogs (run evidence) list only `apple,j714s`, with engine `v0.9.2-omarchy.20261115.d33f2cef00c4` (`eac6cf71…`), `payloadDigest` `415dece8…` and `metadataDigest` `2eb470f6…`; a local `make-release-inputs.py` run (throwaway key) on the same tree, engine and image gave the same.
+
+v272-12 and j714s13 were installed by package on TripleU613's J714s (release 6 from-scratch install)
+and booted (2026-11-15): 44 s, no failed units, `mem_sleep` `[s2idle]` only, lid sleep twice (3 s
+and 3 min 37 s, `suspend_stats` success 2 fail 0); after the wake the panel, Wi-Fi, Bluetooth, sound,
+speaker protection and the left-front and right USB-C ports (charging, a USB device) came back; the
+left-back (DFU) port gives no response, as before. External displays were not re-checked on
+v272-12 (no monitor attached). The j714s13 guard tests are in
+[`docs/maintenance.md`](../docs/maintenance.md#2026-11-15-16-one-boot-guard-for-every-m5-board-chrisohearn).
+Release 8's image has not been installed from scratch, and the new engine has not run an install
+on a Mac.
