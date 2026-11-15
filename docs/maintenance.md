@@ -186,6 +186,26 @@ but `pacman.conf.bak` does, it saves that backup as `/etc/pacman.conf.j714s-pinn
 user to copy it back. The refresh rewrites `.bak` on every run, so after a second run (the channel
 switch's own error text says to rerun) `.bak` no longer has the pin.
 
+**One guard for every board (#12).** From firmware j714s13 the guard is `m5-boot-guard`, run by
+`00-omarchy-m5-boot-guard.hook` and `01-omarchy-m5-esp-space.hook`. It reads the board from the
+device tree's `compatible`: `apple,k114s` is a K114s; anything else, or an unreadable device tree,
+is judged as before. Compared side by side with j714s12's script in scratch roots on 21
+scenarios, including (generic, M5, up273 and j714s builds, a mixed set, an unknown version, -R/-Rns/--remove, the
+one-time override, a lost or saved pin, a package not installed, -U with URL/relative/absolute
+files, repo/name, empty stdin, the j714s13 firmware): identical exit codes, stdout, stderr and
+files. Only pacman's own output differs (a renamed hook line and one more no-op hook line).
+
+A K114s gets two more checks. Before a boot package changes, `m1n1/boot-ctxr.bin` must carry an
+`apple,k114s` device tree and the image's Stage 2 helper must know the K114s (the stock one copies
+`boot.bin` over it). Before a transaction touches the files and packages a boot-image rebuild
+reads, `/boot/efi` must be mounted and have 100 MiB free (a rebuild writes an 80 MB image there).
+`/etc/omarchy-k114s/allow-low-esp` skips the space check only, never the mount check.
+
+The override file is per board (`/etc/omarchy-<board>/allow-boot-package-change`).
+`j714s-boot-guard` stays as a shim, and j714s12 upgrades with no step. Test:
+`installer/recipes/omarchy-aurora-firmware/test.sh` (scratch root, fake pacman, no root). Written by
+chrisohearn from the K114s guards in omarchy-m5p-oled.
+
 **Test, 2026-11-15, on ush.** Firmware j714s11 was built from this recipe in `alarm-builder:20261112`
 (Arch Linux ARM under qemu-user; package sha256 `8e33fed0...2a7022`) and installed in a
 throwaway container with fake packages: J714s builds with the image's versions, and a local

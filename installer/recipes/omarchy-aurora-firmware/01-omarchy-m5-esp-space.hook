@@ -1,0 +1,82 @@
+# K114s: no boot-image rebuild while the EFI partition is nearly full (a no-op on every other
+# board). Updates rebuild the boot image there (mkinitcpio and the unified kernel image, Limine,
+# the m1n1 Stage 2) and copy it for snapshots. Only transactions that touch the files and packages
+# a boot-image rebuild reads are measured, so ordinary updates pass on a full ESP. The Path
+# triggers are every trigger of the stock hooks that rewrite a boot file (90-mkinitcpio-install.hook
+# and 90-mkinitcpio-apple-install.hook: initcpio, firmware, extramodules, dkms, systemd, cryptsetup
+# and the other initramfs binaries, the kernel image, mkinitcpio itself), plus the kernel, device
+# trees and Limine. The Package triggers are the packages that rebuild boot images, and the boot
+# packages. Hook files are not triggers: a package that only ships a hook rebuilds nothing.
+# Never Target = *. test.sh checks every Path target of the stock boot-image hooks is listed.
+# Known trade-off: this list goes stale when the image gains a new boot input; the K114s update
+# tooling's audit (chrisohearn/omarchy-m5p-oled, 01-k114s-guard-esp.hook) covers that there.
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = usr/lib/modules/*/vmlinuz
+Target = usr/lib/modules/*/modules.builtin
+Target = usr/lib/modules/*/pkgbase
+Target = usr/lib/modules/*/extramodules/
+Target = usr/lib/modules/*/dtbs/*
+Target = usr/lib/asahi-boot/*
+Target = usr/lib/asahi-boot-*/*
+Target = usr/lib/omarchy-mac-boot/dtb-overlays/*/*.dtbo
+Target = usr/lib/initcpio/*
+Target = usr/lib/initcpio/install/*
+Target = etc/initcpio/install/*
+Target = usr/lib/omarchy/initcpio/*
+Target = etc/mkinitcpio.conf
+Target = etc/mkinitcpio.conf.d/*
+Target = etc/mkinitcpio.conf.d/90-omarchy-mac.conf
+Target = etc/mkinitcpio.conf.d/91-omarchy-mac-encrypt.conf
+Target = etc/mkinitcpio.conf.d/92-omarchy-mac-hid.conf
+Target = etc/mkinitcpio.conf.d/92-omarchy-mac-kbd-backlight.conf
+Target = etc/mkinitcpio.conf.d/92-omarchy-mac-pmp.conf
+Target = etc/mkinitcpio.conf.d/93-omarchy-mac-plymouth.conf
+Target = etc/mkinitcpio.conf.d/94-omarchy-mac-vconsole.conf
+Target = etc/mkinitcpio.d/*
+Target = usr/lib/udev/rules.d/90-omarchy-mac-kbd-backlight.rules
+Target = usr/lib/firmware/*
+Target = boot/dtbs/*
+Target = usr/lib/systemd/boot/hwids/*
+Target = usr/lib/systemd/boot/efi/*
+Target = usr/src/*/dkms.conf
+Target = usr/lib/systemd/systemd
+Target = usr/lib/systemd/systemd-udevd
+Target = usr/bin/cryptsetup
+Target = usr/bin/lvm
+Target = usr/bin/mdadm
+Target = usr/bin/pdata_tools
+Target = usr/lib/libcryptsetup.so
+Target = usr/lib/libp11-kit.so
+Target = usr/lib/libpcsclite.so
+Target = usr/lib/modprobe.d/
+Target = usr/share/limine/*
+Target = usr/share/limine/BOOTAA64.EFI
+
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = mkinitcpio
+Target = mkinitcpio-git
+Target = limine
+Target = limine-git
+Target = limine-dev
+Target = limine-mkinitcpio-hook
+Target = limine-mkinitcpio-hook-git
+Target = linux-aurora
+Target = m1n1-aurora
+Target = uboot-aurora
+Target = omarchy-mac-boot
+Target = omarchy-aurora-firmware
+Target = asahi-scripts
+
+[Action]
+Description = Checking free space on the EFI partition (K114s)...
+When = PreTransaction
+Exec = /usr/lib/omarchy-aurora/m5-boot-guard esp
+AbortOnFail
