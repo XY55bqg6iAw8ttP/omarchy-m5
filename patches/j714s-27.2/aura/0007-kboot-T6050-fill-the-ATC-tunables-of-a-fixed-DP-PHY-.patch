@@ -1,7 +1,7 @@
 From d206511226b06083a6e2e6ac9adfdbb7faa4f9e5 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 21:37:36 -0500
-Subject: [PATCH 7/7] kboot: T6050: fill the ATC tunables of a fixed DP PHY too
+Subject: [PATCH 7/8] kboot: T6050: fill the ATC tunables of a fixed DP PHY too
 
 A T6050 ATC with no usb-drdN, such as the J714s's ATC3 that feeds the HDMI
 converter, is described as "apple,t6050-dp-phy" (a fixed four-lane DP PHY; see
