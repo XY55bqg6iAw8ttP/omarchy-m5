@@ -14,6 +14,23 @@ Apple's 27.2 firmware. The newest is on the [README](../README.md). The older on
 | `j714s-developer-image-upstream-2026.11.1x-N` | aurora-silicon's kernel and Aura on the 27.3 beta firmware; camera, Neural Engine, video encode, Touch ID first worked here | the maintainers target 27.2, not the beta ([`move-to-27.2.md`](move-to-27.2.md)) |
 | `j714s-developer-image-2026.11.11-7` ("stable") | the original line on the 27.3 beta stub, installed from a Linux PC ([`bringup.md`](bringup.md)) | replaced by the Mac installer line |
 
+### Reports from other owners on the 27.3 line
+
+From FatBoy721 ([#6](https://github.com/betizzel/omarchy-m5/issues/6)), on his J714s machines with
+the 27.3 beta stub:
+
+- **Touch ID works on a second J714s** with the `aurora-sep-upstream` and `libfprint-aurora` recipes
+  as written: enrolment, verify, verify again after a reboot, and `sudo` and the lock screen
+  unlocked by fingerprint (password still works as the fallback). That makes two J714s machines
+  on 27.3. Not tried on 27.2 yet.
+- **An old m1n1 Stage 1 in front of an Aura Stage 2 hangs on the logo.** Our U-Boot runs the ANS
+  handshake again unless `/chosen/asahi,nvme-adopt` is set, and the firmware accepts that
+  handshake only once per boot. His one-line fix: add `chosen.asahi,nvme-adopt=live-rtkit-v1` to
+  the end of `m1n1/boot.bin`. The 27.2 images are fresh installs with Aura as Stage 1, so they
+  don't use that combination. Release 1's boot loop, under Aura's own Stage 1, was a different
+  hand-off problem, fixed by aura #213 from release 2 on
+  ([`install-failure-2026-11-13.md`](install-failure-2026-11-13.md)).
+
 The rest of this file is older still and is kept as it was.
 
 # omarchy-m5
