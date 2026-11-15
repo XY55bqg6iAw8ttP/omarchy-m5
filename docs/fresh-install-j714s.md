@@ -2,8 +2,15 @@
 
 This is the procedure for installing the next J714s image (release 6) from scratch on TripleU613's
 MacBook Pro 14" M5 Pro (J714s), as a brand-new user would. It was written on 2026-11-15 and
-**has not been run yet**. The macOS commands below have never run on this Mac: run the dry run
-first and read its output.
+**run the same day**. What actually happened differs from the plan in one way: the owner asked for
+a fully clean Mac, so after `fresh-cleanup.sh --delete` removed the logo Omarchy and the broken old
+install, the disk-icon Omarchy, the dev ESP and the dev Linux root were removed too (each found by
+partition UUID), macOS was made the startup disk (`bless --mount / --setBoot`) and given all the
+space back (`diskutil apfs resizeContainer disk0s2 0`). So the installer had to shrink macOS, as for
+a new user, and there is no cable-catcher recovery path any more. Result: installed, Finish setup
+worked, first boot on v272-11; the speaker switch-over ran too early (fixed in j714s12). Details in
+the README and release 6's notes. Note: over SSH without a terminal, the cleanup script's
+startup-disk check gets no `sudo` and prints nothing; it worked when run in the owner's Terminal.
 
 Words used here:
 - **logo Omarchy**: the 27.2 install made with release 1 and updated by packages (Omarchy logo in
