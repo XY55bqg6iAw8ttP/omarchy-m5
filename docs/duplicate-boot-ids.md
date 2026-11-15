@@ -42,6 +42,6 @@ Then `grep "Kernel version" /boot/efi/limine.conf` must show the installed kerne
 
 Installed systems get it with the package (`sudo pacman -U` the j714s10 package from the release's inputs bundle); it takes effect at the next boot. If the boot files already went to the other install's partitions, put them back first as above.
 
-Tried on the J714s: generator dry run, `systemctl daemon-reload`, unmount/mount cycle; each gave the right partitions. Not yet tried across a restart.
+Tried on the J714s: generator dry run, `systemctl daemon-reload`, unmount/mount cycle; each gave the right partitions. Then across two restarts, on kernels v272-4 and v272-7: `/boot` and `/boot/efi` were the booted install's p5 and p4 both times.
 
 Still open: the installer writes the same filesystem IDs into every install. Writing `/etc/fstab` with `PARTUUID=` (or giving each install fresh filesystem IDs) would remove the cause.

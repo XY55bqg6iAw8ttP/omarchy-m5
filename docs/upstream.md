@@ -19,21 +19,25 @@ Rules for sending:
 | drm/apple: soft-depend on the T6050 combo PHY module | [aurora-silicon/linux#1745](https://github.com/aurora-silicon/linux/pull/1745) | merged 2026-11-13 |
 | AVE: T6050 encoder on the 27.3 firmware | [aurora-silicon/linux#1747](https://github.com/aurora-silicon/linux/pull/1747) | merged 2026-11-13 |
 | ANE: T6050 on the 27.3 firmware | [aurora-silicon/linux#1746](https://github.com/aurora-silicon/linux/pull/1746) | open |
+| R1: two Omarchy installs on one disk share the boot filesystem IDs (issue, generator offered as one possible fix) | [omacom/omarchy-mac-installer#219](https://github.com/omacom/omarchy-mac-installer/issues/219) | issue opened 2026-11-14 |
+| T1 + T2: J714s on 27.2 results, with FatBoy721's HDMI v2 and Jens Axboe's #1645 | [omacom/linux-aurora#293 comment](https://github.com/omacom/linux-aurora/issues/293#issuecomment-6886977253) | posted 2026-11-14 |
 
 ## Ready to send (proven on the J714s)
 
-| # | Change | Evidence | Target | Status |
-| --- | --- | --- | --- | --- |
-| R1 | Mount `/boot` and `/boot/efi` from the partitions the system booted from (two Omarchy installs on one disk share filesystem IDs) | [`duplicate-boot-ids.md`](duplicate-boot-ids.md); reproduced, fixed, confirmed across two restarts (v272-4, v272-7) | to find: installer (fstab) or packages repo (generator) | to send |
-| R2 | Kernel config: the IPv6 hop-limit and routing-header matches `ufw`'s IPv6 rules need | commit `53d930d`; `ufw.service` failed on every boot before, starts by itself on v272-7 | to find: upstream kernel config, if it has the same gap | to check, then send |
-| R3 | J714s: load the `aop` module at boot after vendor firmware | firmware j714s9; sound cards at boot on v272-4 and v272-7 | to find: packages repo, if upstream has the same blacklist + skip | to check, then send |
+Nothing left here. Checked 2026-11-14:
+
+| # | Change | What upstream has | Outcome |
+| --- | --- | --- | --- |
+| R1 | Mount `/boot` and `/boot/efi` from the partitions the system booted from | omacom/omarchy-mac-installer `c07e54c` (head) still gives every image the same IDs (`build-mac-image` lines 27-30) and writes `/etc/fstab` by them. The app refuses to add a second install by design (b1dade4); #157 (open) plans multi-install. The fstab is written at image build, before any partition exists, and a generator would be new boot-critical code in omarchy-mac-boot, so the right place is the maintainers' call | issue [#219](https://github.com/omacom/omarchy-mac-installer/issues/219), generator offered as one option |
+| R2 | Kernel config: `NETFILTER_XT_MATCH_HL`, `IP6_NF_MATCH_HL`, `IP6_NF_MATCH_RT` (ufw's IPv6 rules) | omacom/omarchy-pkgs `pkgbuilds/linux-aurora/config` (master) already builds all three as modules, so ufw works on other Macs. The gap was only in our J714s recipe's config | not sent: already upstream |
+| R3 | J714s: load `aop` at boot | omacom/omarchy-pkgs `omarchy-aurora-firmware` (master) has the same `blacklist aop`, but its `aurora-peripheral-firmware.sh` has no J714s branch: every machine but the Neo reaches the final `modprobe aop`, in the initrd and again in the root stage (`20-aurora-vendor-order.conf`). The skip came from our own J714s (Centauri) branch. No open omarchy-pkgs pull request changes this | not sent: already handled upstream |
 
 ## Test reports for other people's work
 
 | # | Whose | What we saw on the J714s | Where to report | Status |
 | --- | --- | --- | --- | --- |
-| T1 | FatBoy721: T6050 HDMI (v2) | Samsung Odyssey G9 (G91SD), 27.2, kernel v272-7: 5120x1440 at 60/120/144 Hz and 3840x2160 at 60 Hz. With v1: 5120x1440 at 60 Hz worked, 3840x2160 at 60 Hz stayed blank | his pull request or branch, if one is open | to send |
-| T2 | Jens Axboe: 27.2 AOP endpoints (#1645, merged) | sound cards, sensors, speakerguardd v2 gate passes, speakers heard | owners' thread [omacom/linux-aurora#293](https://github.com/omacom/linux-aurora/issues/293) | to send |
+| T1 | FatBoy721: T6050 HDMI (v2) | Samsung Odyssey G9 (G91SD), 27.2, kernel v272-7: 5120x1440 at 60/120/144 Hz and 3840x2160 at 60 Hz. With v1: 5120x1440 at 60 Hz worked, 3840x2160 at 60 Hz stayed blank | he has no upstream pull request, issue or discussion for it (checked aurora-silicon/linux, omacom/linux-aurora), so it went into the T2 post, credited to him | sent in [#293](https://github.com/omacom/linux-aurora/issues/293#issuecomment-6886977253) |
+| T2 | Jens Axboe: 27.2 AOP endpoints (#1645, merged) | sound cards, sensors, speakerguardd v2 gate passes, speakers heard | owners' thread [omacom/linux-aurora#293](https://github.com/omacom/linux-aurora/issues/293) | sent: [comment](https://github.com/omacom/linux-aurora/issues/293#issuecomment-6886977253) (whole J714s 27.2 status; the right-port DisplayPort line left out the fault count) |
 | T3 | Isaac-Duarte: #1921 dock third display | applied on v272-7 together with the HDMI device tree; boots; USB-C DisplayPort on the left non-DFU port works. No dock tried. With HDMI and #1921 together no display engine is left as a merged-mode peer | nothing to report until a dock is tried | waiting on a test |
 
 ## Waiting on a test
@@ -52,4 +56,4 @@ Rules for sending:
 | P1 | DisplayPort on the right USB-C port never trains (twelve `link fault 22`, 640x480 fallback) | same on v272-4 and v272-7; left non-DFU port works |
 | P2 | The left DFU port shows no plug event and no display in Linux | the port is device-only in our build; check upstream's device tree |
 | P3 | A DisplayPort cable plugged in at boot was not detected once (replug fixed it) | seen once on v272-7 |
-| P4 | Every installer image writes the same filesystem IDs | R1 works around it for the boot partitions; the root ID is still shared |
+| P4 | Every installer image writes the same filesystem IDs | R1 works around it for the boot partitions; the root ID is still shared. Reported upstream in [omacom/omarchy-mac-installer#219](https://github.com/omacom/omarchy-mac-installer/issues/219) |
