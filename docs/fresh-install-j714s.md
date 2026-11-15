@@ -181,7 +181,10 @@ ssh $K $H 'sudo -S -p "" tar -C / -cpf - boot etc/fstab etc/modprobe.d var/lib/i
 unset PW
 
 # Check
-zstd -t "$B"/*.zst && tar -tf "$B/logo-files.tar.zst" | grep -E 'monitors.lua|g9-test.sh|aop-als-cal.bin|vendorfw/manifest.txt'
+zstd -t "$B"/*.zst
+zstd -dc "$B/p1-iboot-system-container.img.zst" | wc -c   # 576716800
+zstd -dc "$B/p8-dev-esp.img.zst" | wc -c                  # 499998720
+tar -tf "$B/logo-files.tar.zst" | grep -E 'monitors.lua|g9-test.sh|aop-als-cal.bin|vendorfw/manifest.txt'
 grep -c nvme0n1p "$B/gpt.sfdisk"     # 13
 ```
 
@@ -203,6 +206,11 @@ Notes:
 From the logo Omarchy: `sudo systemctl reboot`. A reboot goes to the default startup disk. That
 should be the old stub, so the catcher boots the dev Linux within about 2 minutes. Check over SSH
 that `uname -r` is the dev kernel, not `7.3.0-17.v272-11-ARCH`.
+
+On 2026-11-15 the catcher had its fallback flag set: its last upstream boot "was not up" because
+it checks `root@` SSH, which the logo install refuses. So the next catch boots the old daily
+kernel (`loader-daily-dcp-bm.bin`, 7.3.0-j714s-sleep). That is still the dev Linux. The catcher
+goes back to the upstream daily kernel on the catch after.
 
 This proves the lifeline works today and that the old stub is the default. If the logo Omarchy
 comes back instead, the default is the logo stub: fix that from macOS (6.4) before deleting
@@ -229,8 +237,9 @@ How it works:
 ```bash
 #!/bin/bash
 # fresh-cleanup.sh: remove the logo Omarchy (p3-p6) and the broken upstream install (p10-p12).
-#   bash ~/fresh-cleanup.sh            dry run, changes nothing
-#   bash ~/fresh-cleanup.sh --delete   deletes, asking "yes" before each step
+#   bash ~/fresh-cleanup.sh            dry run, changes nothing (asks for sudo to read the startup disk)
+#   bash ~/fresh-cleanup.sh --delete   deletes, asking "yes" before each step; all 7 targets must be present
+#   bash ~/fresh-cleanup.sh --resume   same, but allows targets that an earlier --delete already removed
 set -u
 DISK=disk0
 LOGO_VG=44EF390C-16A3-4083-9AB8-5A72E15CAE3A
@@ -286,10 +295,11 @@ die() { echo "STOP: $*"; exit 1; }
 
 check() {   # prints the plan; returns 1 if anything is off
   local bad=0 u off size name s c
+  MISSING=0
   [ "$(info $DISK Content)" = GUID_partition_scheme ] && [ "$(info $DISK Internal)" = true ] || { echo "STOP: $DISK is not the internal GPT disk"; return 1; }
   echo "== Will DELETE"
   read -r u off size name <<<"$STUB"; s=$(by_uuid "$u")
-  if [ -z "$s" ]; then echo "  $name: already gone"
+  if [ -z "$s" ]; then echo "  $name: already gone"; MISSING=$((MISSING+1))
   elif [ "$s" = DUP ]; then echo "  $name: UUID found twice - STOP"; bad=1
   else
     show "$s" "$name"; same_place "$s" "$off" "$size" || { echo "    offset/size differ - STOP"; bad=1; }
@@ -300,7 +310,7 @@ check() {   # prints the plan; returns 1 if anything is off
   fi
   while read -r u off size name; do
     s=$(by_uuid "$u")
-    if [ -z "$s" ]; then echo "  $name: already gone"
+    if [ -z "$s" ]; then echo "  $name: already gone"; MISSING=$((MISSING+1))
     elif [ "$s" = DUP ]; then echo "  $name: UUID found twice - STOP"; bad=1
     else show "$s" "$name"; same_place "$s" "$off" "$size" || { echo "    offset/size differ - STOP"; bad=1; }; fi
   done <<<"$PARTS"
@@ -310,7 +320,8 @@ check() {   # prints the plan; returns 1 if anything is off
     case "$s" in ""|DUP) echo "  $name ($u): missing or duplicated - STOP"; bad=1;; *) show "$s" "$name";; esac
   done <<<"$KEEP"
   echo "== Startup disk"
-  local b; b=$(bless --getBoot 2>/dev/null)
+  local b; b=$(sudo bless --getBoot 2>/dev/null)
+  [ -n "$b" ] || { echo "  bless --getBoot printed nothing - STOP"; return 1; }
   echo "  $b  group $(info "$b" APFSVolumeGroupID)  name $(info "$b" VolumeName)"
   [ "$(info "$b" APFSVolumeGroupID)" = "$LOGO_VG" ] && { echo "  the startup disk is the logo stub - STOP (see 6.4)"; bad=1; }
   return $bad
@@ -318,7 +329,12 @@ check() {   # prints the plan; returns 1 if anything is off
 
 diskutil list $DISK
 check || die "the disk is not as expected; nothing was changed"
-[ "${1:-}" = --delete ] || { echo; echo "Dry run. Nothing was changed."; exit 0; }
+MODE=${1:-}
+if [ "$MODE" != --delete ] && [ "$MODE" != --resume ]; then
+  [ $MISSING -gt 0 ] && echo "NOTE: $MISSING target(s) are already gone. Use --resume only if an earlier --delete removed them."
+  echo; echo "Dry run. Nothing was changed."; exit 0
+fi
+[ $MISSING -gt 0 ] && [ "$MODE" != --resume ] && die "$MISSING target(s) missing; refusing --delete (see --resume)"
 
 # 1. The stub first: if diskutil refuses, the ESP and Linux partitions are still intact.
 read -r u off size name <<<"$STUB"; s=$(by_uuid "$u")
@@ -353,8 +369,8 @@ echo; diskutil list $DISK; echo; check
 ### 6.2 Run it
 
 1. **Dry run:** `bash ~/fresh-cleanup.sh`. Read every line:
-   - DELETE lists 7 partitions. Their sizes are 6.0 GB, 524 MB, 2.1 GB, 128.8 GB, 53.0 GB,
-     2.1 GB and 524 MB. The stub line shows group `44EF390C-…` only.
+   - DELETE lists 7 partitions. Each offset and size in bytes matches the table in section 2,
+     and none says "already gone". The stub line shows group `44EF390C-…` only.
    - KEEP lists 6 partitions, three of them marked LIFELINE.
    - The startup disk's group is the old stub's (`A0D16C93-…`), not `44EF390C-…`.
    - It ends with "Dry run. Nothing was changed."
@@ -368,18 +384,15 @@ echo; diskutil list $DISK; echo; check
      stub container ~6.0 GB, EFI "OMARCHY" 500 MB, Linux ~64.4 GB, **(free space) ~55.6 GB**,
      Recovery;
    - `diskutil apfs listVolumeGroups | grep -i 44EF390C` prints nothing.
-4. **Installer check:** open Omarchy Installer (release 6) and let the welcome check finish.
-   - It must **not** say "Omarchy is already installed".
-   - The summary line should offer about 137 GB for Omarchy. The plan should take free space, not
-     shrink macOS.
-   - If either is wrong, quit the app and report.
-   - The refusal happens before any download or disk change, so this check is safe.
+4. **Don't open the installer yet.** Its check is part of owner step 3 in section 7, with the
+   release 6 app.
 
 Don't give the freed space back to macOS. With gap A gone, the app would install into the smaller
 gap B (1.2).
 
 If a command fails halfway, run the dry run again. It shows what is already gone and what is left.
-Then run `--delete` again: it skips what is gone.
+Then run `--resume`: it skips what is gone. Plain `--delete` refuses when any target is missing, so
+a UUID that doesn't match can't leave a stub behind while its partitions get erased.
 
 ### 6.3 Boot policy and the boot picker after the deletion
 
@@ -413,6 +426,57 @@ bless --getBoot                                # check: that same volume
 
 The stubs can all be called "Omarchy". Go by group, never by name or disk number.
 
+### 6.5 Giving freed space back to macOS (not in this test)
+
+Not part of this procedure (1.2). It is here for "give up" (section 10) or a later option C/D run.
+macOS can only grow into free space directly after it. While p7–p9 stay, that means gap A only.
+Gap B stays stranded behind the dev root.
+
+```bash
+# The macOS container's physical store, found by its partition UUID (p2)
+for s in $(diskutil list -plist disk0 > /tmp/l.plist; i=0; while id=$(plutil -extract AllDisksAndPartitions.0.Partitions.$i.DeviceIdentifier raw -o - /tmp/l.plist 2>/dev/null); do echo $id; i=$((i+1)); done); do
+  diskutil info -plist $s > /tmp/i.plist
+  [ "$(plutil -extract DiskUUID raw -o - /tmp/i.plist)" = 6C240721-970B-4C09-A6DA-D0DC00EE56B7 ] && echo "macOS store: $s"
+done
+diskutil apfs resizeContainer <store> limits     # MaximumSize should be about 137.4 GB larger than now
+sudo diskutil apfs resizeContainer <store> 0     # grow into all the free space after it
+```
+
+### 6.6 Check the lifeline again after the deletion
+
+The partition table just changed. Before installing, prove the dev path still boots:
+1. The agent makes sure the catcher runs (section 8).
+2. Restart macOS. The default is still the old stub, so the catcher boots the dev Linux.
+3. Over SSH: `uname -r` is the dev kernel, and `lsblk -o NAME,SIZE,PARTUUID /dev/nvme0n1` shows the
+   the old stub, `c3d4ebac-…` and `0079041f-…`, then Recovery, and nothing else after macOS. macOS
+   renumbered the GPT by offset when release 1 was installed, so expect p3, p4, p5 and Recovery p6
+   now; the PARTUUIDs are what count.
+4. This is the last point where the GPT backup can undo a wrong erase (`sfdisk` from here), because
+   nothing new has been written to the freed space yet.
+5. Then the owner holds the power button and picks macOS for section 7.
+
+### 6.7 Installer leftovers from release 1 on macOS
+
+Release 1's app ran on this Mac on 2026-11-13. Its helper and its records may still be there. List
+them, change nothing:
+
+```bash
+ls -la "/Applications/Omarchy Installer.app" /Library/LaunchDaemons/org.omarchy.installer.helper.plist \
+       /Library/PrivilegedHelperTools/ 2>&1 | grep -i -e omarchy -e 'No such'
+sudo ls -la /var/db/org.omarchy.installer /var/db/org.omarchy.installer.aside 2>&1
+defaults read "/Applications/Omarchy Installer.app/Contents/Info.plist" CFBundleVersion 2>&1
+```
+
+- Installing the release 6 package replaces the app in `/Applications`. The new app installs its own
+  helper.
+- `/var/db/org.omarchy.installer` holds the helper's install journals and any removal records. The
+  app refuses to install while an unfinished removal record exists. Release 1's install finished,
+  so its journal should not block. That is not proven.
+- If the release 6 app reports a helper problem or an old record, stop and send the agent the
+  message. Release 5's page removes the helper with
+  `sudo launchctl bootout system/org.omarchy.installer.helper` and then deleting its plist. Do that
+  only after the agent has saved a copy of `/var/db/org.omarchy.installer`.
+
 ## 7. Install release 6 (the owner's steps)
 
 Before step 5 the agent stops the catcher (section 8). Fill in the real release 6 file names.
@@ -424,8 +488,13 @@ Before step 5 the agent stops the catcher (section 8). Fill in the real release 
 2. **Install the package.** Double-click it. If macOS blocks it: System Settings → Privacy &
    Security → **Open Anyway**, then open it again.
 3. **Run Omarchy Installer.** It checks the Mac, then shows the plan.
-   - It must not say "Omarchy is already installed". If it does, stop and tell the agent.
-   - The plan should use the free space (about 137 GB). Take the largest size it offers.
+   - First check it is release 6's app: Omarchy Installer → About shows the build number from the
+     release page (or run
+     `defaults read "/Applications/Omarchy Installer.app/Contents/Info.plist" CFBundleVersion`).
+   - It must not say "Omarchy is already installed". If it does, stop and tell the agent. This
+     check comes before any download or disk change.
+   - The plan should use the free space (about 137 GB) and not shrink macOS. If it wants to shrink
+     macOS, stop and tell the agent. Take the largest size it offers.
    - Tick the backup box, click **Install**, and type your macOS name and password.
    - Keep the Mac awake and on the charger. It downloads the image and Apple's 27.2 firmware, then
      writes the disk. Expect roughly 20 to 40 minutes.
@@ -479,8 +548,13 @@ from iBoot has not been tried.
 So:
 - **Before the owner clicks Restart in Finish setup** (owner step 5), stop the catcher. Watch the
   cable passively instead:
+  `m5catch` was started with the script as the session's command, with no shell under it. So stop
+  it by killing the session, then check that nothing else waits on `/dev/m1n1`. Other agents' test
+  loops do too.
   ```sh
-  tmux send-keys -t m5catch C-c
+  tmux kill-session -t m5catch
+  pkill -f 'catch-loop|bmboot|chainload.py|test-once'
+  pgrep -af 'catch-loop|bmboot|chainload|test-once'       # must print nothing
   tmux new -d -s m5watch 'while :; do if [ -e /dev/m1n1 ]; then date; lsusb -d 1209:316d; sleep 20; fi; sleep 0.2; done >> ~/m5/tools/logs/aura-window.log 2>&1'
   ```
   `aura-window.log` then answers the open question: does the new install's 15 s window appear on
@@ -488,13 +562,17 @@ So:
 - **If the install loops**, or whenever the owner is about to pick the disk-icon Omarchy, start the
   catcher again first, then say "go":
   ```sh
-  tmux kill-session -t m5watch
-  tmux send-keys -t m5catch '~/m5/tools/catch-loop-up.sh' Enter
+  tmux kill-session -t m5watch 2>/dev/null
+  tmux has-session -t m5catch 2>/dev/null || tmux new-session -d -s m5catch 'cd ~/m5/tools && ./catch-loop-up.sh'
+  pgrep -af catch-loop-up                                  # must show the loop
   ```
 - **After the install the default startup disk is the new install** (the app runs
   `bless --setBoot` with the new stub, in macOS and again in Recovery). A Linux reboot of the new
   install comes back to the new install. The catcher is only needed for the boot picker's
   disk-icon choice.
+- Also, once the new install is the default, any `reboot` or watchdog reset on the dev path
+  (including `test-once-wdt.sh` and `bmboot-wdt.sh` fallbacks) lands in the new install, not back
+  in the catcher. Hands-free RAM tests need the old stub as the default again (6.4).
 - If the watcher shows the window does reach the cable, the catcher must learn to tell the old stub
   from Aura before it runs during new-install boots.
 
@@ -567,7 +645,7 @@ If the owner wants it, put the G9 line from 4 back into `~/.config/hypr/monitors
   RAM or on the new ESP only. Never write to p8 or p9: on 2026-11-11 a test file on the dev ESP
   cost the dev Linux its Wi-Fi and the owner several power cycles.
 - **Give up on release 6:** boot macOS, delete the new install's four partitions the same way
-  (new UUIDs), and install release 5.
+  (new UUIDs), and install release 5. To hand gap A back to macOS instead, see 6.5.
 - **macOS** is never modified apart from losing the partitions listed here. The owner can always
   pick it in the boot picker.
 
@@ -595,5 +673,7 @@ If the owner wants it, put the G9 line from 4 back into `~/.config/hypr/monitors
    anyone enrols there.
 5. The macOS shrink path stays untested by this run (1.3). Should a later run do option C or D?
 6. Gap B (55.6 GB) stays free. Leave it, or use it later for a second test install?
-7. After the test, should the old stub be the default again (6.4) for hands-free dev work, or should
+7. Does release 1's finished journal in `/var/db/org.omarchy.installer`, or its old helper, get in
+   the way of the release 6 app (6.7)?
+8. After the test, should the old stub be the default again (6.4) for hands-free dev work, or should
    the new install stay the default as for a normal user?
