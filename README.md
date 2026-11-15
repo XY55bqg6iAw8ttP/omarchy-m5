@@ -68,13 +68,14 @@ Steps (the release page has every detail):
 
 New in 4: `/boot` and `/boot/efi` are mounted from the partitions the system booted from, so a
 second Omarchy install on the same disk can't take this one's kernel updates
-([`docs/duplicate-boot-ids.md`](docs/duplicate-boot-ids.md); not yet tried across a restart).
+([`docs/duplicate-boot-ids.md`](docs/duplicate-boot-ids.md); confirmed across a restart).
 From 3: built-in sound on 27.2 (Jens Axboe's AOP fix: sound cards, microphones, lid and light
-sensors; loading the AOP driver at boot is untried on the Mac, `sudo modprobe aop` if missing). On
-TripleU613's J714s speakerguardd v2 passed its checks and owns the speakers (first start at 30%);
-nobody has listened yet, so follow the low-level test before playing loud. Known gaps:
-`ufw.service` fails, AVE is probe only, HDMI on 27.2 untested with a monitor, the v272-4 kernel not
-yet through a restart, and no fresh install with the installer yet. To go back: hold the power button at startup and pick macOS.
+sensors; the AOP driver loads at boot by itself). On TripleU613's J714s speakerguardd v2 passed
+its checks and owns the speakers, and they were heard at the first-start 30% (2026-11-14); nobody
+has played loud yet, so follow the low-level test before turning it up. The v272-4 kernel came
+through a restart there with sound, Neural Engine, camera, Wi-Fi and Bluetooth up. Known gaps:
+`ufw.service` fails (fixed in the next kernel), AVE is probe only, HDMI on 27.2 untested with a
+monitor, and no fresh install with the installer yet. To go back: hold the power button at startup and pick macOS.
 
 Older images are **superseded** by omarchy-j714s 4 and no longer the way to install:
 `j714s-developer-image-2026.11.11-7` (stable, 27.3 beta stub, installed from Linux with
