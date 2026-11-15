@@ -1,0 +1,204 @@
+#!/bin/bash
+# SPDX-License-Identifier: MIT
+# One boot guard for every M5 image (betizzel/omarchy-m5#12). The board comes from the device
+# tree's compatible: apple,k114s is a K114s, anything else is judged as the J714s image always was.
+#
+#   m5-boot-guard [packages]  00-omarchy-m5-boot-guard.hook, with the package names on stdin
+#   m5-boot-guard esp         01-omarchy-m5-esp-space.hook (K114s only; the J714s is unchanged)
+#
+# packages: stop a pacman transaction that would replace this image's boot packages with builds
+# that are not M5 builds, or remove them (betizzel/omarchy-m5#11). On a K114s it also stops one
+# that would leave m1n1/boot-ctxr.bin without a K114s device tree (the Stage 2 check below).
+#
+# ALPM tells a hook only the names, so the incoming version is found the way pacman found it:
+# a package file named on pacman's command line (pacman -U), otherwise the first repository that
+# lists the name (pacman -S/-Su, what an Omarchy channel switch runs). J714s builds carry v272,
+# up273 or j714s in their version (linux-aurora 7.3.0.aurora17.v272-11, m1n1-aurora
+# 1.6.1.aurora24.v272-3, uboot-aurora 2026.07.aurora6.j714s3, omarchy-aurora-firmware
+# 20261014.j714s11; the K114s image carries the same builds); the channel's generic builds do not.
+# Anything it cannot tell is refused.
+set -u
+export LC_ALL=C
+
+# pacman hooks inherit the environment of whoever ran pacman, so the test overrides count only
+# under M5_GUARD_TEST ("sudo env M5_ROOT=... pacman" must not move the guard).
+if [[ -z ${M5_GUARD_TEST:-} ]]; then unset M5_ROOT M5_DT_COMPATIBLE M5_NO_MOUNTCHECK M5_ESP_MIN_FREE; fi
+root=${M5_ROOT:-}
+compat=${M5_DT_COMPATIBLE:-/proc/device-tree/compatible}
+[[ -r $compat || -n ${M5_DT_COMPATIBLE:-} ]] || compat=/sys/firmware/devicetree/base/compatible
+# An unreadable device tree is a J714s: what this guard was before it knew another board.
+# Limit: a chroot or container on a K114s host that can still read the device tree is a K114s too,
+# so there the ESP and Stage 2 checks stop unless /boot/efi is mounted in it. Telling a chroot
+# apart needs root (/proc/1/root), and a wrong guess would skip the checks on a real boot, so the
+# guard does not try.
+board=j714s
+grep -zFxq 'apple,k114s' "$compat" 2>/dev/null && board=k114s
+if [[ $board == k114s ]]; then
+  label=K114s what="Mac's (K114s)"
+else
+  label=J714s what="MacBook Pro's (J714s)"
+fi
+allow=$root/etc/omarchy-$board/allow-boot-package-change
+esp=$root/boot/efi
+is_m5_build() { [[ $1 =~ [.](v272|up273|j714s) ]]; }
+# a failed ESP mount (fstab nofail) would make df report the root filesystem
+esp_mounted() { [[ -n ${M5_NO_MOUNTCHECK:-} ]] || mountpoint -q "$esp"; }
+
+# K114s: package updates rebuild boot images (mkinitcpio, Limine) and copy them for snapshots on
+# the EFI partition. On a nearly full one a copy would fail half-way. The check runs before
+# pacman changes anything, so a stop leaves the system as it was. Triggered by the files a rebuild
+# reads (the kernel, device trees, initcpio and the stock mkinitcpio hooks' own triggers, firmware,
+# dkms, Limine, and the boot packages), not by every transaction (01-omarchy-m5-esp-space.hook), so
+# a full ESP does not block updates that never touch /boot/efi.
+esp_space() {
+  local min=${M5_ESP_MIN_FREE:-104857600} free
+  esp_mounted || {
+    echo "K114s space guard: stopped. /boot/efi is not mounted, so its free space cannot be checked. Mount it (sudo mount /boot/efi) and retry. Nothing has been changed." >&2
+    exit 1
+  }
+  # allow-low-esp overrides the space check only, never the mount check: removal with the ESP
+  # unmounted writes into the root filesystem
+  [[ -e $root/etc/omarchy-k114s/allow-low-esp ]] && exit 0
+  free=$(df -B1 --output=avail "$esp" 2>/dev/null | tail -n 1 | tr -d ' ')
+  case $free in
+    '' | *[!0-9]*)
+      echo "K114s space guard: stopped. The free space of /boot/efi could not be read (df failed). Nothing has been changed." >&2
+      exit 1 ;;
+  esac
+  ((free >= min)) && exit 0
+  cat >&2 <<MSG
+K114s space guard: stopped. The EFI partition (/boot/efi) has $((free / 1048576)) MiB free, and a package
+update can rebuild an 80 MB boot image there; it needs at least $((min / 1048576)) MiB ($((min / 1000000)) MB). Nothing has been changed.
+This is expected on this Mac until the EFI partition has more room.
+To go ahead anyway (low space only; an unmounted ESP always stops):  sudo touch /etc/omarchy-k114s/allow-low-esp   and remove it afterwards.
+MSG
+  exit 1
+}
+
+if [[ ${1:-packages} == esp ]]; then
+  [[ $board == k114s ]] && esp_space
+  exit 0
+fi
+
+# K114s Stage 2: the image's pacman hook copies m1n1/boot.bin over m1n1/boot-ctxr.bin after a
+# boot package changes. A K114s keeps its own Stage 2 there, with the K114s device tree, and
+# boot.bin's packaged K114s tree lacks what the K114s needs (Aura then refuses to start Linux).
+# So the Stage 2 must already carry a K114s tree, and the image's hook helper must know it.
+# Limit: this runs from 00-omarchy-m5-boot-guard.hook, i.e. for the four M5 package names, not for
+# the stock hook's paths; another package shipping those paths is not checked here.
+stage2_problem() {
+  local ctxr=$esp/m1n1/boot-ctxr.bin helper=$root/usr/local/lib/omarchy-j714s/update-boot-ctxr
+  esp_mounted || { echo "/boot/efi is not mounted, so m1n1/boot-ctxr.bin cannot be checked"; return; }
+  [[ -s $ctxr ]] || { echo "m1n1/boot-ctxr.bin is missing or empty"; return; }
+  grep -aq 'apple,k114s' "$ctxr" || { echo "m1n1/boot-ctxr.bin has no apple,k114s device tree"; return; }
+  # boot.bin also packages a K114s tree, so a copy of it passes the grep; the pinned one differs
+  ! cmp -s "$esp/m1n1/boot.bin" "$ctxr" || { echo "m1n1/boot-ctxr.bin is a copy of m1n1/boot.bin, not the pinned K114s Stage 2"; return; }
+  if [[ -f $helper ]] && ! grep -qi k114s "$helper"; then
+    echo "the image's Stage 2 hook ($helper) would copy boot.bin over it, losing the K114s tree"
+  fi
+}
+
+mapfile -t targets
+((${#targets[@]})) || exit 0
+
+# A package file name, name-pkgver-pkgrel-arch.pkg.tar.*, as "name version".
+from_name() {
+  local base=${1##*/}
+  base=${base%.pkg.tar*} base=${base%-*}
+  echo "${base%-*-*} ${base#"${base%-*-*}"-}"
+}
+
+# pacman's command line (this hook's parent). pacman has changed to / by now, so a relative
+# file is looked for from the directory pacman was started in ($PWD in its environment), and
+# read by its file name if it can't be found there.
+args=() remove=false pwd=
+if [[ $(cat "/proc/$PPID/comm" 2>/dev/null) == pacman ]]; then
+  mapfile -d '' -t args < "/proc/$PPID/cmdline"
+  args=("${args[@]:1}")
+  pwd=$(tr '\0' '\n' < "/proc/$PPID/environ" 2>/dev/null | sed -n 's/^PWD=//p')
+fi
+declare -A file_ver=() repo_of=()
+for arg in "${args[@]}"; do
+  # pacman's operations are the upper-case short options; R is remove (-R, -Rns, --remove).
+  case $arg in
+    --remove) remove=true ;;
+    --*) ;;
+    -*R*) remove=true ;;
+  esac
+  case $arg in
+    -*) ;;
+    *://*.pkg.tar*)
+      read -r name ver < <(from_name "$arg"); file_ver[$name]=$ver ;;
+    *.pkg.tar*)
+      path=$arg; [[ $path == /* || -z $pwd ]] || path=$pwd/$path
+      read -r name ver < <(pacman -Qp "$path" 2>/dev/null || from_name "$arg")
+      file_ver[$name]=$ver ;;
+    */*) repo_of[${arg#*/}]=$arg ;;
+  esac
+done
+
+problems=()
+for name in "${targets[@]}"; do
+  have=$(pacman -Q "$name" 2>/dev/null | cut -d' ' -f2)
+  if $remove; then
+    problems+=("$name ${have:-?} -> removed")
+    continue
+  fi
+  new=${file_ver[$name]:-}
+  if [[ -z $new ]]; then
+    new=$(pacman -Si "${repo_of[$name]:-$name}" 2>/dev/null | awk -F' *: ' '$1 == "Version" { print $2; exit }')
+  fi
+  if [[ -z $new ]]; then
+    problems+=("$name ${have:-?} -> (cannot tell which build)")
+  elif ! is_m5_build "$new"; then
+    problems+=("$name ${have:-?} -> $new")
+  fi
+done
+stage2=
+[[ $board == k114s ]] && stage2=$(stage2_problem)
+[[ -n $stage2 ]] && problems+=("Stage 2: $stage2")
+((${#problems[@]})) || exit 0
+
+if [[ -e $allow ]]; then
+  rm -f "$allow"
+  echo "omarchy-$board boot guard: ${allow#"$root"} was set, so this change is allowed once:"
+  printf '  %s\n' "${problems[@]}"
+  exit 0
+fi
+
+# omarchy-refresh-pacman copies pacman.conf to pacman.conf.bak on every run, so a second run
+# (its error text says to rerun) would leave no pinned copy. Keep one where it never writes.
+saved=$root/etc/pacman.conf.$board-pinned
+if ! grep -q '^IgnorePkg' "$root/etc/pacman.conf" 2>/dev/null && grep -q '^IgnorePkg' "$root/etc/pacman.conf.bak" 2>/dev/null; then
+  cp -f "$root/etc/pacman.conf.bak" "$saved" 2>/dev/null
+fi
+if grep -q '^IgnorePkg' "$saved" 2>/dev/null; then
+  restore="      sudo cp ${saved#"$root"} /etc/pacman.conf
+    (${saved#"$root"} is your pacman.conf from before it was overwritten, kept by this guard)"
+else
+  restore="      add an IgnorePkg line for the packages above under [options] in /etc/pacman.conf"
+fi
+
+note=
+[[ -n $stage2 ]] && note="
+    (A Stage 2 line means the K114s Stage 2 would not survive: the K114s boot-chain add-on from
+    chrisohearn/omarchy-m5p-oled installs the hook helper that keeps its device tree.)"
+
+cat >&2 <<EOF
+
+==> STOPPED by the $label boot guard. Nothing has been changed.
+    This would replace or remove this $what boot packages with builds that
+    have no $label support, and the next boot would most likely not start Linux:
+$(printf '      %s\n' "${problems[@]}")${note}
+
+    Usually /etc/pacman.conf has lost the image's IgnorePkg line: an Omarchy channel switch
+    (Update > Channel), 'omarchy refresh pacman' and 'omarchy reinstall' overwrite that file.
+    Don't use those on this image for now. To put the line back:
+$restore
+    then run the update again. https://github.com/betizzel/omarchy-m5/issues/11
+
+    Only if you really mean to make this change: sudo mkdir -p ${allow%/*} && sudo touch $allow
+    (allows one transaction), then run the same command again.
+
+EOF
+exit 1
