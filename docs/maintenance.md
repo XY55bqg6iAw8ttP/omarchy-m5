@@ -75,7 +75,7 @@ contributors) and Satya Benson (satchlj, an aurora-silicon member). The #293 com
 
 | Item | From | What we did | State |
 | --- | --- | --- | --- |
-| [#11](https://github.com/betizzel/omarchy-m5/issues/11) A channel switch, `omarchy refresh pacman` or `omarchy reinstall` drops the image's `IgnorePkg` pin and downgrades the kernel, m1n1 and U-Boot | chrisohearn | Confirmed against omacom/omarchy v4.5.0 (`omarchy-refresh-pacman` copies the channel template over `/etc/pacman.conf`, then `pacman -Syyuu`). Fix (646d264, refined in a later commit): firmware j714s11 ships a pacman hook outside `pacman.conf` (`00-omarchy-j714s-boot-guard.hook` + `j714s-boot-guard`) that stops any transaction replacing `linux-aurora`, `m1n1-aurora`, `uboot-aurora` or `omarchy-aurora-firmware` with a build that isn't a J714s build, or removing them. Tested in a throwaway container on ush (below). Not in an image yet | open until it ships in an image |
+| [#11](https://github.com/betizzel/omarchy-m5/issues/11) A channel switch, `omarchy refresh pacman` or `omarchy reinstall` drops the image's `IgnorePkg` pin and downgrades the kernel, m1n1 and U-Boot | chrisohearn | Confirmed against omacom/omarchy v4.5.0 (`omarchy-refresh-pacman` copies the channel template over `/etc/pacman.conf`, then `pacman -Syyuu`). Fix (646d264, refined in a later commit): firmware j714s11 ships a pacman hook outside `pacman.conf` (`00-omarchy-j714s-boot-guard.hook` + `j714s-boot-guard`) that stops any transaction replacing `linux-aurora`, `m1n1-aurora`, `uboot-aurora` or `omarchy-aurora-firmware` with a build that isn't a J714s build, or removing them. Tested in a throwaway container on ush and on the J714s (below). Shipped in firmware j714s12 in [release 7](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-7) | closed after release 7 was published |
 | [#10](https://github.com/betizzel/omarchy-m5/issues/10) K114s on release 3, `apple,k114s` installer admission offered | chrisohearn | Said yes to a PR, labelled as tested on his machine only, with the README pointing K114s owners to [his repo](https://github.com/chrisohearn/omarchy-m5p-oled). The trackpad fix he found (aurora-silicon/linux #1568, open draft for the K114c) isn't needed on the J714s, whose trackpad already works, and isn't in our series | open, waiting for his PR |
 | [#9](https://github.com/betizzel/omarchy-m5/issues/9) Kernel config: ufw `hl`/`rt` matches, RFCOMM, `pkcs8_key_parser` | chrisohearn | ufw matches since kernel v272-7 (release 5), RFCOMM and PKCS8 since v272-9; both modules load on v272-11 on the J714s | closed after [release 6](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6) (v272-11) was published |
 | [#8](https://github.com/betizzel/omarchy-m5/issues/8) hyprland-m5 0.57.2-2 moves `CMonitor` members, the stock titlebars plugin aborts Hyprland | chrisohearn | Fixed in hyprland-m5 0.57.2-3 (41d8d77, his fix 1). Crash reproduced on -2 and gone on -3 on the J714s ([upstream tracker](upstream.md)) | closed after [release 6](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6) (hyprland-m5 0.57.2-3) was published |
@@ -131,5 +131,25 @@ same environment.
 **Limits.** A libalpm front end other than pacman (pamac) gives no command line to read, so a
 `-U` through it falls back to the repository version and may be refused (fail closed). If the
 image builder upgrades these packages inside a target root after this firmware package is
-installed, the hook runs there too. The next image build will show whether that happens. Not
-installed on any Mac.
+installed, the hook runs there too. It doesn't: the builder installs the firmware package in the
+same fresh `pacman -S` as the kernel, m1n1 and U-Boot (no upgrade, and the hook isn't on disk yet),
+and release 7's image (run 43743352382) and update-check (run 43745245431) logs show the hook never ran.
+
+**On the J714s, 2026-11-15 (release 7).** Firmware j714s12 (`4486b6c5…`, 52467 bytes, from
+101a6e6: j714s11's guard plus the speaker switch-over waiting for the speaker card) was installed
+with `pacman -U` over j714s10 on TripleU613's J714s, running release 6 from its from-scratch
+install, without a reboot. The same steps were rehearsed first in a throwaway container on ush.
+
+| Case | Result |
+| --- | --- |
+| `pacman -U` j714s12 over j714s10 | goes through (the hook isn't on disk until this transaction ends) |
+| `pacman -U` j714s12 again (reinstall) | goes through; "Checking that the J714s boot packages stay J714s builds..." runs first |
+| Override file absent; `pacman -U --noconfirm` of a fake generic `linux-aurora 7.2.11.aurora16-1` (one empty file) | **stopped** by the guard, exit 1, "no packages were upgraded" |
+
+Before and after the refusal: `linux-aurora 7.3.0.aurora17.v272-11`, `m1n1-aurora
+1.6.1.aurora24.v272-3`, `uboot-aurora 2026.07.aurora6.j714s3-1`; sha256 of `/boot/vmlinuz-linux-aurora`
+`0779a659…`, the initramfs `b160b621…`, the UKI `0f728ed7…`, `limine.conf` `263d2f33…`,
+`m1n1/boot-ctxr.bin` `bf702326…` and `/etc/pacman.conf` `4fb09042…`, all unchanged (also across the
+j714s12 install, whose initramfs rebuild came out byte-identical); `pacman -Qk` found no missing files.
+`systemctl cat aurora-speaker-upgrade` shows the new `ExecStartPre`. The speaker wait has not been
+through a boot yet.

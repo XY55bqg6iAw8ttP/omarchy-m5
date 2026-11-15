@@ -6,7 +6,9 @@ We don't reinvent anything. A lot of people are getting Linux running on the M5 
 in their own repo. We collect the parts that already work, put them together in **one image
 with one installer**, test it on a real J714s, and say who made each part.
 
-**The image: [omarchy-j714s 6](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6)** (prerelease).
+**The image: [omarchy-j714s 7](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-7)** (prerelease): release 6 plus a boot guard
+(the image refuses to let pacman replace its kernel, m1n1, U-Boot or firmware package with builds
+that don't boot this Mac, [#11](https://github.com/betizzel/omarchy-m5/issues/11)) and the speaker switch-over fix.
 
 **Send your M5 work here.** If you have something working on an M5 Mac, open a pull request
 under your own name ([how](CONTRIBUTING.md)); keep your upstream pull request, and we drop our
@@ -19,11 +21,12 @@ as tested, and the known gaps are listed, not hidden.
 
 Checked on one J714s (TripleU613's) on Apple's 27.2 firmware. On 2026-11-15 release 6 was
 installed **from scratch** there: the installer shrank macOS, installed, Finish setup in Recovery
-worked and the first boot came up on kernel v272-11. "Seen" and "heard" mean its owner looked or
+worked and the first boot came up on kernel v272-11. Release 7 is release 6 with one package
+changed (firmware j714s12: the boot guard and the speaker switch-over timing). "Seen" and "heard" mean its owner looked or
 listened; the display and speaker rows were seen and heard on release 5's kernel (v272-7,
 2026-11-14) and have not been re-checked by eye or ear on the fresh install yet.
 
-| Thing | Release 6 | Whose work |
+| Thing | Release 6 and 7 | Whose work |
 | --- | --- | --- |
 | Boots from the Mac's own disk, all 15 CPU cores at EL2 | ✅ | aurora-silicon, DjDeveloperr, rolotrealanis98, betizzel, RyanTheTide |
 | Keyboard, backlight, trackpad | ✅ | rolotrealanis98, edimoldovan |
@@ -31,7 +34,7 @@ listened; the display and speaker rows were seen and heard on release 5's kernel
 | Bluetooth | 🟡 on; RFCOMM loads (for hands-free and headset profiles); headset audio not tried | same, chrisohearn (report) |
 | GPU (Vulkan, the desktop renders on it) | ✅ | TripleU613, betizzel, DjDeveloperr, rolotrealanis98, joshuaswarren |
 | Screen: full panel, 3024x1964 at 120 Hz | ✅ seen | FatBoy721, edimoldovan, rolotrealanis98, betizzel |
-| Speakers, with speaker protection | ✅ heard at the first-start 30% (release 5's kernel); on the fresh install the switch-over to speakerguardd v2 ran too early at first boot and passed when run by hand (fixed for the next image); nobody has played loud yet | DjDeveloperr (speakerguardd v2), Jens Axboe (27.2 AOP fix) |
+| Speakers, with speaker protection | ✅ heard at the first-start 30% (release 5's kernel); on release 6's fresh install the switch-over to speakerguardd v2 ran too early at first boot and passed when run by hand (fixed in 7: it waits for the speaker card; not yet seen through a first boot); nobody has played loud yet | DjDeveloperr (speakerguardd v2), Jens Axboe (27.2 AOP fix) |
 | Microphones | 🟡 very faint | edimoldovan, kazuhidet |
 | Headphone jack | untested on 27.2 | rolotrealanis98, edimoldovan |
 | HDMI | ✅ seen on a Samsung Odyssey G9: 5120x1440 at 60/120/144 Hz, 3840x2160 at 60 Hz (release 5's kernel; not re-checked on 6 yet) | FatBoy721 |
@@ -67,7 +70,7 @@ It runs on a Mac, not from a Linux PC. You need:
 - **macOS 27.2 or newer** on it, FileVault on, an administrator account.
 - About **35 GB free** on the Mac's disk, the charger, and about an hour.
 
-Steps (the [release page](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6) has every detail):
+Steps (the [release page](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-7) has every detail):
 
 1. **Download** the installer package from the release (online: small; offline: the `.partN`
    files joined) and check it against `SHA256SUMS`.
@@ -85,7 +88,7 @@ Steps (the [release page](https://github.com/betizzel/omarchy-m5/releases/tag/om
 
 Stuck? Open an [issue](https://github.com/betizzel/omarchy-m5/issues) and paste what you see.
 
-Earlier releases (1 to 5) and the older developer images are superseded; what each one was and
+Earlier releases (1 to 6) and the older developer images are superseded; what each one was and
 why it was replaced is in [`docs/status-and-history.md`](docs/status-and-history.md). What is
 being sent upstream, and what waits on a test first, is in [`docs/upstream.md`](docs/upstream.md).
 
