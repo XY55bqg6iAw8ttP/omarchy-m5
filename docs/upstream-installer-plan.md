@@ -113,8 +113,7 @@ depends on our build: our ad hoc developer app and sealed catalog, our engine re
 `v0.9.2-omarchy.20261113.774d9abc59d3`, our Recovery app (run 43477703681), and our packages
 (linux-aurora = aurora-silicon/linux a5ebec5f + 32 patches; m1n1-aurora = Aura 22b71758 + FatBoy721's
 DP PHY tunables). The install ran with the 15 s Stage 1 proxy window and `--compress` on (j714s/0008).
-The install result comes from the owner's report of 2026-11-15; `docs/fresh-install-j714s.md` does not
-record it yet.
+The install result is recorded in the [README](../README.md) status (commit ab12f07).
 
 ## 4. Follow-up pull requests, in order
 
