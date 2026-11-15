@@ -2,6 +2,75 @@
 
 Pull requests and issues on this repo: what came in, what we did, where it stands. Newest first.
 
+## 2026-11-15: invitation to send M5 work here
+
+Added [`CONTRIBUTING.md`](../CONTRIBUTING.md), a pull request template and a hardware test report
+issue template (commit 213aea2), and a short "Send your M5 work here" paragraph at the top of the
+README. Then posted:
+
+| Where | Link |
+| --- | --- |
+| Pinned issue in this repo | [#12](https://github.com/betizzel/omarchy-m5/issues/12) |
+| M5 owners' thread | [omacom/linux-aurora#293 comment](https://github.com/omacom/linux-aurora/issues/293#issuecomment-6898406716) |
+
+@-mentioned in #12 (each checked against this repo or their public M5 work first): rolotrealanis98,
+edimoldovan, FatBoy721, Isaac-Duarte, chrisohearn, joshuaswarren, sithglan, erikwb, MarianoMiguel,
+kazuhidet, funkzy, MikaVohl, nickyrice04, XY55bqg6iAw8ttP. Thanked by name only, not asked to send
+work here: DjDeveloperr, Ryan Murray, Jens Axboe, Diljit Singh (aurora-silicon maintainers and core
+contributors) and Satya Benson (satchlj, an aurora-silicon member). The #293 comment mentions nobody.
+
+### #12 text
+
+> This repo builds one **edge** Omarchy image for the 14-inch MacBook Pro with M5 Pro (J714s) today, from the work of many people, with each part credited. If you work on Linux or Omarchy for an M5 Mac, you are welcome to send your work here.
+>
+> ## What is in it now
+>
+> [Release 6](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6) (a prerelease), kernel v272-11, Apple's 27.2 firmware. On one J714s: all 15 CPU cores, GPU, the internal panel at 120 Hz, keyboard and trackpad, Wi-Fi, Bluetooth, sound cards and speakers behind speaker protection, fan control, firewall. HDMI and DisplayPort on the left USB-C port were seen on release 5's kernel. Open: the right USB-C port and the DFU port show no picture, no deep sleep, microphones are very faint, the camera and Neural Engine come up as devices but no picture or workload has been checked. The full table, with whose work each row is, is in the [README](https://github.com/betizzel/omarchy-m5#what-works).
+>
+> Today (2026-11-15) the first from-scratch install of release 6 passed on that J714s: the installer shrank macOS and installed; kernel v272-11; sound cards, Neural Engine and camera devices, Wi-Fi, Bluetooth and the firewall came up. The speaker switch-over ran before the speaker card appeared at first boot and passed when run by hand; the fix (firmware j714s12) is committed and goes into the next image. External displays have not been re-checked on this install yet.
+>
+> ## How to send your work
+>
+> - **Open a pull request here with your own patch, recipe or doc change**, under your own name: `git format-patch` from your branch keeps your `From:` and `Signed-off-by:`. [CONTRIBUTING.md](https://github.com/betizzel/omarchy-m5/blob/main/CONTRIBUTING.md) says which directory holds what.
+> - **Keep your upstream pull request** (aurora-silicon/linux, aurora-silicon/aura, omacom). Upstream is the goal; this repo carries a copy until yours merges there, then drops it.
+> - **Test reports** are welcome too: [test report template](https://github.com/betizzel/omarchy-m5/issues/new?template=test-report.md). Please say what you saw on the hardware and what you only checked by command.
+> - **Other M5 boards** are welcome when their owner tests them. A board gets its own image once an owner of that board has tested it here.
+>
+> ## People whose work is already in it or who are working on M5 boards
+>
+> - @rolotrealanis98 (J716s): the 27.2/27.3 GPU InitData and firmware 27 display patches (kernel 0001-0004), panel VRR (0014).
+> - @edimoldovan (J714c): front camera tuning and the camera light (kernel 0007-0009, 0011-0013), the J714 sound profiles.
+> - @FatBoy721 (J714s): the HDMI port, HDMI hold and HPD forwarding (kernel 0017-0019, Aura 0007), seen on a Samsung Odyssey G9.
+> - @Isaac-Duarte (J714s): fan targets (kernel 0024, reproduced here), dock display routing and the DP tunnel fix (0020-0023, 0025-0026; carried, no dock tried here yet).
+> - @chrisohearn (K114s): the reports behind release 6's RFCOMM and hyprland-m5 fixes and the boot guard (#8, #9, #11), and the K114s installer admission offered in #10.
+> - @joshuaswarren: J714c and T6050 work in the kernel base (tiled 5K displays, firmware 27 display modes) and the M5 Max 27.3 GPU build in Aura 0003.
+> - @sithglan (K116s): sent the K114/K116 27.2 GPU identity (kernel 0005) and the PMP power domains through s2idle (0028); the Aura chainload copy stub.
+> - @erikwb: T6050 USB4 and external display work in the kernel base, which USB-C DisplayPort builds on.
+> - @MarianoMiguel: the T6050 die0 range over the ISP watchdog, merged upstream and in the kernel base.
+> - @kazuhidet (M4 Air): the busy-card discovery in the firmware package that lets PipeWire find the speakers.
+> - @funkzy: an earlier 27.2 display method table (credited in the older `patches/linux-aurora` series); M5 Ultra Mac Studio work, watched.
+> - @MikaVohl (J716s): the omarchy-M5-pro repo, watched.
+> - @nickyrice04 (M5 Max): the ilinux repo, watched.
+> - @XY55bqg6iAw8ttP (J714c): the trackpad reset, SMC sensors and keyboard backlight device tree upstream, watched.
+>
+> If you are missing from this list, or something here is wrong, please say so below.
+>
+> ## Thanks
+>
+> The image is built on aurora-silicon and omacom. Thank you to DjDeveloperr, Ryan Murray (RyanTheTide), Jens Axboe, Diljit Singh, Satya Benson and everyone else working there: the kernel, Aura, the M5 device trees, speaker protection and the GPU driver this image uses are theirs.
+>
+> 🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+### #293 comment text
+
+> J714s (14-inch M5 Pro) update: [omarchy-j714s 6](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6) is out as an edge (prerelease) image, kernel v272-11 on the 27.2 stub.
+>
+> Today the first from-scratch install of it passed on one J714s: the installer shrank macOS and installed, and on first boot the sound cards, Neural Engine and camera devices, Wi-Fi, Bluetooth and the firewall came up. The speakers needed the speaker switch-over run by hand (it ran before the speaker card appeared; the fix is committed for the next image). External displays have not been re-checked on this install yet.
+>
+> Anyone who wants to send M5 work there under their own name, or post a test report from their board, is welcome: https://github.com/betizzel/omarchy-m5/issues/12. Upstream pull requests stay the goal; the repo drops its copy of a change once it merges upstream.
+>
+> 🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
 ## 2026-11-15
 
 | Item | From | What we did | State |
