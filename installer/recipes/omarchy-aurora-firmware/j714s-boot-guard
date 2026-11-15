@@ -1,0 +1,101 @@
+#!/bin/bash
+# SPDX-License-Identifier: MIT
+# Stop a pacman transaction that would replace this J714s image's boot packages with builds that
+# are not J714s builds, or remove them (betizzel/omarchy-m5#11). Run by
+# 00-omarchy-j714s-boot-guard.hook before the transaction, with the package names on stdin.
+#
+# ALPM tells a hook only the names, so the incoming version is found the way pacman found it:
+# a package file named on pacman's command line (pacman -U), otherwise the first repository that
+# lists the name (pacman -S/-Su, what an Omarchy channel switch runs). J714s builds carry v272,
+# up273 or j714s in their version (linux-aurora 7.3.0.aurora17.v272-11, m1n1-aurora
+# 1.6.1.aurora24.v272-3, uboot-aurora 2026.07.aurora6.j714s3, omarchy-aurora-firmware
+# 20261014.j714s11); the channel's generic builds do not. Anything it cannot tell is refused.
+set -u
+export LC_ALL=C
+
+allow=/etc/omarchy-j714s/allow-boot-package-change
+is_j714s() { [[ $1 =~ [.](v272|up273|j714s) ]]; }
+
+mapfile -t targets
+((${#targets[@]})) || exit 0
+
+# A package file name, name-pkgver-pkgrel-arch.pkg.tar.*, as "name version".
+from_name() {
+  local base=${1##*/}
+  base=${base%.pkg.tar*} base=${base%-*}
+  echo "${base%-*-*} ${base#"${base%-*-*}"-}"
+}
+
+# pacman's command line (this hook's parent). pacman has changed to / by now, so a relative
+# file is looked for from the directory pacman was started in ($PWD in its environment), and
+# read by its file name if it can't be found there.
+args=() remove=false pwd=
+if [[ $(cat "/proc/$PPID/comm" 2>/dev/null) == pacman ]]; then
+  mapfile -d '' -t args < "/proc/$PPID/cmdline"
+  args=("${args[@]:1}")
+  pwd=$(tr '\0' '\n' < "/proc/$PPID/environ" 2>/dev/null | sed -n 's/^PWD=//p')
+fi
+declare -A file_ver=() repo_of=()
+for arg in "${args[@]}"; do
+  # pacman's operations are the upper-case short options; R is remove (-R, -Rns, --remove).
+  case $arg in
+    --remove) remove=true ;;
+    --*) ;;
+    -*R*) remove=true ;;
+  esac
+  case $arg in
+    -*) ;;
+    *://*.pkg.tar*)
+      read -r name ver < <(from_name "$arg"); file_ver[$name]=$ver ;;
+    *.pkg.tar*)
+      path=$arg; [[ $path == /* || -z $pwd ]] || path=$pwd/$path
+      read -r name ver < <(pacman -Qp "$path" 2>/dev/null || from_name "$arg")
+      file_ver[$name]=$ver ;;
+    */*) repo_of[${arg#*/}]=$arg ;;
+  esac
+done
+
+problems=()
+for name in "${targets[@]}"; do
+  have=$(pacman -Q "$name" 2>/dev/null | cut -d' ' -f2)
+  if $remove; then
+    problems+=("$name ${have:-?} -> removed")
+    continue
+  fi
+  new=${file_ver[$name]:-}
+  if [[ -z $new ]]; then
+    new=$(pacman -Si "${repo_of[$name]:-$name}" 2>/dev/null | awk -F' *: ' '$1 == "Version" { print $2; exit }')
+  fi
+  if [[ -z $new ]]; then
+    problems+=("$name ${have:-?} -> (cannot tell which build)")
+  elif ! is_j714s "$new"; then
+    problems+=("$name ${have:-?} -> $new")
+  fi
+done
+((${#problems[@]})) || exit 0
+
+if [[ -e $allow ]]; then
+  rm -f "$allow"
+  echo "omarchy-j714s boot guard: $allow was set, so this change is allowed once:"
+  printf '  %s\n' "${problems[@]}"
+  exit 0
+fi
+
+cat >&2 <<EOF
+
+==> STOPPED by the J714s boot guard. Nothing has been changed.
+    This would replace or remove this MacBook Pro's (J714s) boot packages with builds that
+    have no J714s support, and the next boot would most likely not start Linux:
+$(printf '      %s\n' "${problems[@]}")
+
+    Usually /etc/pacman.conf has lost the image's IgnorePkg line: an Omarchy channel switch
+    (Update > Channel), 'omarchy refresh pacman' and 'omarchy reinstall' overwrite that file.
+    Don't use those on this image for now. To put the line back, if the backup still has it:
+      grep IgnorePkg /etc/pacman.conf.bak && sudo cp /etc/pacman.conf.bak /etc/pacman.conf
+    then run the update again. https://github.com/betizzel/omarchy-m5/issues/11
+
+    Only if you really mean to make this change: sudo mkdir -p ${allow%/*} && sudo touch $allow
+    (allows one transaction), then run the same command again.
+
+EOF
+exit 1

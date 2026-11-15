@@ -1,0 +1,20 @@
+# The J714s boot packages must stay J714s builds (betizzel/omarchy-m5#11). The image pins them
+# with IgnorePkg in /etc/pacman.conf, but an Omarchy channel switch, `omarchy refresh pacman` and
+# `omarchy reinstall` copy a template over that file and then run pacman -Syyuu, which would put
+# the channel's generic kernel, m1n1 and U-Boot (no J714s device tree) in their place. This hook
+# lives outside /etc/pacman.conf, so it still stops that transaction. 00- runs it first.
+[Trigger]
+Operation = Upgrade
+Operation = Remove
+Type = Package
+Target = linux-aurora
+Target = m1n1-aurora
+Target = uboot-aurora
+Target = omarchy-aurora-firmware
+
+[Action]
+Description = Checking that the J714s boot packages stay J714s builds...
+When = PreTransaction
+Exec = /usr/lib/omarchy-aurora/j714s-boot-guard
+NeedsTargets
+AbortOnFail
