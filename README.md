@@ -45,7 +45,7 @@ external display fix) has not booted yet. -7 has been installed and booted end t
 
 ## Try it
 
-**One image, one installer: [omarchy-j714s 4](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-4)**
+**One image, one installer: [omarchy-j714s 5](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-5)**
 (prerelease). It runs on a Mac, not from a Linux PC.
 
 You need:
@@ -66,22 +66,25 @@ Steps (the release page has every detail):
 4. **Restart.** Each boot pauses about 15 seconds at the logo. First boot asks for a disk password,
    then your name and password.
 
-New in 4: `/boot` and `/boot/efi` are mounted from the partitions the system booted from, so a
-second Omarchy install on the same disk can't take this one's kernel updates
-([`docs/duplicate-boot-ids.md`](docs/duplicate-boot-ids.md); confirmed across a restart).
-From 3: built-in sound on 27.2 (Jens Axboe's AOP fix: sound cards, microphones, lid and light
-sensors; the AOP driver loads at boot by itself). On TripleU613's J714s speakerguardd v2 passed
-its checks and owns the speakers, and they were heard at the first-start 30% (2026-11-14); nobody
-has played loud yet, so follow the low-level test before turning it up. The v272-4 kernel came
-through a restart there with sound, Neural Engine, camera, Wi-Fi and Bluetooth up. Known gaps:
-`ufw.service` fails (fixed in the next kernel), AVE is probe only, HDMI on 27.2 untested with a
-monitor, and no fresh install with the installer yet. To go back: hold the power button at startup and pick macOS.
+New in 5: kernel v272-7 (FatBoy721's HDMI v2, Isaac-Duarte's dock route, upstream's Neural
+Engine and display fixes). On TripleU613's J714s (kernel installed by package over release 4,
+2026-11-14): HDMI to a Samsung Odyssey G9 at 5120x1440 up to 144 Hz and 3840x2160 at 60 Hz;
+DisplayPort over USB-C on the left port that is not the DFU port at 5120x1440 at 144 Hz; speakers
+heard at the default 30%; sound cards, Neural Engine device, camera, Wi-Fi and Bluetooth up at boot;
+`ufw` now starts. From 4: `/boot` and `/boot/efi` are mounted from the partitions the system
+booted from ([`docs/duplicate-boot-ids.md`](docs/duplicate-boot-ids.md)). From 3: built-in sound
+on 27.2. Nobody has played the speakers loud yet, so follow the low-level test before turning them
+up. Known gaps: DisplayPort on the right USB-C port does not train, the left DFU port shows no
+display, a dock and three displays are untested, AVE is probe only, no deep sleep, a faint
+microphone, and no fresh install with the installer yet. To go back: hold the power button at
+startup and pick macOS.
 
-Older images are **superseded** by omarchy-j714s 4 and no longer the way to install:
+Older images are **superseded** by omarchy-j714s 5 and no longer the way to install:
 `j714s-developer-image-2026.11.11-7` (stable, 27.3 beta stub, installed from Linux with
 `docs/bringup.md`), the `upstream-2026.11.1x-N` developer images, and `omarchy-j714s 1` (boot-loops
-after install; fixed in 2), `omarchy-j714s 2` (no built-in sound on 27.2; fixed in 3) and `omarchy-j714s 3` (a second Omarchy
-install on the disk could take its kernel updates; fixed in 4). The table above still describes those two older images.
+after install; fixed in 2), `omarchy-j714s 2` (no built-in sound on 27.2; fixed in 3), `omarchy-j714s 3` (a second Omarchy
+install on the disk could take its kernel updates; fixed in 4) and `omarchy-j714s 4` (HDMI 4K stayed blank,
+`ufw` failed; fixed in 5). The table above still describes those two older images.
 
 Stuck? Open an [issue](https://github.com/betizzel/omarchy-m5/issues) and paste what you see.
 

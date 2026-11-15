@@ -139,6 +139,7 @@ and light-sensor calibration).
 | 0003 | `linux-aurora 7.3.0.aurora17.v272-3` (the 27.2 ANE pin, FatBoy721's J714s HDMI) and `m1n1-aurora 1.6.1.aurora24.v272-3` (Aura 22b71758 with #213, FatBoy721's fixed DP PHY tunables), from ce20db7; set `j714s-dev-runtime-39ff82133d63`; qualification pins `7.3.0-17.v272-3-ARCH` |
 | 0004 | release 3: `linux-aurora 7.3.0.aurora17.v272-4` (kernel 0019, Jens Axboe's #1645: the 27.2 AOP) and `omarchy-aurora-firmware 20261014.j714s9` (loads `aop` at boot on the J714s), from ac63a3d; set `j714s-dev-runtime-7cd4572ff7ef`; qualification pins `7.3.0-17.v272-4-ARCH`; TREE `437d6908` |
 | 0005 | release 4: `omarchy-aurora-firmware 20261014.j714s10` (mounts `/boot` and `/boot/efi` from the partitions the system booted from, [`docs/duplicate-boot-ids.md`](../docs/duplicate-boot-ids.md)), from 0abeef9; set `j714s-dev-runtime-228cfc8f0fa9`; kernel pins unchanged; TREE `7530a7b9` |
+| 0006 | release 5: `linux-aurora 7.3.0.aurora17.v272-7` (a5ebec5f + kernel 0001–0023: FatBoy721's HDMI v2, Isaac-Duarte's dock route #1921, upstream's ANE and DCP work, the ufw IPv6 netfilter matches), from 3f735a3; set `j714s-dev-runtime-007165a5bf94`; qualification pins `7.3.0-17.v272-7-ARCH`; TREE `7872965a` |
 
 Built (2026-11-13):
 - Engine: release `engine-v0.9.2-omarchy.20261113.774d9abc59d3`.
@@ -179,3 +180,19 @@ release 3; the other 19 packages in the signed set are byte-identical to release
 
 The j714s10 generator was tried on TripleU613's J714s (generator dry run, daemon-reload,
 unmount/mount cycle: the right partitions), not yet across a restart.
+
+## omarchy-j714s 5 (built 2026-11-14)
+
+Release 4 plus `patches-j714s-r2` 0006 (above): kernel v272-7 only. Same Aura (v272-3), firmware
+(j714s10), engine (`v0.9.2-omarchy.20261113.774d9abc59d3`) and Recovery app (run 43477703681) as
+release 4; the other 19 packages in the signed set are byte-identical to release 4's.
+
+- Inputs: release `installer-build-inputs-j714s-4dce3f4e3b09` (finish-inputs on the tree `rebuild-installer-tree.sh DEST upstream-27.3 j714s j714s-r2` makes, HEAD f8fcc28).
+- Image: `installer-image.yml` run 43660214803 (headSha 4342bb7, `image-version` 5) → release `j714s-developer-image-omarchy-j714s-5`, `omarchy-j714s-5-aarch64-apple-silicon-mac-os-package.zip` sha256 `50ddd4d0ac5805bceb5f08ad27a41326aa3c611a6bf2513d6033189ca9d1e662`. Inspection and provenance checks passed; `m1n1/boot-ctxr.bin` is 10097086 bytes, sha256 `6f62730e…` (Aura v272-3 with v272-7's device trees, the same size and hash prefix as on TripleU613's J714s; under the 11 MB Stage 1 loader limit).
+- update-check: run 43661828561.
+- App: `installer-app.yml` run 43661830400 (attempt 2; attempt 1 hung in the Recovery pty fixture after `fixture status=0` and was cancelled after 70 min) → prerelease `omarchy-j714s-5`.
+
+The v272-7 kernel was installed by package over release 4 on TripleU613's J714s and booted
+(2026-11-14): HDMI and DisplayPort on the left non-DFU USB-C port to a Samsung Odyssey G9,
+speakers, sound cards, Neural Engine device, camera, Wi-Fi, Bluetooth, `ufw`. DisplayPort on the
+right port does not train; a dock / three displays are untested.
