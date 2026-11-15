@@ -58,7 +58,9 @@ Nothing left here. Checked 2026-11-14:
 | P3 | A DisplayPort cable plugged in at boot was not detected once (replug fixed it) | seen once on v272-7 |
 | P4 | Every installer image writes the same filesystem IDs | R1 works around it for the boot partitions; the root ID is still shared. Reported upstream in [omacom/omarchy-mac-installer#219](https://github.com/omacom/omarchy-mac-installer/issues/219) |
 
-## Gathered from others, built, waiting on a boot (2026-11-15)
+## Gathered from others, built, booted on the J714s (2026-11-15)
+
+**v272-11 is installed and booted on the logo (27.2) install, 2026-11-15 00:37 EST:** boot 25.6 s, no failed units, no new kernel errors; fan targets writable, fast-die effort on all three clusters, `rfcomm` and `pkcs8_key_parser` loaded, `sched_util_clamp_min_rt_default` 0, Wi-Fi, camera, ANE, GPU and DCP devices, three sound cards, speakerguardd-v2 and ufw active, `/boot` and `/boot/efi` on p5/p4. The Dock and HDMI-related changes (#1930, #1721) were not exercised (no dock or monitor attached).
 
 Each kernel builds on the one above it. The first boot after installing v272-8 on the logo install sat on an Omarchy logo with no disk prompt; that was most likely not v272-8: a reboot from the logo install goes to the Mac's default startup disk (the older stub), whose stage 1 waits on its logo when the PC's catcher is not running, and the catcher was down then. On 2026-11-15 v272-8 (its own kernel and device tree) booted from RAM on the dev path (27.3 stub, older Aura) in about a minute, Wi-Fi up, so neither of its device-tree changes hangs a boot by itself; v272-11 booted the same way (about a minute, Wi-Fi up); the logo install then booted the v272-8 kernel when picked in the boot picker. The logo ESP now has v272-7's device tree with v272-8's kernel, so the next boot shows which part hangs. Until then v272-9 and v272-10 are not installed.
 
