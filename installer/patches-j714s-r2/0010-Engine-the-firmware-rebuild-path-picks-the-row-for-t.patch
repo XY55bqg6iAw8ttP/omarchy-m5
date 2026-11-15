@@ -1,0 +1,263 @@
+From 280047876a827b7d4abddb80f85995f0c1049687 Mon Sep 17 00:00:00 2001
+From: chrisohearn <137103567+chrisohearn@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 12:04:48 -0700
+Subject: [PATCH] Engine: the firmware rebuild path picks the row for this
+ device
+
+action_rebuild_vendorfw found the install's firmware row by version alone,
+taking the first row for the installed macOS version. 27.2 has two
+device-restricted rows (26B123 for j714sap, 26B8125 for k114sap), so a K114s
+would have rebuilt from the J714s's 26B123. The match now also requires the
+row's devices to name this Mac's device class (rows with no device list still
+match); it lives in omarchy_firmware.installed_ipsw, beside the filtering
+choose_ipsw already uses, so it can be tested without the installer's
+interactive main.py.
+
+- Engine: omarchy_firmware.installed_ipsw; the main.py patch calls it in
+  place of the version-only loop.
+- Engine tests: a K114s gets the 26B8125 row (26.2.125.8.0,0), a J714s the
+  26B123 row (26.2.123.0.0,0), an unrestricted row still matches, a foreign
+  board gets none, and the patch uses the helper in the rebuild path.
+- Engine v0.9.2-omarchy.20261115.d33f2cef00c4, renamed with engine_pin.py
+  and repacked from the authenticated engine.28 base: 17914686 bytes, sha256
+  eac6cf71489f993e7b24780a5854f41d15b7dab239db3a1b3064d37fa8adc89b, four
+  identical repacks.
+
+J714s: the J714s row is first among the 27.2 rows, so a J714s picks the same
+row as before; the test asserts it.
+
+Checked: test/all (engine overlay 449, 446 before; engine tooling, scripts,
+Packaging), engine_pin.py check, prepare-engine.py. Not run: no installer or
+image was built from this, nothing was run on a K114s or a J714s, and the
+rebuild-firmware action itself (it needs a Mac) was not run.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ Engine/overlay/src/omarchy_firmware.py        | 16 ++++++++++
+ Engine/overlay/tests/test_omarchy_firmware.py | 26 ++++++++++++++++-
+ .../patches/0001-omarchy-engine-runtime.patch | 29 ++++++++++++++-----
+ Engine/source-lock.json                       | 16 +++++-----
+ 4 files changed, 70 insertions(+), 17 deletions(-)
+
+diff --git a/Engine/overlay/src/omarchy_firmware.py b/Engine/overlay/src/omarchy_firmware.py
+index 3338662..76a43c1 100644
+--- a/Engine/overlay/src/omarchy_firmware.py
++++ b/Engine/overlay/src/omarchy_firmware.py
+@@ -72,6 +72,22 @@ def available_ipsws(
+     return minver, avail
+ 
+ 
++def installed_ipsw(ipsw_versions, sysinfo, version):
++    """The first firmware row for an installed macOS version this Mac may use, or None.
++
++    A device-restricted row is another board's firmware: the J714s's 26B123
++    and the K114s's 26B8125 are both 27.2.
++    """
++    return next(
++        (
++            ipsw for ipsw in ipsw_versions
++            if ipsw.version == version
++            and (ipsw.devices is None or sysinfo.device_class in ipsw.devices)
++        ),
++        None,
++    )
++
++
+ def target_supported_fw(metadata):
+     """The supported_fw list of the one Omarchy full-OS template."""
+     templates = [
+diff --git a/Engine/overlay/tests/test_omarchy_firmware.py b/Engine/overlay/tests/test_omarchy_firmware.py
+index d13d93d..369d5d2 100644
+--- a/Engine/overlay/tests/test_omarchy_firmware.py
++++ b/Engine/overlay/tests/test_omarchy_firmware.py
+@@ -9,7 +9,8 @@ import unittest
+ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+ 
+ from omarchy_firmware import (  # noqa: E402
+-    FirmwareRequirementError, available_ipsws, default_ipsw, require_available, stub_size)
++    FirmwareRequirementError, available_ipsws, default_ipsw, installed_ipsw, require_available,
++    stub_size)
+ 
+ PATCH = Path(__file__).resolve().parents[2] / "patches/0001-omarchy-engine-runtime.patch"
+ GB = 1000**3
+@@ -154,6 +155,29 @@ class PatchedFirmwareTableTests(unittest.TestCase):
+             self.assertEqual(available, [], board)
+ 
+ 
++class FirmwareRebuildTests(unittest.TestCase):
++    """The firmware rebuild path matches the installed macOS version to a row."""
++
++    def test_a_k114s_takes_the_26b8125_row_and_a_j714s_the_26b123_row(self):
++        for board, long_version in (("k114sap", "26.2.125.8.0,0"), ("j714sap", "26.2.123.0.0,0")):
++            with self.subTest(board=board):
++                ipsw = installed_ipsw(IPSW_VERSIONS, SimpleNamespace(device_class=board), "27.2")
++                self.assertEqual((ipsw.version, ipsw.min_sfr, ipsw.devices),
++                                 ("27.2", long_version, [board]))
++
++    def test_the_patch_uses_it_where_the_install_is_matched_by_version(self):
++        main = PATCH.read_text().split("diff --git a/src/main.py")[1].split("diff --git")[0]
++        self.assertIn("+        ipsw = omarchy_firmware.installed_ipsw("
++                      "IPSW_VERSIONS, self.sysinfo, osi.version)\n", main)
++        self.assertIn("-        for ver in IPSW_VERSIONS:\n", main)
++
++    def test_an_unrestricted_row_still_matches_and_a_foreign_board_gets_none(self):
++        self.assertEqual(installed_ipsw(
++            IPSW_VERSIONS, SimpleNamespace(device_class="j313ap"), "13.5").version, "13.5")
++        self.assertIsNone(installed_ipsw(
++            IPSW_VERSIONS, SimpleNamespace(device_class="j700ap"), "27.2"))
++
++
+ class DefaultFirmwareTests(unittest.TestCase):
+     def test_an_air_offered_only_26_6_2_takes_it_and_the_larger_stub(self):
+         for device_class in ("j613ap", "j615ap"):
+diff --git a/Engine/patches/0001-omarchy-engine-runtime.patch b/Engine/patches/0001-omarchy-engine-runtime.patch
+index 659baa8..62f80ee 100644
+--- a/Engine/patches/0001-omarchy-engine-runtime.patch
++++ b/Engine/patches/0001-omarchy-engine-runtime.patch
+@@ -35,7 +35,7 @@ index 21031fd..76c0935 100755
+  
+  echo "Packaging installer..."
+ diff --git a/src/main.py b/src/main.py
+-index 88dd2ab..5ac3d8b 100644
++index 88dd2ab..5003700 100644
+ --- a/src/main.py
+ +++ b/src/main.py
+ @@ -4,11 +4,16 @@ import os, os.path, shlex, subprocess, sys, time, termios, json, getpass, report
+@@ -126,7 +126,20 @@ index 88dd2ab..5ac3d8b 100644
+          self.credentials_validated = False
+          self.expert = False
+          self.ipsw = None
+-@@ -585,20 +636,11 @@ class InstallerMain:
++@@ -529,11 +580,7 @@ class InstallerMain:
++ 
++         os.makedirs("vendorfw", exist_ok=True)
++         fw_pkg = asahi_firmware.core.FWPackage("vendorfw")
++-        ipsw = None
++-        for ver in IPSW_VERSIONS:
++-            if ver.version == osi.version:
++-                ipsw = ver
++-                break
+++        ipsw = omarchy_firmware.installed_ipsw(IPSW_VERSIONS, self.sysinfo, osi.version)
++         if ipsw is None:
++             p_error(f"This install is using an unsupported macOS version {osi.version}")
++             p_message("Unable to rebuild firmware")
++@@ -585,20 +632,11 @@ class InstallerMain:
+          self.step2(report=True)
+  
+      def choose_ipsw(self, supported_fw=None):
+@@ -152,7 +165,7 @@ index 88dd2ab..5ac3d8b 100644
+  
+          minver.sort(key=lambda ipsw: split_ver(ipsw.version))
+  
+-@@ -812,18 +854,15 @@ class InstallerMain:
++@@ -812,18 +850,15 @@ class InstallerMain:
+          else:
+              target = resizable[0]
+  
+@@ -180,7 +193,7 @@ index 88dd2ab..5ac3d8b 100644
+  
+          min_perc = 100 * min_size / total
+  
+-@@ -922,6 +961,25 @@ class InstallerMain:
++@@ -922,6 +957,25 @@ class InstallerMain:
+  
+          return True
+  
+@@ -206,7 +219,7 @@ index 88dd2ab..5ac3d8b 100644
+      def action_select_disk(self):
+          choices = {"1": "Internal storage"}
+  
+-@@ -939,21 +997,22 @@ class InstallerMain:
++@@ -939,21 +993,22 @@ class InstallerMain:
+          return True
+  
+      def main(self):
+@@ -242,7 +255,7 @@ index 88dd2ab..5ac3d8b 100644
+              p_message("By default, this installer will hide certain advanced options that")
+              p_message("are only useful for Asahi Linux developers. You can enable expert mode")
+              p_message("to show them. Do not enable this unless you know what you are doing.")
+-@@ -970,7 +1029,26 @@ class InstallerMain:
++@@ -970,7 +1025,26 @@ class InstallerMain:
+  
+          self.chip_min_ver = CHIP_MIN_VER.get(self.sysinfo.chip_id, None)
+          self.device = DEVICES.get(self.sysinfo.device_class, None)
+@@ -270,7 +283,7 @@ index 88dd2ab..5ac3d8b 100644
+              p_error("This device is not supported yet!")
+              p_error("Please check out the Asahi Linux Blog for updates on device support:")
+              print()
+-@@ -1126,6 +1204,19 @@ class InstallerMain:
++@@ -1126,6 +1200,19 @@ class InstallerMain:
+  
+          if self.cur_os is None and self.sysinfo.boot_mode != "macOS":
+              self.cur_os = default_os
+@@ -290,7 +303,7 @@ index 88dd2ab..5ac3d8b 100644
+          self.check_cur_os()
+  
+          actions = {}
+-@@ -1226,7 +1317,11 @@ if __name__ == "__main__":
++@@ -1226,7 +1313,11 @@ if __name__ == "__main__":
+          logging.exception("Process execution failed")
+          p_warning("If you need to file a bug report, please attach the log file:")
+          p_warning(f"  {os.getcwd()}/installer.log")
+diff --git a/Engine/source-lock.json b/Engine/source-lock.json
+index 5160341..ebd9fa8 100644
+--- a/Engine/source-lock.json
++++ b/Engine/source-lock.json
+@@ -141,7 +141,7 @@
+     }
+   },
+   "downstream_overlay": {
+-    "version": "v0.9.2-omarchy.20261115.c979ebe82723",
++    "version": "v0.9.2-omarchy.20261115.d33f2cef00c4",
+     "capability": "candidate_bound_full_os_stage_one_authenticated_recovery",
+     "minimum_app_version": "2.3.0",
+     "engine_modes": [
+@@ -151,7 +151,7 @@
+     ],
+     "patch": {
+       "path": "patches/0001-omarchy-engine-runtime.patch",
+-      "sha256": "9d84742390f4f9954768302f5a1e9dd653b73fee37d4651f67836cd802d1f632"
++      "sha256": "ae498375f0fd6b4072b1c364adaa9b395aaf374bc2ac45602564b24bf779b8da"
+     },
+     "files": [
+       {
+@@ -287,12 +287,12 @@
+       {
+         "path": "overlay/src/omarchy_firmware.py",
+         "destination": "src/omarchy_firmware.py",
+-        "sha256": "f49c7a60f7301c206a231df9f446e85b14715e243d0d61e7d9d5bc9c7cbfbc40"
++        "sha256": "ec64e44c4ae1d3df89af13bf5149717aa29f8b99c6787549c2b363aa4613d7d5"
+       },
+       {
+         "path": "overlay/tests/test_omarchy_firmware.py",
+         "destination": "tests/test_omarchy_firmware.py",
+-        "sha256": "13e922ec9e2e5700882f80fbb3b1880b066ecd0539c739f38601d3ce6f7bb97c"
++        "sha256": "85e3bc2858e725bfabccefbcef81c4e21b4b30cc2d6866e90754352b6dd9a564"
+       },
+       {
+         "path": "overlay/src/omarchy_als.py",
+@@ -482,9 +482,9 @@
+     }
+   ],
+   "validation_artifact": {
+-    "filename": "installer-v0.9.2-omarchy.20261115.c979ebe82723.tar.gz",
+-    "size_bytes": 17914568,
+-    "sha256": "e220f68f9523ccbf184344b5940f38f4184e9d3582a985a6c404eb04f71e82a9",
++    "filename": "installer-v0.9.2-omarchy.20261115.d33f2cef00c4.tar.gz",
++    "size_bytes": 17914686,
++    "sha256": "eac6cf71489f993e7b24780a5854f41d15b7dab239db3a1b3064d37fa8adc89b",
+     "reproducibility_scope": "two-identical-python-overlay-repacks-authenticated-base",
+     "signature": "absent",
+     "metadata_sha256": "2e6181ce6b6e17c11039e04bfadade8d10ae0e11889885ad8c9960b68f179a5d"
+@@ -511,7 +511,7 @@
+           "upstream_base_sha256": "c8d4d2a80f3a88a9ba4d6d4024c0001062e35d15d72ae530681a0612e6525984",
+           "upstream_sha256": "894fb8cd2ffc672bb96a14969ee9de2879d250c8c5990fee122ccf66d9b50024",
+           "base_sha256": "95760ed02d44b5457acb81559a4e2d892ffbb7f0f2b7417c0b2eb02937945ae7",
+-          "sha256": "f59bb72eae44c61d182c0f80c947b33346e34c489c731f1e3596a97fd75f1169"
++          "sha256": "a386f6550562bc3cb92bf9609e73ebed238a7ce8e99b8ce4e39defdd55549d96"
+         }
+       ]
+     },
+-- 
+2.56.1
+
