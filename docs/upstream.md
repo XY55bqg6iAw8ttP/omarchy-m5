@@ -86,3 +86,5 @@ Each kernel builds on the one above it. v272-8 hung the logo install on its firs
 | aura #230 GPU firmware-version hint (merged) | only removes harmless log lines on 27.2; goes in with the next Aura bump |
 | satchlj `t6050-smc-key-inventory` | read-only SMC key dump for research, no user-facing change |
 | aura #259 T6050 internal display handoff on the 27.3 beta (joshuaswarren) | 27.3 beta only (our stub is 27.2), a draft not booted |
+| IronsideXXVI omarchy-mac-pkgs `apple-powerprofiles-floor` (6ca225ea88): a uclamp CPU floor that follows the power profile | measured on an M4 J604 only, and it runs the runtime's `omarchy-powerprofiles-floor` (omacom/omarchy#18745), which Omarchy 4.5.0 may not ship; revisit with a J714s measurement |
+| aura #260 M4 ANE preload hand-off (erikwb) | M4 (T8132) only |
