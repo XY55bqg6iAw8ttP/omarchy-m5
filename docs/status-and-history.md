@@ -1,5 +1,21 @@
 > Moved from the top-level README on 2026-11-11 (the README is now the short version). Detailed status, history and the bring-up story are kept here as they were.
 
+## Images so far (moved from the README on 2026-11-14)
+
+There is one image line now: `omarchy-j714s N`, installed from macOS with Omarchy Installer on
+Apple's 27.2 firmware. The newest is on the [README](../README.md). The older ones, newest first:
+
+| Image | What it was | Why it was replaced |
+| --- | --- | --- |
+| `omarchy-j714s 4` | 3 plus the boot-mount fix for two installs on one disk (firmware j714s10) | HDMI 4K stayed blank, `ufw` failed, DisplayPort on the left USB-C port only gave fallback modes: kernel v272-7 in 5 |
+| `omarchy-j714s 3` | 2 plus built-in sound on 27.2 (Jens Axboe's AOP fix), AOP loaded at boot | a second Omarchy install on the disk could take its kernel updates: fixed in 4 |
+| `omarchy-j714s 2` | 1 plus the 27.2 Neural Engine pin, FatBoy721's HDMI v1, speakerguardd v2 | no built-in sound on 27.2: fixed in 3 |
+| `omarchy-j714s 1` | first 27.2 image with the Mac installer | boot loop after install (Aura stage 2 handed U-Boot a powered-off disk, [`install-failure-2026-11-13.md`](install-failure-2026-11-13.md)): fixed in 2 |
+| `j714s-developer-image-upstream-2026.11.1x-N` | aurora-silicon's kernel and Aura on the 27.3 beta firmware; camera, Neural Engine, video encode, Touch ID first worked here | the maintainers target 27.2, not the beta ([`move-to-27.2.md`](move-to-27.2.md)) |
+| `j714s-developer-image-2026.11.11-7` ("stable") | the original line on the 27.3 beta stub, installed from a Linux PC ([`bringup.md`](bringup.md)) | replaced by the Mac installer line |
+
+The rest of this file is older still and is kept as it was.
+
 # omarchy-m5
 
 Bringing [Omarchy](https://omarchy.org) - Arch Linux ARM + Hyprland - to the

@@ -3,58 +3,63 @@
 **[Omarchy](https://omarchy.org) on the 14-inch MacBook Pro with M5 Pro (J714s).**
 
 We don't reinvent anything. A lot of people are getting Linux running on the M5 Macs, each
-in their own repo. We collect the parts that already work, put them together in one image,
-test it on a real J714s, and say who made each part.
+in their own repo. We collect the parts that already work, put them together in **one image
+with one installer**, test it on a real J714s, and say who made each part.
+
+**The image: [omarchy-j714s 5](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-5)** (prerelease).
 
 ---
 
 ## What works
 
-Two images. **Stable** (`2026.11.11-7`) is the one to install. **Upstream** (`upstream-2026.11.13-8`,
-a prerelease) moves to aurora-silicon's kernel and the Aura bootloader on Apple's 27.3 firmware: every row
-below was tested on a real J714s by booting -7's kernel from RAM. -8's kernel (newer upstream, plus the
-external display fix) has not booted yet. -7 has been installed and booted end to end on one J714s.
+Checked on one J714s (TripleU613's) running release 5's packages on Apple's 27.2 firmware,
+2026-11-14. "Seen" and "heard" mean its owner looked or listened. That Mac was installed with
+release 1 and updated by packages since; **nobody has run this installer fresh yet.**
 
-| Thing | Stable | Upstream (experimental) | Whose work |
-| --- | --- | --- | --- |
-| Boots from the Mac's own disk, all 15 CPU cores | ✅ | ✅ (RAM-booted; install untested) | Apple's firmware fix, rolotrealanis98, betizzel, DjDeveloperr, aurora-silicon |
-| Keyboard, backlight, trackpad | ✅ | ✅ | rolotrealanis98, edimoldovan |
-| Wi-Fi, Bluetooth | ✅ | ✅ (boot fix in Aura, [aura#203](https://github.com/aurora-silicon/aura/pull/203)) | rolotrealanis98, betizzel, TripleU613, DjDeveloperr, edimoldovan |
-| GPU (Vulkan, the desktop renders on it) | ✅ | ✅ 27.3 firmware | TripleU613, betizzel, DjDeveloperr, rolotrealanis98, joshuaswarren |
-| Screen: full panel incl. the notch, 3024x1964 at 120 Hz | ✅ | ✅ | FatBoy721, edimoldovan, rolotrealanis98, betizzel |
-| Variable refresh (ProMotion) | ❌ | 🟡 opt-in (`appledrm.fw27_panel_vrr=1`) | rolotrealanis98 |
-| Speakers | ✅ (capped at -30 dB, with speaker protection) | ❌ held off until J714 speaker files are public | rolotrealanis98, edimoldovan, kazuhidet |
-| Headphone jack, microphones | ✅ | 🟡 cards show up, untested | rolotrealanis98, edimoldovan, kazuhidet |
-| Hardware video decode (H.264/H.265) | ✅ | ✅ | DjDeveloperr |
-| Hardware video encode (H.264/HEVC) | ❌ | ✅ (27.3 port here) | DjDeveloperr, this repo |
-| Front camera (1080p/1440p, 30 fps) | ❌ | ✅ needs [`save-camera-setfiles.py`](tools/camera-setfiles/save-camera-setfiles.py) once in macOS | edimoldovan, Jens Axboe, sithglan, Erik Bourget, DjDeveloperr |
-| Touch ID | ❌ | 🟡 enrol + match work on TripleU613's J714s (owner opt-in; writes the Secure Enclave store macOS shares, read [the warning](installer/recipes/aurora-sep-upstream/README.md)) | DjDeveloperr, aurora-silicon |
-| Neural Engine | ❌ | ✅ starts on 27.3 (27.3 port here) | DjDeveloperr, this repo |
-| Power profiles, brightness up to max | ❌ | ✅ | DjDeveloperr |
-| Lid angle sensor | ✅ | ✅ | DjDeveloperr |
-| Ambient light sensor | 🟡 needs this Mac's calibration ([`save-als-cal.py`](tools/als-calibration/save-als-cal.py)) | 🟡 same | DjDeveloperr, aurora-silicon |
-| Sleep (lid close) | ✅ | untested | FatBoy721, betizzel |
-| USB host on all three USB-C ports | ✅ | ✅ | edimoldovan, DjDeveloperr |
-| USB4, external displays | ❌ | 🟡 USB-C: all four display engines come up with -8's fix (tried as a config line on -7's kernel), no monitor tried yet; HDMI ❌ | DjDeveloperr, erikwb, this repo |
-| Quiet fans at idle | ✅ | ✅ | edimoldovan |
-| Updates (`omarchy update`) | ✅ (checked in CI, [`update-check`](.github/workflows/update-check.yml)) | ✅ | this repo |
+| Thing | Release 5 | Whose work |
+| --- | --- | --- |
+| Boots from the Mac's own disk, all 15 CPU cores at EL2 | ✅ | aurora-silicon, DjDeveloperr, rolotrealanis98, betizzel, RyanTheTide |
+| Keyboard, backlight, trackpad | ✅ | rolotrealanis98, edimoldovan |
+| Wi-Fi | ✅ | rolotrealanis98, betizzel, TripleU613, DjDeveloperr, edimoldovan |
+| Bluetooth | 🟡 on; hands-free and headset profiles need the next kernel | same, chrisohearn (report) |
+| GPU (Vulkan, the desktop renders on it) | ✅ | TripleU613, betizzel, DjDeveloperr, rolotrealanis98, joshuaswarren |
+| Screen: full panel, 3024x1964 at 120 Hz | ✅ seen | FatBoy721, edimoldovan, rolotrealanis98, betizzel |
+| Speakers, with speaker protection | ✅ heard at the first-start 30%; nobody has played loud yet | DjDeveloperr (speakerguardd v2), Jens Axboe (27.2 AOP fix) |
+| Microphones | 🟡 very faint | edimoldovan, kazuhidet |
+| Headphone jack | untested on 27.2 | rolotrealanis98, edimoldovan |
+| HDMI | ✅ seen on a Samsung Odyssey G9: 5120x1440 at 60/120/144 Hz, 3840x2160 at 60 Hz | FatBoy721 |
+| DisplayPort over USB-C, the left port that is not the DFU port | ✅ seen: 5120x1440 at 144 Hz, 10-bit | DjDeveloperr, erikwb, this repo |
+| DisplayPort over USB-C, right port | ❌ the link does not come up (640x480 fallback only) | open |
+| DisplayPort over USB-C, left DFU port | ❌ nothing shows in Linux | open |
+| Thunderbolt dock, three displays | untested | Isaac-Duarte |
+| Front camera | 🟡 device up, tuning files collected from macOS at boot; no picture checked on release 5 | edimoldovan, Jens Axboe, sithglan, Erik Bourget, DjDeveloperr |
+| Neural Engine | 🟡 device up; no workload run | DjDeveloperr, Joshua Warren, Nick, this repo |
+| Hardware video encode | ❌ probe only on 27.2 | DjDeveloperr, this repo |
+| Hardware video decode | untested on 27.2 | DjDeveloperr |
+| Touch ID | untested on 27.2 (worked on the earlier 27.3 build; writes the Secure Enclave store macOS shares, read [the warning](installer/recipes/aurora-sep-upstream/README.md)) | DjDeveloperr, aurora-silicon |
+| Variable refresh on the panel | 🟡 offered to the compositor; not checked by eye | rolotrealanis98 |
+| Firewall (`ufw`) | ✅ | this repo, chrisohearn (report) |
+| Sleep | ❌ no deep sleep; lid close untested on 27.2 | open |
+| Fans | 🟡 Apple's own curve only; Linux can't raise them yet | Isaac-Duarte (next kernel) |
+| Updates (`omarchy update`) | ✅ checked in CI ([`update-check`](.github/workflows/update-check.yml)) | this repo |
+| Two Omarchy installs on one disk | ✅ each mounts its own boot partitions ([why](docs/duplicate-boot-ids.md)) | this repo |
 
-✅ works · 🟡 partly · 🔜 coming · ❌ no
+✅ works · 🟡 partly · ❌ no
+
+Also known: every boot pauses about 15 seconds at the logo, and a DisplayPort cable plugged in
+at boot was once not detected until it was plugged in again.
 
 ---
 
 ## Try it
 
-**One image, one installer: [omarchy-j714s 5](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-5)**
-(prerelease). It runs on a Mac, not from a Linux PC.
-
-You need:
+It runs on a Mac, not from a Linux PC. You need:
 
 - A **MacBook Pro 14-inch, M5 Pro** (J714s). Not M5 Max, not the 16-inch, not yet.
 - **macOS 27.2 or newer** on it, FileVault on, an administrator account.
 - About **35 GB free** on the Mac's disk, the charger, and about an hour.
 
-Steps (the release page has every detail):
+Steps (the [release page](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-5) has every detail):
 
 1. **Download** the installer package from the release (online: small; offline: the `.partN`
    files joined) and check it against `SHA256SUMS`.
@@ -63,30 +68,18 @@ Steps (the release page has every detail):
 3. **Finish setup in Recovery:** shut down, hold the power button, pick the **Omarchy with the
    logo icon**, sign in, click **Install** in Omarchy's own "Finish setup" window and wait (up to
    30 minutes). Don't use Startup Security Utility.
-4. **Restart.** Each boot pauses about 15 seconds at the logo. First boot asks for a disk password,
-   then your name and password.
+4. **Restart.** First boot asks for a disk password, then your name and password.
 
-New in 5: kernel v272-7 (FatBoy721's HDMI v2, Isaac-Duarte's dock route, upstream's Neural
-Engine and display fixes). On TripleU613's J714s (kernel installed by package over release 4,
-2026-11-14): HDMI to a Samsung Odyssey G9 at 5120x1440 up to 144 Hz and 3840x2160 at 60 Hz;
-DisplayPort over USB-C on the left port that is not the DFU port at 5120x1440 at 144 Hz; speakers
-heard at the default 30%; sound cards, Neural Engine device, camera, Wi-Fi and Bluetooth up at boot;
-`ufw` now starts. From 4: `/boot` and `/boot/efi` are mounted from the partitions the system
-booted from ([`docs/duplicate-boot-ids.md`](docs/duplicate-boot-ids.md)). From 3: built-in sound
-on 27.2. Nobody has played the speakers loud yet, so follow the low-level test before turning them
-up. Known gaps: DisplayPort on the right USB-C port does not train, the left DFU port shows no
-display, a dock and three displays are untested, AVE is probe only, no deep sleep, a faint
-microphone, and no fresh install with the installer yet. To go back: hold the power button at
-startup and pick macOS.
+**To go back to macOS:** hold the power button at startup and pick macOS.
 
-Older images are **superseded** by omarchy-j714s 5 and no longer the way to install:
-`j714s-developer-image-2026.11.11-7` (stable, 27.3 beta stub, installed from Linux with
-`docs/bringup.md`), the `upstream-2026.11.1x-N` developer images, and `omarchy-j714s 1` (boot-loops
-after install; fixed in 2), `omarchy-j714s 2` (no built-in sound on 27.2; fixed in 3), `omarchy-j714s 3` (a second Omarchy
-install on the disk could take its kernel updates; fixed in 4) and `omarchy-j714s 4` (HDMI 4K stayed blank,
-`ufw` failed; fixed in 5). The table above still describes those two older images.
+**Before turning the speakers up,** follow the low-level test in
+[the speaker recipe](installer/recipes/speakerguardd-v2-upstream/README.md).
 
 Stuck? Open an [issue](https://github.com/betizzel/omarchy-m5/issues) and paste what you see.
+
+Earlier releases (1 to 4) and the older developer images are superseded; what each one was and
+why it was replaced is in [`docs/status-and-history.md`](docs/status-and-history.md). What is
+being sent upstream, and what waits on a test first, is in [`docs/upstream.md`](docs/upstream.md).
 
 ---
 
