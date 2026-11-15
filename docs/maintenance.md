@@ -2,6 +2,45 @@
 
 Pull requests and issues on this repo: what came in, what we did, where it stands. Newest first.
 
+## 2026-11-15: #15, the engine's firmware rebuild path picks this device's row (chrisohearn)
+
+[#15](https://github.com/betizzel/omarchy-m5/pull/15) from chrisohearn: `installer/patches-j714s-r2/0010`.
+`action_rebuild_vendorfw` now calls `omarchy_firmware.installed_ipsw`, which skips rows restricted
+to other device classes, where before it took the first row with the installed version. This
+follows up the note on #13: a K114s would have got 26B123. TREE is `764b1ee1`, engine
+`v0.9.2-omarchy.20261115.d33f2cef00c4`, plus a row in `installer/README.md`. Merged as merge
+commit 37ce4ab with his commit a672454 kept. There was no conflict, because the PR was based on
+c1b8137. [Comment](https://github.com/betizzel/omarchy-m5/pull/15#issuecomment-6900028479).
+
+Checked before merging, with the same method as #13 (work dir `~/m5/work/pr15`):
+
+- Tree: 0001-0010 rebuilds to `764b1ee1`. Against `fdd3eb0e` only four files under `Engine/` differ
+  (overlay `omarchy_firmware.py` and its test, the runtime patch, `source-lock.json`). Applying 0010
+  prints `1 line adds whitespace errors`, a context line of the nested patch, which is harmless.
+- Engine: `Engine/prepare-engine.py` run twice reproduced `eac6cf71…`, 17914686 bytes. Against
+  `c979ebe82723` only `version.tag`, `omarchy_firmware.py` (the new helper) and the one call in
+  `main.py` differ. `IPSW_VERSIONS` and `DEVICES` are identical.
+- Rebuild path, old loop vs. helper on the shipped rows (`scripts/rebuild-row-check.py`): for
+  `j714sap`, 27.2 still gives 26B123 (`26.2.123.0.0,0`) and 12.3, 12.3.1 and 13.5 are unchanged.
+  The rows restricted to other boards (14.8.3, 26.6, 26.6.2) now give "unsupported" where they used
+  to give another board's row. A J714s can't reach them: its device minimum is 27.2 and its only
+  stub row is 26B123.
+- Tests (`test/all`): Engine tooling 77, engine overlay 449 (with `FirmwareRebuildTests` 3/3),
+  scripts 306, Packaging 36, all passing.
+- App: `make-release-inputs.py` locally against release 7's image, offline and online. Compared
+  with main's tree and engine, only `engineVersion`, `engineDigest`, the engine file name and size
+  and `downstreamRevision` differ (`trust_root_fingerprint` differs too, only because each run uses
+  a throwaway key). The catalog lists `apple,j714s` only and `installer_data.json` is the same.
+  `installer/app`, `image-builder/`, `Integration/` and the Recovery sources are unchanged, so the
+  default board and the image are too. Unlike #13, there was no CI app run and no test releases.
+
+Engine published for the next J714s build, replacing `c979ebe82723`: release
+[`engine-v0.9.2-omarchy.20261115.d33f2cef00c4`](https://github.com/betizzel/omarchy-m5/releases/tag/engine-v0.9.2-omarchy.20261115.d33f2cef00c4),
+asset `installer-v0.9.2-omarchy.20261115.d33f2cef00c4.tar.gz`, sha256
+`eac6cf71489f993e7b24780a5854f41d15b7dab239db3a1b3064d37fa8adc89b`, 17914686 bytes (downloaded
+back and checked). The next build still needs new build inputs (`finish-inputs.py` bundles the
+engine). This engine has not run an install, or a firmware rebuild, on hardware yet.
+
 ## 2026-11-15: #13, the K114s admitted in developer builds (chrisohearn)
 
 [#13](https://github.com/betizzel/omarchy-m5/pull/13) from chrisohearn: `installer/patches-j714s-r2/0009`
