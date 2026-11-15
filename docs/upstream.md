@@ -85,3 +85,4 @@ Each kernel builds on the one above it. v272-8 hung the logo install on its firs
 | aura #214 T6050 SIO tables and sleep wake sources | no J714s test given; feeds deep sleep, which is not in our tree |
 | aura #230 GPU firmware-version hint (merged) | only removes harmless log lines on 27.2; goes in with the next Aura bump |
 | satchlj `t6050-smc-key-inventory` | read-only SMC key dump for research, no user-facing change |
+| aura #259 T6050 internal display handoff on the 27.3 beta (joshuaswarren) | 27.3 beta only (our stub is 27.2), a draft not booted |
