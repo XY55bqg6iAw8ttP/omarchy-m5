@@ -1,0 +1,108 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: TripleU <182648541+TripleU613@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 00:58:37 -0500
+Subject: [PATCH] J714s release 6: kernel v272-11 (fans, fast-die limit,
+ RFCOMM, dock fixes) and hyprland-m5 0.57.2-3
+
+Re-pinned from betizzel/omarchy-m5 ee5df84: linux-aurora
+7.3.0.aurora17.v272-11 (c2fdaa24..., 44227182 bytes): aurora-silicon/linux
+integration/aurora a5ebec5f plus patches/j714s-27.2/linux 0001-0032
+(v272-7 plus Isaac-Duarte's J714s fan targets #1944 and dock tunnel fix
+#1930, DjDeveloperr's SN201202x LDCM fix #1721 and J714s fast-die limit
+#1950, Jens Axboe's PMP power domains through s2idle #1789, three G17
+fixes merged upstream, and BT_RFCOMM / PKCS8_PRIVATE_KEY_PARSER).
+The qualification pins follow 7.3.0-17.v272-11-ARCH.
+
+hyprland-m5 0.57.2-3 from 41d8d77 (the latch members moved to the end of
+CMonitor so stock-built plugins keep their offsets, betizzel/omarchy-m5#8):
+the package built on the J714s (.pkg.tar.xz, sha256 531fc814...) recompressed
+to zstd; the tar inside is the same (sha256 62c59415...), c87f2570...,
+51124129 bytes. Nothing else changes. Set j714s-dev-runtime-c4fe82ac5a13.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01BUGDaSFNdTK9gt1Wp7hiJm
+---
+ .../candidate-package-manifest.json           | 24 +++++++++----------
+ image-builder/builder/stage1_qualification.py |  4 ++--
+ 2 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
+index 2966df0..ee4811a 100644
+--- a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
++++ b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
+@@ -1,7 +1,7 @@
+ {
+   "schema": 1,
+   "candidate_only": true,
+-  "set": "j714s-dev-runtime-007165a5bf94",
++  "set": "j714s-dev-runtime-c4fe82ac5a13",
+   "source": {
+     "repository": "omacom/omarchy",
+     "commit": "a948d8a6871f446b335258c827648ac5f4e9428b",
+@@ -77,15 +77,15 @@
+     },
+     {
+       "name": "hyprland-m5",
+-      "version": "0.57.2-2",
++      "version": "0.57.2-3",
+       "arch": "aarch64",
+-      "filename": "hyprland-m5-0.57.2-2-aarch64.pkg.tar.zst",
+-      "sha256": "12e46eb0bb1a956307a3459f05bed5e97500bc8ae802fd44aa5dc383d9edab9d",
++      "filename": "hyprland-m5-0.57.2-3-aarch64.pkg.tar.zst",
++      "sha256": "c87f25701f46d11041c85dfb8a76cae92877b42147368e16e486bfb68fab8b87",
+       "source": {
+         "repository": "betizzel/omarchy-m5",
+-        "commit": "650b22d1b78b03bf0cdbdb28f7670fa9760828f3"
++        "commit": "41d8d778647a6a74b6da242604767bdfe726e4c2"
+       },
+-      "size_bytes": 53014468
++      "size_bytes": 51124129
+     },
+     {
+       "name": "libfprint-aurora",
+@@ -114,15 +114,15 @@
+     },
+     {
+       "name": "linux-aurora",
+-      "version": "7.3.0.aurora17.v272-7",
++      "version": "7.3.0.aurora17.v272-11",
+       "arch": "aarch64",
+-      "filename": "linux-aurora-7.3.0.aurora17.v272-7-aarch64.pkg.tar.zst",
+-      "sha256": "96d8f4b0aaf74fc7e164e37fb240e905a84fdef3152de163a339d3181620d2aa",
++      "filename": "linux-aurora-7.3.0.aurora17.v272-11-aarch64.pkg.tar.zst",
++      "sha256": "c2fdaa2473478ad2b1499e9dadd0da04a137811f621f1f22c560f430e5910b8d",
+       "source": {
+         "repository": "betizzel/omarchy-m5",
+-        "commit": "3f735a30411c3ec71ff95bff4f3176d8dc980bcf"
++        "commit": "ee5df842e0d4da94c0ee5158ab59ad92893f8e84"
+       },
+-      "size_bytes": 44215820
++      "size_bytes": 44227182
+     },
+     {
+       "name": "m1n1-aurora",
+@@ -264,5 +264,5 @@
+     "No physical installer or hardware qualification",
+     "No supported release or catalog promotion"
+   ],
+-  "set_sha256": "007165a5bf94dc2b7275c36a10b27358656179d6de4d41d2b153f3555ad1249d"
++  "set_sha256": "c4fe82ac5a138958624ee901d2506fcbbccaa7908f318d4d1f26e90829a30ccb"
+ }
+diff --git a/image-builder/builder/stage1_qualification.py b/image-builder/builder/stage1_qualification.py
+index d85867b..5c66a55 100644
+--- a/image-builder/builder/stage1_qualification.py
++++ b/image-builder/builder/stage1_qualification.py
+@@ -65,8 +65,8 @@ SYSTEM_FIRMWARE = re.compile(r"(?:mBoot|iBoot)-[0-9]+(?:\.[0-9]+)*\Z")
+ # _aurorarel=17.v272; pkgrel 2 is release 2's re-pin on integration/aurora a34d26c2; "v272"
+ # sorts above "up273"). Checked against the built archive's pkgver-pkgrel and its
+ # usr/lib/modules/<release> directory; candidate-package-manifest.json matches.
+-J714S_KERNEL_VERSION = "7.3.0.aurora17.v272-7"
+-J714S_KERNEL_RELEASE = "7.3.0-17.v272-7-ARCH"
++J714S_KERNEL_VERSION = "7.3.0.aurora17.v272-11"
++J714S_KERNEL_RELEASE = "7.3.0-17.v272-11-ARCH"
+ J714S_ARGUMENTS = ("macsmc.m5_pcio_budget=2", "macsmc.m5_n1_budget=3")
+ # What the merged kernel (betizzel/omarchy-m5 linux-aurora-n1 0001-0008) was verified
+ # with on bare metal, besides the budgets: PMGR domains read-only except the ones its
+-- 
+2.56.0
+
