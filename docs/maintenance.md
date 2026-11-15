@@ -2,6 +2,59 @@
 
 Pull requests and issues on this repo: what came in, what we did, where it stands. Newest first.
 
+## 2026-11-15: #16, one boot guard for every M5 board (chrisohearn)
+
+[#16](https://github.com/betizzel/omarchy-m5/pull/16) from chrisohearn generalises the #11 guard:
+`j714s-boot-guard` becomes `m5-boot-guard` (the old name stays as a shim), the board comes from the
+device tree's `compatible`, and a K114s gets a Stage 2 check and an ESP free-space hook
+(`01-omarchy-m5-esp-space.hook`). It bumps the firmware package to j714s13 with matching sums. Merged
+as merge commit 82d914e, his commit 6a49471 kept, on the owner's call before testing: main doesn't
+reach any Mac, because images pin packages by manifest hash. The tests below are the gate for the
+next release. [Merge note](https://github.com/betizzel/omarchy-m5/pull/16#issuecomment-6900732145).
+
+Tested after merging (work dir `~/m5/work/pr16`):
+
+- Build: `omarchy-aurora-firmware-20261014.j714s13-1-aarch64.pkg.tar.zst`, sha256 `af8a8d00…3bc7`,
+  55533 bytes, from 82d914e in `alarm-builder:20261112` on ush (same `fw-build.sh` as j714s12;
+  copy in `~/m5/work/pkgs-fw-j714s13`). Against j714s12, the file list loses
+  `00-omarchy-j714s-boot-guard.hook` and gains `00-omarchy-m5-boot-guard.hook`,
+  `01-omarchy-m5-esp-space.hook` (644) and `m5-boot-guard` (755). `j714s-boot-guard` is the shim, and
+  the four files are byte-identical to the recipe. Nothing else changed. `test.sh` isn't packaged
+  and makepkg doesn't run it.
+- `test.sh` (his tests, normal user, x86 PC): all passed. That is 60 `ok`; the 4 checks against
+  stock boot hooks skip because those hooks aren't on the PC. The same check run by hand against the
+  J714s's own hooks (read over SSH: 90-mkinitcpio-install in /usr/share and /etc/pacman.d,
+  90-mkinitcpio-apple-install, 91-omarchy-mac-boot-initramfs, 95-m1n1-install,
+  95-omarchy-mac-dtb-overlays, 96-omarchy-j714s-boot-ctxr, 81-omarchy-mac-limine-deploy) found every
+  Path target in the ESP hook.
+- The #11 container test (`guard-test16.sh`, the 21 cases above plus a case 0 and four ESP cases),
+  in privileged throwaway containers: j714s12 baseline with the J714s `compatible`; j714s13 (installed
+  as an upgrade from j714s12) with the J714s's exact `compatible` (`apple,j714s apple,t6050
+  apple,arm-platform`, served at `/sys/firmware/devicetree/base`); j714s13 with no readable device
+  tree. All three: 0 FAIL, and every case's full pacman output is identical to the baseline. The only
+  differences are the renamed 00 hook line and the extra 01 hook line on transactions that pass.
+  The upgrade from j714s12 runs the old hook and removes the old hook file.
+  ESP cases on the J714s contexts: with a 60 MiB `/boot/efi`, a J714s kernel upgrade and a firmware
+  reinstall go through (the 01 hook runs and does nothing), and a generic kernel is still stopped by
+  the package guard. With `/boot/efi` not mounted, a J714s kernel rollback goes through. A
+  `compatible` of `apple,k114s` as a control: the K114s checks fire (`/boot/efi is not mounted`), so
+  the containers really read the device tree.
+- On the J714s (release 6 fresh install with j714s12, no reboot): `pacman -U` j714s13 over j714s12
+  went through, running the old hook. (a) Reinstalling j714s13 went through, exit 0. The 01 hook
+  printed its line ("Checking free space on the EFI partition (K114s)...") and nothing else, and
+  `m5-boot-guard esp` run directly exits 0. (b) A fake generic `linux-aurora 7.2.11.aurora16-1` was
+  **stopped** ("STOPPED by the J714s boot guard", message as in j714s12), exit 1, "no packages were
+  upgraded". Before the install, after it, after (a) and after (b), these were all unchanged:
+  `linux-aurora 7.3.0.aurora17.v272-11`, `m1n1-aurora 1.6.1.aurora24.v272-3`,
+  `uboot-aurora 2026.07.aurora6.j714s3-1`; sha256 of vmlinuz `0779a659…`, initramfs `b160b621…`,
+  `m1n1/boot-ctxr.bin` `bf702326…`, UKI `0f728ed7…`, `limine.conf` `263d2f33…`, `/etc/pacman.conf`
+  `4fb09042…`. The rebuilds came out byte-identical. ESP free stayed at 146882560 bytes (140 MiB).
+  `pacman -Qk` found 0 missing files, and no unit failed.
+
+The ESP space check can't block a J714s update: `m5-boot-guard esp` returns before any check unless
+the `compatible` has `apple,k114s`. Not seen yet: j714s13 through a reboot, and the K114s checks on a
+real K114s transaction (his report covers a direct run only).
+
 ## 2026-11-15: #15, the engine's firmware rebuild path picks this device's row (chrisohearn)
 
 [#15](https://github.com/betizzel/omarchy-m5/pull/15) from chrisohearn: `installer/patches-j714s-r2/0010`.
