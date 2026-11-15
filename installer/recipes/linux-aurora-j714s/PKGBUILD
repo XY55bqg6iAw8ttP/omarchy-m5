@@ -34,13 +34,15 @@
 #   0032     #2018 (open, Isaac-Duarte) at ad7f44429aab: the Type-C PHY's domains held through s2idle
 #            (both USB-C ports dead after a wake without it). Upstream merge order: #1647, #1789,
 #            #2018, #2012 or all together.
+#   0033     this repo (v272-13): the HDMI PHY (ATC3, DP-only) takes 0032's s2idle domain hold; without
+#            it the first HDMI power-up after a sleep times out and the DCP behind it crashes
 # Dropped at the v272-12 re-pin (upstream carries them): #1925, #1946, #1948 (G17), #1950 (fast-die).
 # Config (v272-9): BT_RFCOMM, BT_RFCOMM_TTY, PKCS8_PRIVATE_KEY_PARSER (chrisohearn, betizzel/omarchy-m5#9)
 # Same package name as the image's kernel (linux-aurora); the version sorts above up273.
 
 _auroraver=7.3.0
 _aurorarel=17.v272
-pkgrel=12
+pkgrel=13
 
 _commit=c0a2a7522b4eb123f3f1fcf1c9b842b773ae480f
 
@@ -72,7 +74,7 @@ sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
             'e8d5c2a4877871cdc91e406e3547329996dc8bd2103b1cdb117fb8a88537f2a7'
-            'd048c8c874f1496c600e220ece55759026eb0825fed05bfd018ad749006902be'
+            '5bdb6a129b4270eb75b817570d2447ad2986a279ab3a2985ecb80e1a8c2cc001'
             'a1d21c3c4803cfcc97edccc11b633f89367515e0f336dcacbdddc66782ff0157'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 
