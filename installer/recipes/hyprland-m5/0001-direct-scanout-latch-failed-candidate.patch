@@ -1,4 +1,4 @@
-From 575a1d57c2ef7a8c7d949963fea83aa7a2913d5c Mon Sep 17 00:00:00 2001
+From 89a3adfbcc75a84e958e83f75e689d06570f0a17 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sun, 8 Nov 2026 10:19:30 -0500
 Subject: [PATCH] monitor: latch a failed direct-scanout candidate and test it
@@ -59,10 +59,15 @@ Behaviour when the test passes is otherwise the same. The swapchain is no
 longer switched to the client's format at scanout entry; it is switched
 lazily by the next CMonitorState::commit() (if any) during the scanout,
 as today, and is already in the output's format when the scanout ends.
+
+The latch members sit at the end of CMonitor, after every stock member, so plugins built
+against stock Hyprland headers (omarchy-hyprland-titlebars) keep reading CMonitor at the
+right offsets. In the middle of the class they moved m_layerSurfaceLayers by 32 bytes and
+the titlebars plugin aborted Hyprland on a click (chrisohearn, betizzel/omarchy-m5#8).
 ---
  src/output/Monitor.cpp | 46 +++++++++++++++++++++++++++++-------------
- src/output/Monitor.hpp |  4 ++++
- 2 files changed, 36 insertions(+), 14 deletions(-)
+ src/output/Monitor.hpp |  9 +++++++++
+ 2 files changed, 41 insertions(+), 14 deletions(-)
 
 diff --git a/src/output/Monitor.cpp b/src/output/Monitor.cpp
 index 7775fca..0f562ae 100644
@@ -74,12 +79,12 @@ index 7775fca..0f562ae 100644
      const auto PWORKSPACE = m_activeWorkspace;
 -    if (!PWORKSPACE)
 -        return;
--
--    if (isSolitaryBlocked())
--        return;
 +    if (PWORKSPACE && !isSolitaryBlocked())
 +        m_solitaryClient = Fullscreen::controller()->getFullscreenWindow(m_self.lock());
  
+-    if (isSolitaryBlocked())
+-        return;
+-
 -    m_solitaryClient = Fullscreen::controller()->getFullscreenWindow(m_self.lock());
 +    // the failed-scanout latch belongs to one candidate: another one (or none) gets a fresh test
 +    if (m_dsFailedClient && !(m_solitaryClient == m_dsFailedClient))
@@ -159,17 +164,24 @@ index 7775fca..0f562ae 100644
  
      auto    damageTransaction = m_damage.beginTransaction();
 diff --git a/src/output/Monitor.hpp b/src/output/Monitor.hpp
-index c37e48c..b243bbb 100644
+index c37e48c..1760921 100644
 --- a/src/output/Monitor.hpp
 +++ b/src/output/Monitor.hpp
-@@ -154,6 +154,10 @@ namespace Monitor {
-         PHLWINDOWREF m_lastScanout;
-         bool m_directScanoutIsActive    = false; // for cleanup logic. m_lastScanout.expired() can become true before the DS cleanup if client crashes/exits while DS is active.
-         bool m_scanoutNeedsCursorUpdate = false;
-+        // candidate whose scanout test failed: blocked (DS_BLOCK_FAILED) until the candidate changes or it offers a buffer with another format/modifier
+@@ -424,5 +424,14 @@ namespace Monitor {
+         float m_minLuminance      = -1.0f;
+         int   m_maxLuminance      = -1;
+         int   m_maxAvgLuminance   = -1;
++
++      public:
++        // Last in the class so every member before keeps stock Hyprland's offset: plugins built
++        // against stock headers (omarchy-hyprland-titlebars) read CMonitor at fixed offsets.
++        // Candidate whose scanout test failed: blocked (DS_BLOCK_FAILED) until the candidate
++        // changes or it offers a buffer with another format/modifier.
 +        PHLWINDOWREF m_dsFailedClient;
 +        uint32_t     m_dsFailedFormat   = DRM_FORMAT_INVALID;
 +        uint64_t     m_dsFailedModifier = DRM_FORMAT_MOD_INVALID;
- 
-         // for special fade/blur
-         PHLANIMVAR<float> m_specialFade;
+     };
+ }
+-- 
+2.56.0
+

@@ -17,7 +17,7 @@
 pkgname=hyprland-m5
 pkgver=0.57.2
 # Above Arch's 0.57.2-1, so an x86_64 machine that took Arch's build moves to this one
-pkgrel=2
+pkgrel=3
 pkgdesc='Hyprland for the M5 Pro MacBook DCP (Omarchy 0.57.2-2 + direct-scanout latch + alpha-only primary planes)'
 # Built for x86_64 too, so PCs get the patches below and move with the titlebars plugin: see README.md
 arch=(x86_64 aarch64)
@@ -92,7 +92,7 @@ sha256sums=('34dbec0738ab88c8228caf89385662688ab1601ea58fbe5c60a6b6ab383db46d'
             '26d62139b8ae55e286bcdff1838a6bc01a021d8f1039b40b8fa523df83f61610'
             '8fa0f57dc1b3246ab4e30ae81419150f4af7767fb31e739e36c824c6d99fab73'
             'c14fb0ec02d97100bcfa4e5c8daaf524972fa5c665e04960619744ba01c73c39'
-            '3049a6d8bcef2ad5b3e34a2daf9ab59fb4d3f9b05b455d553d8435e53aca516b'
+            'a919446a8fe92d4c251c5310ee2f1a6c567136e8b4d450d1fac08526e552b849'
             '5fcd37fc0193223d10d309441f87acd82552fb497d5d9fc7f34f874a40bfdd42')
 
 prepare() {
