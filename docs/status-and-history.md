@@ -24,8 +24,8 @@ the 27.3 beta stub:
   unlocked by fingerprint (password still works as the fallback). That makes two J714s machines
   on 27.3. Not tried on 27.2 yet.
 - **An old m1n1 Stage 1 in front of an Aura Stage 2 hangs on the logo.** Our U-Boot runs the ANS
-  handshake again unless `/chosen/asahi,nvme-adopt` is set, and the firmware accepts that
-  handshake only once per boot. His one-line fix: add `chosen.asahi,nvme-adopt=live-rtkit-v1` to
+  handshake again when the controller isn't already enabled and `/chosen/asahi,nvme-adopt` is
+  not set, and the firmware accepts that handshake only once per boot. His one-line fix: add `chosen.asahi,nvme-adopt=live-rtkit-v1` to
   the end of `m1n1/boot.bin`. The 27.2 images are fresh installs with Aura as Stage 1, so they
   don't use that combination. Release 1's boot loop, under Aura's own Stage 1, was a different
   hand-off problem, fixed by aura #213 from release 2 on
