@@ -81,6 +81,19 @@ if [[ -e $allow ]]; then
   exit 0
 fi
 
+# omarchy-refresh-pacman copies pacman.conf to pacman.conf.bak on every run, so a second run
+# (its error text says to rerun) would leave no pinned copy. Keep one where it never writes.
+saved=/etc/pacman.conf.j714s-pinned
+if ! grep -q '^IgnorePkg' /etc/pacman.conf 2>/dev/null && grep -q '^IgnorePkg' /etc/pacman.conf.bak 2>/dev/null; then
+  cp -f /etc/pacman.conf.bak "$saved" 2>/dev/null
+fi
+if grep -q '^IgnorePkg' "$saved" 2>/dev/null; then
+  restore="      sudo cp $saved /etc/pacman.conf
+    ($saved is your pacman.conf from before it was overwritten, kept by this guard)"
+else
+  restore="      add an IgnorePkg line for the packages above under [options] in /etc/pacman.conf"
+fi
+
 cat >&2 <<EOF
 
 ==> STOPPED by the J714s boot guard. Nothing has been changed.
@@ -90,8 +103,8 @@ $(printf '      %s\n' "${problems[@]}")
 
     Usually /etc/pacman.conf has lost the image's IgnorePkg line: an Omarchy channel switch
     (Update > Channel), 'omarchy refresh pacman' and 'omarchy reinstall' overwrite that file.
-    Don't use those on this image for now. To put the line back, if the backup still has it:
-      grep IgnorePkg /etc/pacman.conf.bak && sudo cp /etc/pacman.conf.bak /etc/pacman.conf
+    Don't use those on this image for now. To put the line back:
+$restore
     then run the update again. https://github.com/betizzel/omarchy-m5/issues/11
 
     Only if you really mean to make this change: sudo mkdir -p ${allow%/*} && sudo touch $allow
