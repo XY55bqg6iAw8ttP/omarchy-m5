@@ -60,7 +60,7 @@ Nothing left here. Checked 2026-11-14:
 
 ## Gathered from others, built, waiting on a boot (2026-11-15)
 
-Each kernel builds on the one above it. v272-8 hung the logo install on its first boot (Omarchy logo, no disk prompt). On 2026-11-15 v272-8 (its own kernel and device tree) booted from RAM on the dev path (27.3 stub, older Aura) in about a minute, Wi-Fi up, so neither of its device-tree changes hangs a boot by itself; v272-11 booted the same way (about a minute, Wi-Fi up); the logo install's hang is still to be explained (27.2 stub and its Stage 2). The logo ESP now has v272-7's device tree with v272-8's kernel, so the next boot shows which part hangs. Until then v272-9 and v272-10 are not installed.
+Each kernel builds on the one above it. The first boot after installing v272-8 on the logo install sat on an Omarchy logo with no disk prompt; that was most likely not v272-8: a reboot from the logo install goes to the Mac's default startup disk (the older stub), whose stage 1 waits on its logo when the PC's catcher is not running, and the catcher was down then. On 2026-11-15 v272-8 (its own kernel and device tree) booted from RAM on the dev path (27.3 stub, older Aura) in about a minute, Wi-Fi up, so neither of its device-tree changes hangs a boot by itself; v272-11 booted the same way (about a minute, Wi-Fi up); the logo install then booted the v272-8 kernel when picked in the boot picker. The logo ESP now has v272-7's device tree with v272-8's kernel, so the next boot shows which part hangs. Until then v272-9 and v272-10 are not installed.
 
 | Kernel | Adds | Source | Their hardware evidence |
 | --- | --- | --- | --- |
