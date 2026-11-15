@@ -44,6 +44,8 @@ Nothing left here. Checked 2026-11-14:
 | T4 | Isaac-Duarte: J714s fan targets (aurora-silicon/linux #1944) | target 3000 gave 2989 rpm, 0 hands back; on v272-8..11 and the fresh install | [#1944 comment](https://github.com/aurora-silicon/linux/pull/1944#issuecomment-6900377583) | sent 2026-11-15 |
 | T5 | Isaac-Duarte: dock third display (#1921) with FatBoy721's HDMI DT | HDMI 5120x1440@144 and 3840x2160@60, left-front DP 5120x1440@144 work with both in the tree; no dock tried; merged-mode-peer observation from the code | [#1921 comment](https://github.com/aurora-silicon/linux/pull/1921#issuecomment-6900377857) | sent 2026-11-15 |
 
+| T6 | Isaac-Duarte #2012/#2018 + sithglan/Jens Axboe #1647: J714s s2idle | lid sleep works on v272-12 (2 cycles, 3 s and 3 min 37 s); USB-C left-front and right alive after wake | [#2012](https://github.com/aurora-silicon/linux/pull/2012#issuecomment-6901870977), [#2018](https://github.com/aurora-silicon/linux/pull/2018#issuecomment-6901871277), [#1647](https://github.com/aurora-silicon/linux/pull/1647#issuecomment-6901871583) | sent 2026-11-15 |
+
 ## Waiting on a test
 
 | # | Change | The test it waits for |

@@ -16,6 +16,8 @@ carries them: the old 0029-0031 (G17 #1925/#1946/#1948) and 0032 (#1950 fast-die
 config leaves `CONFIG_APPLE_SOC_SLEEP` off, so `/sys/power/mem_sleep` offers `s2idle` only.
 Package `linux-aurora-7.3.0.aurora17.v272-12-aarch64.pkg.tar.zst`, sha256 `d2dcbe315bd5577367ff405e19f6d91506c4914bd7fa3f5d66d38349c301a4fb` (44289449 bytes).
 
+**v272-12 booted on TripleU613's J714s, 2026-11-15** (fresh release-6 install, firmware j714s13): 44 s boot, no failed units, `mem_sleep` offers only `[s2idle]`, the rebuilt `atc-t6050-dp` loaded. **Lid sleep works:** two s2idle cycles by lid close/open (3 s and 3 min 37 s), `suspend_stats` success 2 / fail 0; after the wake panel, Wi-Fi, Bluetooth, sound and speaker protection back, and on the left-front and right USB-C ports a charger charged and a USB device enumerated (the left-back/DFU port gives no response, as before; #2017). Test reports: aurora-silicon/linux #2012, #2018, #1647. Not tried: a dock or display across a sleep, long sleeps.
+
 Status (2026-11-14, latest): kernel v272-7 is v272-6 plus the firewall matches (`xt_hl`,
 `ip6t_rt`: ufw's IPv6 rules), same sources and patches. **Booted on TripleU613's J714s on 2026-11-14** (installed by
 package over release 4): sound cards, Neural Engine device and ufw up at boot. External displays
