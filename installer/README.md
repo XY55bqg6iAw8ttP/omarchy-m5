@@ -140,6 +140,7 @@ and light-sensor calibration).
 | 0004 | release 3: `linux-aurora 7.3.0.aurora17.v272-4` (kernel 0019, Jens Axboe's #1645: the 27.2 AOP) and `omarchy-aurora-firmware 20261014.j714s9` (loads `aop` at boot on the J714s), from ac63a3d; set `j714s-dev-runtime-7cd4572ff7ef`; qualification pins `7.3.0-17.v272-4-ARCH`; TREE `437d6908` |
 | 0005 | release 4: `omarchy-aurora-firmware 20261014.j714s10` (mounts `/boot` and `/boot/efi` from the partitions the system booted from, [`docs/duplicate-boot-ids.md`](../docs/duplicate-boot-ids.md)), from 0abeef9; set `j714s-dev-runtime-228cfc8f0fa9`; kernel pins unchanged; TREE `7530a7b9` |
 | 0006 | release 5: `linux-aurora 7.3.0.aurora17.v272-7` (a5ebec5f + kernel 0001–0023: FatBoy721's HDMI v2, Isaac-Duarte's dock route #1921, upstream's ANE and DCP work, the ufw IPv6 netfilter matches), from 3f735a3; set `j714s-dev-runtime-007165a5bf94`; qualification pins `7.3.0-17.v272-7-ARCH`; TREE `7872965a` |
+| 0007 | release 6: `linux-aurora 7.3.0.aurora17.v272-11` (a5ebec5f + kernel 0001–0032: v272-7 plus Isaac-Duarte's fan targets #1944 and dock tunnel fix #1930, DjDeveloperr's LDCM fix #1721 and fast-die limit #1950, Jens Axboe's PMP domains through s2idle #1789, three G17 fixes from upstream, RFCOMM and the PKCS8 key parser), from ee5df84; `hyprland-m5 0.57.2-3` (stock `CMonitor` offsets, #8), from 41d8d77, the J714s-built `.pkg.tar.xz` (`531fc814…`) recompressed to zstd with the same tar inside (`62c59415…`); set `j714s-dev-runtime-c4fe82ac5a13`; qualification pins `7.3.0-17.v272-11-ARCH`; TREE `dd1d3dff` |
 
 Built (2026-11-13):
 - Engine: release `engine-v0.9.2-omarchy.20261113.774d9abc59d3`.
@@ -196,3 +197,22 @@ The v272-7 kernel was installed by package over release 4 on TripleU613's J714s 
 (2026-11-14): HDMI and DisplayPort on the left non-DFU USB-C port to a Samsung Odyssey G9,
 speakers, sound cards, Neural Engine device, camera, Wi-Fi, Bluetooth, `ufw`. DisplayPort on the
 right port does not train; a dock / three displays are untested.
+
+## omarchy-j714s 6 (built 2026-11-15)
+
+Release 5 plus `patches-j714s-r2` 0007 (above): kernel v272-11 and hyprland-m5 0.57.2-3. Same Aura
+(v272-3), firmware (j714s10), engine (`v0.9.2-omarchy.20261113.774d9abc59d3`) and Recovery app (run
+43477703681) as release 5; the other 18 packages in the signed set are byte-identical to release 5's.
+
+- Inputs: release `installer-build-inputs-j714s-eadf4b10dd3d` (finish-inputs on the tree `rebuild-installer-tree.sh DEST upstream-27.3 j714s j714s-r2` makes, HEAD 071a766).
+- Image: `installer-image.yml` run 43683401707 (headSha 2d4e399, `image-version` 6) → release `j714s-developer-image-omarchy-j714s-6`, `omarchy-j714s-6-aarch64-apple-silicon-mac-os-package.zip` sha256 `@PAYLOAD@`. Inspection and provenance checks passed; `m1n1/boot-ctxr.bin` @STAGE2@.
+- update-check: run 43684876253.
+- App: `installer-app.yml` run 43684878088 → prerelease `omarchy-j714s-6`.
+
+The v272-11 kernel was installed by package on TripleU613's J714s and booted (2026-11-15, see
+[`docs/upstream.md`](../docs/upstream.md)): 25.6 s, no failed units, fan targets writable, fast-die
+limit on all three clusters, `rfcomm` and `pkcs8_key_parser` loaded. No monitor or dock was
+attached: HDMI and USB-C DisplayPort were seen on v272-7 and are re-checked during the
+from-scratch install. hyprland-m5 0.57.2-3 was tested nested on that Mac before the release.
+
+From-scratch install of release 6 on that J714s, 2026-11-15 ([`docs/fresh-install-j714s.md`](../docs/fresh-install-j714s.md)): the app shrank macOS to 600 GB and installed, Finish setup in Recovery worked, first boot on v272-11 with hyprland-m5 0.57.2-3, no failed units, `/boot` and `/boot/efi` on the install's own partitions, sound cards, ANE and camera devices, Wi-Fi, Bluetooth, ufw, fan targets, fast-die limit. Found: the speaker switch-over ran 0.2 s before the speaker card registered (fixed in firmware j714s12, commit 101a6e6).

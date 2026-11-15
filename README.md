@@ -6,7 +6,7 @@ We don't reinvent anything. A lot of people are getting Linux running on the M5 
 in their own repo. We collect the parts that already work, put them together in **one image
 with one installer**, test it on a real J714s, and say who made each part.
 
-**The image: [omarchy-j714s 5](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-5)** (prerelease).
+**The image: [omarchy-j714s 6](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6)** (prerelease).
 
 **Send your M5 work here.** If you have something working on an M5 Mac, open a pull request
 under your own name ([how](CONTRIBUTING.md)); keep your upstream pull request, and we drop our
@@ -17,27 +17,29 @@ as tested, and the known gaps are listed, not hidden.
 
 ## What works
 
-Checked on one J714s (TripleU613's) running release 5's packages on Apple's 27.2 firmware,
-2026-11-14. "Seen" and "heard" mean its owner looked or listened. That Mac was installed with
-release 1 and updated by packages since; **nobody has run this installer fresh yet.**
+Checked on one J714s (TripleU613's) on Apple's 27.2 firmware. On 2026-11-15 release 6 was
+installed **from scratch** there: the installer shrank macOS, installed, Finish setup in Recovery
+worked and the first boot came up on kernel v272-11. "Seen" and "heard" mean its owner looked or
+listened; the display and speaker rows were seen and heard on release 5's kernel (v272-7,
+2026-11-14) and have not been re-checked by eye or ear on the fresh install yet.
 
-| Thing | Release 5 | Whose work |
+| Thing | Release 6 | Whose work |
 | --- | --- | --- |
 | Boots from the Mac's own disk, all 15 CPU cores at EL2 | ✅ | aurora-silicon, DjDeveloperr, rolotrealanis98, betizzel, RyanTheTide |
 | Keyboard, backlight, trackpad | ✅ | rolotrealanis98, edimoldovan |
 | Wi-Fi | ✅ | rolotrealanis98, betizzel, TripleU613, DjDeveloperr, edimoldovan |
-| Bluetooth | 🟡 on; hands-free and headset profiles need the next kernel | same, chrisohearn (report) |
+| Bluetooth | 🟡 on; RFCOMM loads (for hands-free and headset profiles); headset audio not tried | same, chrisohearn (report) |
 | GPU (Vulkan, the desktop renders on it) | ✅ | TripleU613, betizzel, DjDeveloperr, rolotrealanis98, joshuaswarren |
 | Screen: full panel, 3024x1964 at 120 Hz | ✅ seen | FatBoy721, edimoldovan, rolotrealanis98, betizzel |
-| Speakers, with speaker protection | ✅ heard at the first-start 30%; nobody has played loud yet | DjDeveloperr (speakerguardd v2), Jens Axboe (27.2 AOP fix) |
+| Speakers, with speaker protection | ✅ heard at the first-start 30% (release 5's kernel); on the fresh install the switch-over to speakerguardd v2 ran too early at first boot and passed when run by hand (fixed for the next image); nobody has played loud yet | DjDeveloperr (speakerguardd v2), Jens Axboe (27.2 AOP fix) |
 | Microphones | 🟡 very faint | edimoldovan, kazuhidet |
 | Headphone jack | untested on 27.2 | rolotrealanis98, edimoldovan |
-| HDMI | ✅ seen on a Samsung Odyssey G9: 5120x1440 at 60/120/144 Hz, 3840x2160 at 60 Hz | FatBoy721 |
-| DisplayPort over USB-C, the left port that is not the DFU port | ✅ seen: 5120x1440 at 144 Hz, 10-bit | DjDeveloperr, erikwb, this repo |
+| HDMI | ✅ seen on a Samsung Odyssey G9: 5120x1440 at 60/120/144 Hz, 3840x2160 at 60 Hz (release 5's kernel; not re-checked on 6 yet) | FatBoy721 |
+| DisplayPort over USB-C, the left port that is not the DFU port | ✅ seen: 5120x1440 at 144 Hz, 10-bit (release 5's kernel; not re-checked on 6 yet) | DjDeveloperr, erikwb, this repo |
 | DisplayPort over USB-C, right port | ❌ the link does not come up (640x480 fallback only) | open |
 | DisplayPort over USB-C, left DFU port | ❌ nothing shows in Linux | open |
-| Thunderbolt dock, three displays | untested | Isaac-Duarte |
-| Front camera | 🟡 device up, tuning files collected from macOS at boot; no picture checked on release 5 | edimoldovan, Jens Axboe, sithglan, Erik Bourget, DjDeveloperr |
+| Thunderbolt dock, three displays | untested (release 6 adds Isaac-Duarte's dark-display fix, #1930) | Isaac-Duarte |
+| Front camera | 🟡 device up, tuning files collected from macOS at boot; no picture checked yet | edimoldovan, Jens Axboe, sithglan, Erik Bourget, DjDeveloperr |
 | Neural Engine | 🟡 device up; no workload run | DjDeveloperr, Joshua Warren, Nick, this repo |
 | Hardware video encode | ❌ probe only on 27.2 | DjDeveloperr, this repo |
 | Hardware video decode | untested on 27.2 | DjDeveloperr |
@@ -45,7 +47,8 @@ release 1 and updated by packages since; **nobody has run this installer fresh y
 | Variable refresh on the panel | 🟡 offered to the compositor; not checked by eye | rolotrealanis98 |
 | Firewall (`ufw`) | ✅ | this repo, chrisohearn (report) |
 | Sleep | ❌ no deep sleep; lid close untested on 27.2 | open |
-| Fans | 🟡 Apple's own curve only; Linux can't raise them yet | Isaac-Duarte (next kernel) |
+| Fans | ✅ Linux can set fan targets (tested: target 3000 gave 2989 rpm) | Isaac-Duarte (#1944) |
+| Sustained CPU load | ✅ the clusters follow the fast-die limit; the die held 107–109 C with 15 busy cores | DjDeveloperr (#1950) |
 | Updates (`omarchy update`) | ✅ checked in CI ([`update-check`](.github/workflows/update-check.yml)) | this repo |
 | Two Omarchy installs on one disk | ✅ each mounts its own boot partitions ([why](docs/duplicate-boot-ids.md)) | this repo |
 
@@ -64,7 +67,7 @@ It runs on a Mac, not from a Linux PC. You need:
 - **macOS 27.2 or newer** on it, FileVault on, an administrator account.
 - About **35 GB free** on the Mac's disk, the charger, and about an hour.
 
-Steps (the [release page](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-5) has every detail):
+Steps (the [release page](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6) has every detail):
 
 1. **Download** the installer package from the release (online: small; offline: the `.partN`
    files joined) and check it against `SHA256SUMS`.
@@ -82,7 +85,7 @@ Steps (the [release page](https://github.com/betizzel/omarchy-m5/releases/tag/om
 
 Stuck? Open an [issue](https://github.com/betizzel/omarchy-m5/issues) and paste what you see.
 
-Earlier releases (1 to 4) and the older developer images are superseded; what each one was and
+Earlier releases (1 to 5) and the older developer images are superseded; what each one was and
 why it was replaced is in [`docs/status-and-history.md`](docs/status-and-history.md). What is
 being sent upstream, and what waits on a test first, is in [`docs/upstream.md`](docs/upstream.md).
 

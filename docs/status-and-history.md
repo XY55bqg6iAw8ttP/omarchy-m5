@@ -7,6 +7,7 @@ Apple's 27.2 firmware. The newest is on the [README](../README.md). The older on
 
 | Image | What it was | Why it was replaced |
 | --- | --- | --- |
+| `omarchy-j714s 5` | kernel v272-7: HDMI 4K and USB-C DP on the left port | replaced by 6 for fans, thermal limit, Bluetooth RFCOMM, dock fixes |
 | `omarchy-j714s 4` | 3 plus the boot-mount fix for two installs on one disk (firmware j714s10) | HDMI 4K stayed blank and `ufw` failed: kernel v272-7 in 5 |
 | `omarchy-j714s 3` | 2 plus built-in sound on 27.2 (Jens Axboe's AOP fix), AOP loaded at boot | a second Omarchy install on the disk could take its kernel updates: fixed in 4 |
 | `omarchy-j714s 2` | 1 plus the 27.2 Neural Engine pin, FatBoy721's HDMI v1, speakerguardd v2 | no built-in sound on 27.2: fixed in 3 |
