@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: TripleU <182648541+TripleU613@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 19:49:53 -0500
+Subject: [PATCH] J714s release 5: kernel v272-7 (HDMI v2, dock route, ufw IPv6
+ matches)
+
+Re-pinned from betizzel/omarchy-m5 3f735a3: linux-aurora
+7.3.0.aurora17.v272-7 (96d8f4b0..., 44215820 bytes): aurora-silicon/linux
+integration/aurora a5ebec5f plus patches/j714s-27.2/linux 0001-0023
+(FatBoy721's HDMI v2, Isaac-Duarte's dock third display #1921, upstream's
+ANE H17 work and DCP fixes, Jens Axboe's AOP fix from upstream) and the two
+netfilter matches ufw's IPv6 rules need. The qualification pins follow
+7.3.0-17.v272-7-ARCH. Nothing else changes. Set
+j714s-dev-runtime-007165a5bf94.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+---
+ .../candidate-package-manifest.json                | 14 +++++++-------
+ image-builder/builder/stage1_qualification.py      |  4 ++--
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
+index 63c04aa..2966df0 100644
+--- a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
++++ b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
+@@ -1,7 +1,7 @@
+ {
+   "schema": 1,
+   "candidate_only": true,
+-  "set": "j714s-dev-runtime-228cfc8f0fa9",
++  "set": "j714s-dev-runtime-007165a5bf94",
+   "source": {
+     "repository": "omacom/omarchy",
+     "commit": "a948d8a6871f446b335258c827648ac5f4e9428b",
+@@ -114,15 +114,15 @@
+     },
+     {
+       "name": "linux-aurora",
+-      "version": "7.3.0.aurora17.v272-4",
++      "version": "7.3.0.aurora17.v272-7",
+       "arch": "aarch64",
+-      "filename": "linux-aurora-7.3.0.aurora17.v272-4-aarch64.pkg.tar.zst",
+-      "sha256": "964cd9a3e5863320ef11b272e34852a58e79f2c401b287163dcee79622bab246",
++      "filename": "linux-aurora-7.3.0.aurora17.v272-7-aarch64.pkg.tar.zst",
++      "sha256": "96d8f4b0aaf74fc7e164e37fb240e905a84fdef3152de163a339d3181620d2aa",
+       "source": {
+         "repository": "betizzel/omarchy-m5",
+-        "commit": "ac63a3de54406d2a40e9b281679a57a02ad97494"
++        "commit": "3f735a30411c3ec71ff95bff4f3176d8dc980bcf"
+       },
+-      "size_bytes": 44136582
++      "size_bytes": 44215820
+     },
+     {
+       "name": "m1n1-aurora",
+@@ -264,5 +264,5 @@
+     "No physical installer or hardware qualification",
+     "No supported release or catalog promotion"
+   ],
+-  "set_sha256": "228cfc8f0fa92fb034c0a950e09e25c3ecb147e9ed61efbc37003b202b14e3f6"
++  "set_sha256": "007165a5bf94dc2b7275c36a10b27358656179d6de4d41d2b153f3555ad1249d"
+ }
+diff --git a/image-builder/builder/stage1_qualification.py b/image-builder/builder/stage1_qualification.py
+index 22bc351..d85867b 100644
+--- a/image-builder/builder/stage1_qualification.py
++++ b/image-builder/builder/stage1_qualification.py
+@@ -65,8 +65,8 @@ SYSTEM_FIRMWARE = re.compile(r"(?:mBoot|iBoot)-[0-9]+(?:\.[0-9]+)*\Z")
+ # _aurorarel=17.v272; pkgrel 2 is release 2's re-pin on integration/aurora a34d26c2; "v272"
+ # sorts above "up273"). Checked against the built archive's pkgver-pkgrel and its
+ # usr/lib/modules/<release> directory; candidate-package-manifest.json matches.
+-J714S_KERNEL_VERSION = "7.3.0.aurora17.v272-4"
+-J714S_KERNEL_RELEASE = "7.3.0-17.v272-4-ARCH"
++J714S_KERNEL_VERSION = "7.3.0.aurora17.v272-7"
++J714S_KERNEL_RELEASE = "7.3.0-17.v272-7-ARCH"
+ J714S_ARGUMENTS = ("macsmc.m5_pcio_budget=2", "macsmc.m5_n1_budget=3")
+ # What the merged kernel (betizzel/omarchy-m5 linux-aurora-n1 0001-0008) was verified
+ # with on bare metal, besides the budgets: PMGR domains read-only except the ones its
+-- 
+2.56.0
+
