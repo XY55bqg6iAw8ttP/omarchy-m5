@@ -7,7 +7,7 @@ Apple's 27.2 firmware. The newest is on the [README](../README.md). The older on
 
 | Image | What it was | Why it was replaced |
 | --- | --- | --- |
-| `omarchy-j714s 4` | 3 plus the boot-mount fix for two installs on one disk (firmware j714s10) | HDMI 4K stayed blank, `ufw` failed, DisplayPort on the left USB-C port only gave fallback modes: kernel v272-7 in 5 |
+| `omarchy-j714s 4` | 3 plus the boot-mount fix for two installs on one disk (firmware j714s10) | HDMI 4K stayed blank and `ufw` failed: kernel v272-7 in 5 |
 | `omarchy-j714s 3` | 2 plus built-in sound on 27.2 (Jens Axboe's AOP fix), AOP loaded at boot | a second Omarchy install on the disk could take its kernel updates: fixed in 4 |
 | `omarchy-j714s 2` | 1 plus the 27.2 Neural Engine pin, FatBoy721's HDMI v1, speakerguardd v2 | no built-in sound on 27.2: fixed in 3 |
 | `omarchy-j714s 1` | first 27.2 image with the Mac installer | boot loop after install (Aura stage 2 handed U-Boot a powered-off disk, [`install-failure-2026-11-13.md`](install-failure-2026-11-13.md)): fixed in 2 |
