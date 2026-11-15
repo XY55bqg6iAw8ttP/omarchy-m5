@@ -6069,7 +6069,7 @@ index 694192325b6e..439daa464e2b 100644
 -- 
 2.56.0
 
-From 3c0b2d7c521e741f9e10990294ca97f5dd6e05d0 Mon Sep 17 00:00:00 2001
+From a9a829c2e3990da7b69ef8c68526a8807d3c76cb Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sun, 15 Nov 2026 17:19:27 +0000
 Subject: [PATCH 31/32] PCI: apple: qualify the J714s for suspend-to-idle over
@@ -6090,14 +6090,9 @@ the check needs on this board too.
 
 Add the J714s to the list. For a clean wake it also needs the PMP's
 power domains kept on ("arm64: dts: apple: t6050: keep the PMP's power
-domains on"), and for the Type-C ports to work after the wake, the
-combo PHY's domains held through suspend-to-idle ("phy: apple:
-atc-t6050: keep the PHY's domains through suspend-to-idle").
-
-This allowlist and the PHY's combo_sleep_board() are two separate
-per-board lists. A board added here without the PHY's s2idle hold gets
-Type-C ports that are dead after every wake, as the J716c, the K114c and
-the K116s likely do today (seen on the J714s only).
+domains on"), and for the Type-C ports to work after the wake, the ATC
+usb-aon domains kept on ("arm64: dts: apple: t6050: keep the ATC usb-aon
+power domains on").
 
 Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 ---
@@ -6131,349 +6126,117 @@ index 439daa464e2b..cf8ad34c9b7e 100644
 -- 
 2.56.0
 
-From 04aebf90c8986350e2ebedcfa47d84fe1522b21b Mon Sep 17 00:00:00 2001
+From 7aa82e5f993bce24e84095d0b2895bab9c3351a4 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
-Date: Sun, 15 Nov 2026 15:51:29 +0000
-Subject: [PATCH 32/32] phy: apple: atc-t6050: keep the PHY's domains through
- suspend-to-idle
+Date: Sun, 15 Nov 2026 22:35:20 +0000
+Subject: [PATCH 32/32] arm64: dts: apple: t6050: keep the ATC usb-aon power
+ domains on
 
-On the J714s both Type-C ports are dead after a suspend-to-idle wake. A
-dock plugged in after it fails on either port before the PHY firmware is
-reached:
+On the J714s both Type-C ports are dead after a suspend-to-idle wake.
+The PHY's first start after it times out in its first power-up step:
 
   apple-t6050-dp-phy 2ab000000.phy: start of mode 1 failed (-110)
   apple-t6050-dp-phy 383000000.phy: CIO mode failed (-110), reverse orientation, 1 ms
 
-and the port controllers then give up ("failed to place Type-C mux in
-safe mode: -5"). The same dock comes up in CIO mode on both ports after a
-fresh boot. It happened in three boots: in one (08:25) the ports had not
-been used before the sleep and both failed after it; in another (09:02)
-both had run in CIO mode before it, and the right port, the only one
-tried, failed after it; the third (12:03) is the traced run below.
+Traced with pmgr-pwrstate's dynamic debug: at the noirq suspend genpd
+gates each port's usb domain, which was off at probe and so has no
+GENPD_FLAG_ACTIVE_WAKEUP, and with it its parents, common and usb-aon,
+whose own devices (the display crossbar's and the PHY's) have suspended.
+Nothing sets the PHY up again at an s2idle wake.
 
-The display crossbar holds each port's usb-aon and common domains from
-its probe on, so those never switch off at runtime. genpd's noirq
-suspend gates a domain once every member device has suspended, runtime
-holds or not, so suspend-to-idle switches them off for the first time
-since boot. No firmware runs at an s2idle wake to set them up again, and
-the PHY has no s2idle callbacks: its cold start then times out in the
-first power-up step (1 ms, one 1000 us poll).
+DjDeveloperr noted that the usb-aon domains should not be turned off
+("aon = always on"). The older SoCs (T8103, T8112, T600x, T602x) and
+T604x mark them apple,always-on; T603x, T8122, T8140 and T8132 outside
+the J713 do not, and neither did T6050.
 
-Traced with the PHY module from before this change (pmgr-pwrstate and
-genpd dynamic debug): at the noirq suspend genpd gates atc2_usb, then
-atc2_common and atc2_usb_aon, then the same three for ATC1, and powers
-all six on again at the resume; each domain's genpd usage goes from 0 to
-1. The usb domain was off when genpd took it over (about 5 ms idle at
-boot, usage 0); the controller powered it up after boot. So, per
-pmgr-pwrstate's rule (GENPD_FLAG_ACTIVE_WAKEUP only for a domain on at
-probe), it lacks that flag, and the dwc3 glue in it is counted as
-suspended although its wakeup is enabled. The domain goes off when its
-last device, a DART, has suspended. Its parents, common and usb-aon,
-go off in the same cascade, as this, their last subdomain still on,
-goes off: their own devices (the crossbar's and the PHY's) had already
-been counted suspended. On a T8142 J813, whose ATC domains were on at
-boot, dwc3's wakeup keeps them all on through s2idle.
+Tested on the J714s: with only atc0/1/2's usb-aon marked always-on and a
+PHY driver without any s2idle handling, genpd still gated atc*_usb and
+atc*_common on all three ports during a 42 s s2idle and powered them on
+again at the resume, but never touched usb-aon. After the wake a dock on
+the right port came up in CIO mode at the first plug, with three
+displays. With this patch's DTB, three s2idle sleeps in one boot (39 s,
+102 s and 12 min) were each followed by a dock coming up in CIO mode at
+the first plug on all three ports. Keeping usb-aon on is enough; gating
+usb and common across s2idle is harmless.
 
-Hold the PHY's domain devices out of the system transition when the
-sleep is suspend-to-idle, from the PM notifier's PM_SUSPEND_PREPARE to
-PM_POST_SUSPEND, so that they cover the prepare and complete phases as
-well. genpd then never counts a domain's devices all suspended, and each
-domain stays as runtime PM had it: an idle port's wrapper off, its usb
-domain as the USB controller holds it, the crossbar's on, a port in use
-as it was. thunderbolt/apple uses the same syscore mark for its
-router's domains, for a cable's lifetime.
-
-The hold is in the PHY rather than the crossbar or the device tree: the
-PHY is the device whose cold start needs the domains not gated since
-boot, and it already has the J714s sleep notifier. Which of the three
-gated domains (usb, common, usb-aon) holds what the PHY needs is not
-known, and the hold covers all three. Holding usb is a behaviour change
-of its own: before, atc*_usb, the dwc3 and its DARTs went off in s2idle;
-now they stay on, as dwc3-apple's s2idle path, which keeps the host in
-place, expects. The wrapper and the tunnel clock gates are held too and
-stay as runtime PM has them, off on an idle port. apple,sleep-retained
-would apply to deep sleep as well, where the PHY's own sleep handling
-decides what the always-on domain keeps. Giving the usb domain
-GENPD_FLAG_ACTIVE_WAKEUP, as the J813's domains have, would keep the
-chain on only while the dwc3 glue's wakeup stays enabled, which user
-space can turn off; it would need a new pmgr-pwrstate policy, since the
-flag follows the domain's state at probe on every SoC, and it would
-change deep sleep for those domains too. device_set_awake_path() on the
-PHY's domain devices would keep only domains with that flag, which usb
-lacks. The hold states the PHY's own requirement, whatever the wakeup
-policy, as the SEP (sep_pm_keep_domains()), the ISP's resident firmware
-and the USB4 router (thunderbolt/apple) hold theirs with the same
-syscore mark.
-
-Suspend-to-idle on the J714s needs "PCI: apple: qualify the J714s for
-suspend-to-idle over the adopted N1 link"; before it every attempt was
-refused, so this path had not run there. As with the PHY's deep-sleep
-notifier, this is in force on the J714s only, where the notifier is
-registered. A suspend-to-idle reached by writing "freeze" while "mem"
-means deep is not covered: the notifier goes by the default sleep, as
-dwc3-apple's does.
+Mark every T6050 usb-aon domain always-on. At runtime nothing changes
+where the display crossbar holds the domain from its probe on, as on the
+J714s (atc1, atc2) and the J716c (atc0 to atc2). On the other T6050
+boards the crossbar is disabled, so a usb-aon domain used by a PHY went
+off while its port was idle and now stays on (J714c, J716s, K114c,
+K116s: atc1, atc2; J775c, J873s: atc1, atc3; J775d: atc1, atc3, atc4,
+atc5), and an enabled usb-aon domain with no user is now powered at
+probe (atc3 on the J714c, J716c, J716s, K114c, K114s, K116c and K116s;
+atc1 on the K114s and K116c). The idle power this costs there, and the
+PHY without a usb-aon power cycle on those boards, are untested. genpd
+no longer gates usb-aon in a deep sleep's noirq phase either; the J714s
+already keeps ATC3's on through the commit (t6050-j714s-sleep.dtsi), and
+deep sleep cannot run on the J714s today, so that part is untested.
 
 Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 ---
- drivers/phy/apple/atc-t6050-combo.h | 47 ++++++++++++++++++++++++-----
- drivers/phy/apple/atc-t6050-dp.c    |  1 +
- 2 files changed, 41 insertions(+), 7 deletions(-)
+ arch/arm64/boot/dts/apple/t6050-die0.dtsi        | 2 ++
+ arch/arm64/boot/dts/apple/t6050-dieX.dtsi        | 1 +
+ arch/arm64/boot/dts/apple/t6050-peripherals.dtsi | 1 +
+ arch/arm64/boot/dts/apple/t6050-ultra.dtsi       | 1 +
+ 4 files changed, 5 insertions(+)
 
-diff --git a/drivers/phy/apple/atc-t6050-combo.h b/drivers/phy/apple/atc-t6050-combo.h
-index 2e5b8317f1ed..4ff849abb268 100644
---- a/drivers/phy/apple/atc-t6050-combo.h
-+++ b/drivers/phy/apple/atc-t6050-combo.h
-@@ -118,8 +118,9 @@ static void combo_pipe_fault(struct t6050_dp *dp, const char *what, int ret)
- /*
-  * What the combo PHY gained for a deep sleep outside its sleep callbacks (a wrapper domain
-  * still held at a stop is released, a safe state with a domain still held is stopped again,
-- * the always-on domain's hold over the sleep) is in force on the board it has run on, the
-- * J714s. On another T6050 board the stop, the safe state and the probe are as before.
-+ * the always-on domain's hold over the sleep) and its domains' hold over suspend-to-idle
-+ * are in force on the board they have run on, the J714s. On another T6050 board the stop,
-+ * the safe state and the probe are as before.
-  */
- static bool combo_sleep_board(void)
- {
-@@ -368,9 +369,34 @@ static void combo_resume(struct t6050_dp *dp)
- }
- 
- /*
-- * A port in use keeps its always-on domain through a deep sleep: held out of the system
-- * transition from before its prepare to after its complete, so the power domain is not
-- * counted as suspended, and asked of the sleep driver, which lowers the word otherwise.
-+ * Suspend-to-idle runs no firmware at the wake, and the PHY has no s2idle callbacks: its
-+ * domains have to come out of it as they went in. The display crossbar holds the always-on
-+ * and common domains from its probe on, so they never switch off at runtime, but genpd's
-+ * noirq suspend gates a domain once every member device has suspended, runtime holds or
-+ * not. On the J714s it gates usb (off at probe, so without GENPD_FLAG_ACTIVE_WAKEUP, and
-+ * the wakeup of the dwc3 in it does not count), then common and always-on, its parents.
-+ * Which of the three held the state the PHY needs is not known; after it, the PHY's first
-+ * power-up handshake times out (-ETIMEDOUT) on both ports until a reboot. Hold every domain
-+ * of the PHY out of the transition, from before its prepare to after its complete, so
-+ * genpd never counts them all suspended: each stays in its runtime state. The usb domain,
-+ * and with it the dwc3 and its DARTs, then stays on through s2idle, as dwc3-apple's
-+ * s2idle path, which keeps the host in place, expects.
-+ */
-+static void combo_s2idle_hold(struct t6050_dp *dp, bool hold)
-+{
-+	for (unsigned int i = 0; i < dp->ndomains; i++)
-+		dev_pm_syscore_device(dp->domain[i].dev, hold);
-+	for (unsigned int i = 0; dp->dp_gates && i < ATC_DP_TUNNELS; i++)
-+		dev_pm_syscore_device(dp->dp_gate[i].dev, hold);
-+	dp->s2idle_held = hold;
-+	dev_dbg(dp->dev, "domains %s suspend-to-idle\n", hold ? "held out of" : "released after");
-+}
-+
-+/*
-+ * Suspend-to-idle holds every domain of the PHY, see combo_s2idle_hold(). In a deep sleep a
-+ * port in use keeps its always-on domain: held out of the system transition from before its
-+ * prepare to after its complete, so the power domain is not counted as suspended, and asked
-+ * of the sleep driver, which lowers the word otherwise.
-  */
- static int combo_pm_notify(struct notifier_block *nb, unsigned long action, void *unused)
- {
-@@ -379,7 +405,12 @@ static int combo_pm_notify(struct notifier_block *nb, unsigned long action, void
- 	guard(mutex)(&dp->lock);
- 	switch (action) {
- 	case PM_SUSPEND_PREPARE:
--		if (pm_suspend_default_s2idle() || dp->faulted || dp->aon_syscore ||
-+		if (pm_suspend_default_s2idle()) {
-+			if (!dp->s2idle_held)
-+				combo_s2idle_hold(dp, true);
-+			break;
-+		}
-+		if (dp->faulted || dp->aon_syscore ||
- 		    dp->combo_mode == COMBO_SAFE || !dp->domain[0].active)
- 			break;
- 		if (!apple_sleep_usb_aon_keep(dp->port, true))
-@@ -388,6 +419,8 @@ static int combo_pm_notify(struct notifier_block *nb, unsigned long action, void
- 		dp->aon_syscore = true;
- 		break;
- 	case PM_POST_SUSPEND:
-+		if (dp->s2idle_held)
-+			combo_s2idle_hold(dp, false);
- 		apple_sleep_usb_aon_keep(dp->port, false);
- 		if (dp->aon_syscore) {
- 			dev_pm_syscore_device(dp->domain[0].dev, false);
-@@ -667,7 +700,7 @@ static int combo_setup(struct platform_device *pdev, struct t6050_dp *dp)
- 			return PTR_ERR(dp->combo_phy[i]);
- 		phy_set_drvdata(dp->combo_phy[i], dp);
- 	}
--	/* A deep sleep's hold of the always-on domain: see combo_sleep_board(). */
-+	/* The domains' hold over a system sleep, deep or s2idle: see combo_sleep_board(). */
- 	if (!combo_sleep_board())
- 		return 0;
- 	dp->pm_nb.notifier_call = combo_pm_notify;
-diff --git a/drivers/phy/apple/atc-t6050-dp.c b/drivers/phy/apple/atc-t6050-dp.c
-index 55c9e3cff2b2..75fdf78c490e 100644
---- a/drivers/phy/apple/atc-t6050-dp.c
-+++ b/drivers/phy/apple/atc-t6050-dp.c
-@@ -136,6 +136,7 @@ struct t6050_dp {
- 	bool sleep_stopped;		/* stopped for a sleep that has not been accounted for yet */
- 	bool aon_syscore;		/* the always-on domain is held out of this system transition */
- 	bool aon_kept;			/* the stop left the always-on domain's reference in place */
-+	bool s2idle_held;		/* every domain is held out of this suspend-to-idle */
- };
- 
- static int atc_domain_set(struct atc_domain *pd, bool active)
+diff --git a/arch/arm64/boot/dts/apple/t6050-die0.dtsi b/arch/arm64/boot/dts/apple/t6050-die0.dtsi
+index fdd2f6bfa746..caa23251d0f9 100644
+--- a/arch/arm64/boot/dts/apple/t6050-die0.dtsi
++++ b/arch/arm64/boot/dts/apple/t6050-die0.dtsi
+@@ -998,6 +998,7 @@ ps_atc2_usb_aon: power-controller@178 {
+ 		compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
+ 		reg = <0x178 4>;
+ 		label = "atc2_usb_aon";
++		apple,always-on; /* The ATC PHY loses its state without it */
+ 		#power-domain-cells = <0>;
+ 		#reset-cells = <0>;
+ 		status = "disabled";
+@@ -1029,6 +1030,7 @@ ps_atc3_usb_aon: power-controller@190 {
+ 		compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
+ 		reg = <0x190 4>;
+ 		label = "atc3_usb_aon";
++		apple,always-on; /* The ATC PHY loses its state without it */
+ 		#power-domain-cells = <0>;
+ 		#reset-cells = <0>;
+ 	};
+diff --git a/arch/arm64/boot/dts/apple/t6050-dieX.dtsi b/arch/arm64/boot/dts/apple/t6050-dieX.dtsi
+index 94e9def5533f..6c6a48ca205c 100644
+--- a/arch/arm64/boot/dts/apple/t6050-dieX.dtsi
++++ b/arch/arm64/boot/dts/apple/t6050-dieX.dtsi
+@@ -74,6 +74,7 @@ DIE_NODE(ps_atc1_usb_aon): power-controller@160 {
+ 			compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
+ 			reg = <0x160 4>;
+ 			label = DIE_ATC1_LABEL(_usb_aon);
++			apple,always-on; /* The ATC PHY loses its state without it */
+ 			#power-domain-cells = <0>;
+ 			#reset-cells = <0>;
+ 		};
+diff --git a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
+index 5c4a029f5751..ee04965ce117 100644
+--- a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
++++ b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
+@@ -931,6 +931,7 @@ ps_atc0_usb_aon: power-controller@148 {
+ 		#power-domain-cells = <0>;
+ 		#reset-cells = <0>;
+ 		label = "atc0-usb-aon";
++		apple,always-on; /* The ATC PHY loses its state without it */
+ 		status = "disabled";
+ 	};
+ 	ps_atc0_usb: power-controller@150 {
+diff --git a/arch/arm64/boot/dts/apple/t6050-ultra.dtsi b/arch/arm64/boot/dts/apple/t6050-ultra.dtsi
+index fae5621266fb..90bf4bb29be0 100644
+--- a/arch/arm64/boot/dts/apple/t6050-ultra.dtsi
++++ b/arch/arm64/boot/dts/apple/t6050-ultra.dtsi
+@@ -120,6 +120,7 @@ ps_atc4_usb_aon: power-controller@148 {
+ 		compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
+ 		reg = <0x148 4>;
+ 		label = "atc4_usb_aon";
++		apple,always-on; /* The ATC PHY loses its state without it */
+ 		#power-domain-cells = <0>;
+ 		#reset-cells = <0>;
+ 	};
 -- 
 2.56.0
-
-From 5009149b747d57b9a8312b7763963a58563ef02b Mon Sep 17 00:00:00 2001
-From: betizzel <betizzel@pm.me>
-Date: Sun, 15 Nov 2026 16:01:30 -0600
-Subject: [PATCH] phy: apple: atc-t6050: hold the DP-only PHY's domains through
- suspend-to-idle
-
-"phy: apple: atc-t6050: keep the PHY's domains through suspend-to-idle"
-holds a combo PHY's domains out of an s2idle transition, from the PM
-notifier that combo_setup() registers. The DisplayPort-only PHY behind
-the J714s HDMI converter (ATC3, apple,t6050-dp-phy) never registers it:
-it has no sleep handling at all.
-
-Its domains are ATC3's usb-aon, common and phymxwrap. The display
-crossbar (38b24c000.mux) holds usb-aon and common from its probe on,
-as it does ATC1's and ATC2's, so genpd's noirq suspend gates them once
-their member devices have suspended, and nothing sets them up again at
-an s2idle wake. The next HDMI hotplug's power-up then times out in its
-first poll, and the DCP behind it crashes until a reboot. Seen on a
-J714s on v272-11, lid closed with HDMI only: after twelve s2idle
-attempts that each reached the noirq phase (each refused by pcie-apple
-there, -EBUSY), the monitor dropped HPD and came back:
-
-  apple-dcp 306e00000.dcp: DP2HDMI HPD irq, 500ms debounce: connected:1
-  apple-t6050-dp-phy 38b000000.phy: bank39+4 timeout: 300 & 1 != 1
-  apple-dcp 306e00000.dcp: RTKit: co-processor has crashed
-  apple-dcp 306e00000.dcp: DCP has crashed
-  apple-dcp 306e00000.dcp: a reboot is required to restore the display
-
-HDMI had run at 2560x1080 since boot; the crash was its first power-up
-after the domains had been through a noirq suspend.
-
-Register the notifier for every T6050 PHY on combo_sleep_board(), in
-the probe after combo_setup(), and give the DP-only PHY the s2idle hold
-over its three domains. The deep-sleep branch (the always-on domain
-kept through apple_sleep_usb_aon_keep(), which goes by a combo's port)
-stays the combo's: the DP-only PHY skips it, at the prepare and at the
-post-suspend.
-
-Compile-tested only (gcc 16, W=1, the v272-12 config without Rust);
-not run across a sleep yet.
-
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
----
- drivers/phy/apple/atc-t6050-combo.h | 39 ++++++++++++++++++++---------
- drivers/phy/apple/atc-t6050-dp.c    |  5 +++-
- 2 files changed, 31 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/phy/apple/atc-t6050-combo.h b/drivers/phy/apple/atc-t6050-combo.h
-index 4ff849abb..5684f4cd8 100644
---- a/drivers/phy/apple/atc-t6050-combo.h
-+++ b/drivers/phy/apple/atc-t6050-combo.h
-@@ -118,9 +118,10 @@ static void combo_pipe_fault(struct t6050_dp *dp, const char *what, int ret)
- /*
-  * What the combo PHY gained for a deep sleep outside its sleep callbacks (a wrapper domain
-  * still held at a stop is released, a safe state with a domain still held is stopped again,
-- * the always-on domain's hold over the sleep) and its domains' hold over suspend-to-idle
-- * are in force on the board they have run on, the J714s. On another T6050 board the stop,
-- * the safe state and the probe are as before.
-+ * the always-on domain's hold over the sleep) and the domains' hold over suspend-to-idle,
-+ * of a combo PHY and of a DisplayPort-only one (the HDMI converter's), are in force on the
-+ * board they have run on, the J714s. On another T6050 board the stop, the safe state and the
-+ * probe are as before.
-  */
- static bool combo_sleep_board(void)
- {
-@@ -381,6 +382,11 @@ static void combo_resume(struct t6050_dp *dp)
-  * genpd never counts them all suspended: each stays in its runtime state. The usb domain,
-  * and with it the dwc3 and its DARTs, then stays on through s2idle, as dwc3-apple's
-  * s2idle path, which keeps the host in place, expects.
-+ *
-+ * The DisplayPort-only PHY behind the HDMI converter (ATC3 on the J714s) has the same
-+ * always-on and common domains held by the crossbar, and the same failure: after a
-+ * suspend-to-idle, the next HDMI hotplug's power-up times out in the first poll (bank 39)
-+ * and the DCP behind it crashes. It takes the same hold, over its three domains.
-  */
- static void combo_s2idle_hold(struct t6050_dp *dp, bool hold)
- {
-@@ -410,7 +416,7 @@ static int combo_pm_notify(struct notifier_block *nb, unsigned long action, void
- 				combo_s2idle_hold(dp, true);
- 			break;
- 		}
--		if (dp->faulted || dp->aon_syscore ||
-+		if (!dp->combo || dp->faulted || dp->aon_syscore ||
- 		    dp->combo_mode == COMBO_SAFE || !dp->domain[0].active)
- 			break;
- 		if (!apple_sleep_usb_aon_keep(dp->port, true))
-@@ -421,6 +427,8 @@ static int combo_pm_notify(struct notifier_block *nb, unsigned long action, void
- 	case PM_POST_SUSPEND:
- 		if (dp->s2idle_held)
- 			combo_s2idle_hold(dp, false);
-+		if (!dp->combo)
-+			break;
- 		apple_sleep_usb_aon_keep(dp->port, false);
- 		if (dp->aon_syscore) {
- 			dev_pm_syscore_device(dp->domain[0].dev, false);
-@@ -440,6 +448,20 @@ static void combo_pm_notifier_remove(void *data)
- 	unregister_pm_notifier(&dp->pm_nb);
- }
- 
-+/* The domains' hold over a system sleep, deep or s2idle: see combo_sleep_board(). */
-+static int combo_pm_notifier_setup(struct t6050_dp *dp)
-+{
-+	int ret;
-+
-+	if (!combo_sleep_board())
-+		return 0;
-+	dp->pm_nb.notifier_call = combo_pm_notify;
-+	ret = register_pm_notifier(&dp->pm_nb);
-+	if (ret)
-+		return ret;
-+	return devm_add_action_or_reset(dp->dev, combo_pm_notifier_remove, dp);
-+}
-+
- static int combo_usb2_mode(struct phy *phy, enum phy_mode mode, int submode)
- {
- 	struct t6050_dp *dp = phy_get_drvdata(phy);
-@@ -700,13 +722,6 @@ static int combo_setup(struct platform_device *pdev, struct t6050_dp *dp)
- 			return PTR_ERR(dp->combo_phy[i]);
- 		phy_set_drvdata(dp->combo_phy[i], dp);
- 	}
--	/* The domains' hold over a system sleep, deep or s2idle: see combo_sleep_board(). */
--	if (!combo_sleep_board())
--		return 0;
--	dp->pm_nb.notifier_call = combo_pm_notify;
--	ret = register_pm_notifier(&dp->pm_nb);
--	if (ret)
--		return ret;
--	return devm_add_action_or_reset(dev, combo_pm_notifier_remove, dp);
-+	return 0;
- }
- 
-diff --git a/drivers/phy/apple/atc-t6050-dp.c b/drivers/phy/apple/atc-t6050-dp.c
-index 75fdf78c4..21a6356b8 100644
---- a/drivers/phy/apple/atc-t6050-dp.c
-+++ b/drivers/phy/apple/atc-t6050-dp.c
-@@ -129,7 +129,7 @@ struct t6050_dp {
- 	bool dp_gates;
- 	u8 tunnel_rate[ATC_DP_TUNNELS];
- 	u8 tunnel_idle;		/* bit k - 1: clock k runs with no user, see below */
--	/* A combo PHY's system sleep. */
-+	/* A system sleep: a combo PHY's, and the domains' hold over suspend-to-idle. */
- 	u32 port;
- 	struct notifier_block pm_nb;
- 	enum combo_mode sleep_mode;	/* the mode the sleep's stop took down */
-@@ -1098,6 +1098,9 @@ static int t6050_dp_probe(struct platform_device *pdev)
- 		if (ret)
- 			return ret;
- 	}
-+	ret = combo_pm_notifier_setup(dp);
-+	if (ret)
-+		return ret;
- 	phy = devm_phy_create(dev, NULL, &t6050_dp_ops);
- 	if (IS_ERR(phy))
- 		return PTR_ERR(phy);
--- 
-2.56.1
 

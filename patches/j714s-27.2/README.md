@@ -7,12 +7,27 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 `kmutil configure-boot --compress` after `bputil -nc`; Linux runs at EL2 on every CPU inside the
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
-Status (2026-11-15, latest): v272-13 is v272-12 plus 0033, **not built**: the HDMI PHY (ATC3,
-`apple,t6050-dp-phy`) gets the same s2idle domain hold 0032 gives the Type-C PHYs. On a J714s on
-v272-11 with the lid closed and HDMI only, logind's s2idle attempts (each refused at the noirq
-phase by pcie-apple, which 0031 fixes) gated ATC3's crossbar-held domains; the next HDMI hotplug
-timed out (`38b000000.phy: bank39+4 timeout`) and crashed dcpext3 until a reboot. 0033 is
-compile-tested (gcc, `W=1`); it needs a build and an s2idle cycle with HDMI connected.
+Status (2026-11-15, latest): v272-13: #2018 reworked as Isaac-Duarte's DT change, #2012 updated,
+#17 as a DT always-on for the HDMI PHY; built, not booted. Same pin as v272-12 (`c0a2a7522b4e`);
+0001-0030 unchanged. 0031 is #2012's current last commit `56b02059cfc8` (`af590f044ca2` with
+only its commit message changed: it now points at the DT change instead of the PHY hold; the code
+is identical). 0032 is #2018's new single commit `64d473f5321d` ("arm64: dts: apple: t6050: keep
+the ATC usb-aon power domains on", Isaac-Duarte, unchanged): `apple,always-on` on every T6050 ATC
+usb-aon domain. It replaces the old 0032 (`ad7f44429aab`, the PHY-side s2idle hold), so
+`atc-t6050-dp` is upstream's source again, as Isaac asked for the re-test on #2018.
+**betizzel's 0033 (#17) is dropped, and no DT 0033 replaces it.** His patch gave the HDMI
+converter's DP-only PHY (ATC3, `apple,t6050-dp-phy` at `0x38b000000`) the old 0032's notifier
+hold. That notifier is gone with #2018's rework. The DT form of his fix, in the spirit of #2018,
+is ATC3's usb-aon (`ps_atc3_usb_aon`, `power-controller@190`, the PHY's first power domain)
+`apple,always-on`, and that is already in the tree twice: #1963's `t6050-j714s-sleep.dtsi`
+(upstream since the v272-12 re-pin) and #2018's `t6050-die0.dtsi` line. v272-12's DTB already
+had it; v272-11's, where betizzel saw the `bank39+4` timeout, did not. So HDMI across s2idle
+in v272-13 behaves as in v272-12. The HDMI lid test is the first test of usb-aon alone for the
+DP-only PHY: betizzel's patch also held `common` and `wrapper`. If HDMI still fails after a
+sleep, his analysis (PR #17) is the starting point for holding more than usb-aon.
+Package `linux-aurora-7.3.0.aurora17.v272-13-aarch64.pkg.tar.zst`, sha256 `849c7e5f743e72993ffbb6dc3a478a801b04069e6001856c50defdcc264a68f8` (44292311 bytes);
+self-tests: J714s DTB has `apple,always-on` on atc1/atc2/atc3 usb-aon (`power-controller@{160,178,190}`), `atc-t6050-dp` built from
+the pin's source (no `combo_s2idle_hold`), #2012's J714s allowlist in pcie-apple, release `7.3.0-17.v272-13-ARCH`.
 
 Status (2026-11-15): v272-12: v272-11 plus the J714s s2idle stack #1647/#2012/#2018; built, not
 booted. Re-pinned to upstream `integration/aurora` `c0a2a7522b4e`, which carries DjDeveloperr's
@@ -135,7 +150,11 @@ Release 1 was built on linux `572eb88e8642` and Aura `2232ae7a` (git history of 
 | 0021 | dt-bindings: `apple,tunnel-only` Type-C routes (no `mode-switch` needed) | Isaac-Duarte (#1921, 723d72539a93), unchanged |
 | 0022 | dcp-fabric: tunnel-only routes (DP alt mode never lands on them, the pairing plan and `dcp_fabric_follow()` respect them, KUnit cases); their connectors are created in a second pass so DP-1..DP-4 keep their names and the new one is DP-5 | Isaac-Duarte (#1921, 7e34917fd867), unchanged |
 | 0023 | J714s DT: dcpext1 gets a tunnel-only route to the right port's DP IN crossbar outputs (crossbar source 2) and hpm2 `endpoint@2`, so a dock on the right port can drive three displays as on macOS | Isaac-Duarte (#1921, head 4c6a7b451f34), unchanged |
-| 0033 | **HDMI across suspend-to-idle** (v272-13, new): the DP-only PHY behind the HDMI converter (ATC3) registers the same PM notifier as the combo PHYs and takes 0032's s2idle hold over its three domains (usb-aon and common are held by the atc3 crossbar, so genpd gated them at every noirq suspend; the next HDMI power-up then timed out at `bank39+4` and crashed dcpext3). Compile-tested only | this repo |
+
+Dropped in v272-13: the old 0032 (#2018 at `ad7f44429aab`, the PHY's s2idle domain hold), replaced
+by #2018's DT commit `64d473f5321d`; and 0033 (betizzel/omarchy-m5#17, the HDMI DP-only PHY's hold
+on that notifier), whose DT equivalent (ATC3 usb-aon always-on) the tree already carries (#1963,
+#2018). Credit for the HDMI analysis stays with betizzel (#17).
 
 Dropped in v272-5: the old 0019 (AOP endpoints, Jens Axboe's #1645, ported by sithglan) is
 upstream as 367e36d02939 (our patch reverse-applies cleanly on `a31b32f7`); the old 0018 (HDMI v1 hold) is replaced

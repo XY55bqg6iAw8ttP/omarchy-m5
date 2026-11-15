@@ -1,0 +1,114 @@
+From 7aa82e5f993bce24e84095d0b2895bab9c3351a4 Mon Sep 17 00:00:00 2001
+From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 22:35:20 +0000
+Subject: [PATCH 32/32] arm64: dts: apple: t6050: keep the ATC usb-aon power
+ domains on
+
+On the J714s both Type-C ports are dead after a suspend-to-idle wake.
+The PHY's first start after it times out in its first power-up step:
+
+  apple-t6050-dp-phy 2ab000000.phy: start of mode 1 failed (-110)
+  apple-t6050-dp-phy 383000000.phy: CIO mode failed (-110), reverse orientation, 1 ms
+
+Traced with pmgr-pwrstate's dynamic debug: at the noirq suspend genpd
+gates each port's usb domain, which was off at probe and so has no
+GENPD_FLAG_ACTIVE_WAKEUP, and with it its parents, common and usb-aon,
+whose own devices (the display crossbar's and the PHY's) have suspended.
+Nothing sets the PHY up again at an s2idle wake.
+
+DjDeveloperr noted that the usb-aon domains should not be turned off
+("aon = always on"). The older SoCs (T8103, T8112, T600x, T602x) and
+T604x mark them apple,always-on; T603x, T8122, T8140 and T8132 outside
+the J713 do not, and neither did T6050.
+
+Tested on the J714s: with only atc0/1/2's usb-aon marked always-on and a
+PHY driver without any s2idle handling, genpd still gated atc*_usb and
+atc*_common on all three ports during a 42 s s2idle and powered them on
+again at the resume, but never touched usb-aon. After the wake a dock on
+the right port came up in CIO mode at the first plug, with three
+displays. With this patch's DTB, three s2idle sleeps in one boot (39 s,
+102 s and 12 min) were each followed by a dock coming up in CIO mode at
+the first plug on all three ports. Keeping usb-aon on is enough; gating
+usb and common across s2idle is harmless.
+
+Mark every T6050 usb-aon domain always-on. At runtime nothing changes
+where the display crossbar holds the domain from its probe on, as on the
+J714s (atc1, atc2) and the J716c (atc0 to atc2). On the other T6050
+boards the crossbar is disabled, so a usb-aon domain used by a PHY went
+off while its port was idle and now stays on (J714c, J716s, K114c,
+K116s: atc1, atc2; J775c, J873s: atc1, atc3; J775d: atc1, atc3, atc4,
+atc5), and an enabled usb-aon domain with no user is now powered at
+probe (atc3 on the J714c, J716c, J716s, K114c, K114s, K116c and K116s;
+atc1 on the K114s and K116c). The idle power this costs there, and the
+PHY without a usb-aon power cycle on those boards, are untested. genpd
+no longer gates usb-aon in a deep sleep's noirq phase either; the J714s
+already keeps ATC3's on through the commit (t6050-j714s-sleep.dtsi), and
+deep sleep cannot run on the J714s today, so that part is untested.
+
+Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+---
+ arch/arm64/boot/dts/apple/t6050-die0.dtsi        | 2 ++
+ arch/arm64/boot/dts/apple/t6050-dieX.dtsi        | 1 +
+ arch/arm64/boot/dts/apple/t6050-peripherals.dtsi | 1 +
+ arch/arm64/boot/dts/apple/t6050-ultra.dtsi       | 1 +
+ 4 files changed, 5 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/apple/t6050-die0.dtsi b/arch/arm64/boot/dts/apple/t6050-die0.dtsi
+index fdd2f6bfa746..caa23251d0f9 100644
+--- a/arch/arm64/boot/dts/apple/t6050-die0.dtsi
++++ b/arch/arm64/boot/dts/apple/t6050-die0.dtsi
+@@ -998,6 +998,7 @@ ps_atc2_usb_aon: power-controller@178 {
+ 		compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
+ 		reg = <0x178 4>;
+ 		label = "atc2_usb_aon";
++		apple,always-on; /* The ATC PHY loses its state without it */
+ 		#power-domain-cells = <0>;
+ 		#reset-cells = <0>;
+ 		status = "disabled";
+@@ -1029,6 +1030,7 @@ ps_atc3_usb_aon: power-controller@190 {
+ 		compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
+ 		reg = <0x190 4>;
+ 		label = "atc3_usb_aon";
++		apple,always-on; /* The ATC PHY loses its state without it */
+ 		#power-domain-cells = <0>;
+ 		#reset-cells = <0>;
+ 	};
+diff --git a/arch/arm64/boot/dts/apple/t6050-dieX.dtsi b/arch/arm64/boot/dts/apple/t6050-dieX.dtsi
+index 94e9def5533f..6c6a48ca205c 100644
+--- a/arch/arm64/boot/dts/apple/t6050-dieX.dtsi
++++ b/arch/arm64/boot/dts/apple/t6050-dieX.dtsi
+@@ -74,6 +74,7 @@ DIE_NODE(ps_atc1_usb_aon): power-controller@160 {
+ 			compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
+ 			reg = <0x160 4>;
+ 			label = DIE_ATC1_LABEL(_usb_aon);
++			apple,always-on; /* The ATC PHY loses its state without it */
+ 			#power-domain-cells = <0>;
+ 			#reset-cells = <0>;
+ 		};
+diff --git a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
+index 5c4a029f5751..ee04965ce117 100644
+--- a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
++++ b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
+@@ -931,6 +931,7 @@ ps_atc0_usb_aon: power-controller@148 {
+ 		#power-domain-cells = <0>;
+ 		#reset-cells = <0>;
+ 		label = "atc0-usb-aon";
++		apple,always-on; /* The ATC PHY loses its state without it */
+ 		status = "disabled";
+ 	};
+ 	ps_atc0_usb: power-controller@150 {
+diff --git a/arch/arm64/boot/dts/apple/t6050-ultra.dtsi b/arch/arm64/boot/dts/apple/t6050-ultra.dtsi
+index fae5621266fb..90bf4bb29be0 100644
+--- a/arch/arm64/boot/dts/apple/t6050-ultra.dtsi
++++ b/arch/arm64/boot/dts/apple/t6050-ultra.dtsi
+@@ -120,6 +120,7 @@ ps_atc4_usb_aon: power-controller@148 {
+ 		compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
+ 		reg = <0x148 4>;
+ 		label = "atc4_usb_aon";
++		apple,always-on; /* The ATC PHY loses its state without it */
+ 		#power-domain-cells = <0>;
+ 		#reset-cells = <0>;
+ 	};
+-- 
+2.56.0
+

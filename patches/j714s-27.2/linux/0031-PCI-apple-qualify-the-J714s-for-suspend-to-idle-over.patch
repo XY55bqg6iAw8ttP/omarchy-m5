@@ -1,4 +1,4 @@
-From 3c0b2d7c521e741f9e10990294ca97f5dd6e05d0 Mon Sep 17 00:00:00 2001
+From a9a829c2e3990da7b69ef8c68526a8807d3c76cb Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sun, 15 Nov 2026 17:19:27 +0000
 Subject: [PATCH 31/32] PCI: apple: qualify the J714s for suspend-to-idle over
@@ -19,14 +19,9 @@ the check needs on this board too.
 
 Add the J714s to the list. For a clean wake it also needs the PMP's
 power domains kept on ("arm64: dts: apple: t6050: keep the PMP's power
-domains on"), and for the Type-C ports to work after the wake, the
-combo PHY's domains held through suspend-to-idle ("phy: apple:
-atc-t6050: keep the PHY's domains through suspend-to-idle").
-
-This allowlist and the PHY's combo_sleep_board() are two separate
-per-board lists. A board added here without the PHY's s2idle hold gets
-Type-C ports that are dead after every wake, as the J716c, the K114c and
-the K116s likely do today (seen on the J714s only).
+domains on"), and for the Type-C ports to work after the wake, the ATC
+usb-aon domains kept on ("arm64: dts: apple: t6050: keep the ATC usb-aon
+power domains on").
 
 Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 ---

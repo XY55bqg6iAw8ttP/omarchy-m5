@@ -30,12 +30,15 @@
 #   0029-30  #1647 (open, sithglan; Jens Axboe's commits) at 70bf8ed1867b: the K116s qualified for
 #            suspend-to-idle over the adopted N1 link; below a kernel-trained port (the SD reader)
 #            only awake-path devices must stay in D0
-#   0031     #2012 (open, Isaac-Duarte), its last commit af590f044ca2: the J714s qualified for s2idle
-#   0032     #2018 (open, Isaac-Duarte) at ad7f44429aab: the Type-C PHY's domains held through s2idle
-#            (both USB-C ports dead after a wake without it). Upstream merge order: #1647, #1789,
-#            #2018, #2012 or all together.
-#   0033     this repo (v272-13): the HDMI PHY (ATC3, DP-only) takes 0032's s2idle domain hold; without
-#            it the first HDMI power-up after a sleep times out and the DCP behind it crashes
+#   0031     #2012 (open, Isaac-Duarte), its last commit 56b02059cfc8: the J714s qualified for s2idle
+#            (v272-13: af590f044ca2 reworded only, code unchanged)
+#   0032     #2018 (open, Isaac-Duarte) at 64d473f5321d: the T6050 ATC usb-aon power domains marked
+#            apple,always-on (both USB-C ports dead after a wake without it). v272-13: replaces the
+#            old PHY-side s2idle hold ad7f44429aab; atc-t6050-dp is upstream's again.
+#            Upstream merge order: #1647, #1789, #2018, #2012 or all together.
+#   (v272-13) betizzel/omarchy-m5#17's 0033 (the HDMI PHY's s2idle hold on the old 0032's notifier)
+#            is dropped: its DT form, ATC3's usb-aon always-on, is already in the J714s tree
+#            (#1963's t6050-j714s-sleep.dtsi) and in 0032 (t6050-die0.dtsi).
 # Dropped at the v272-12 re-pin (upstream carries them): #1925, #1946, #1948 (G17), #1950 (fast-die).
 # Config (v272-9): BT_RFCOMM, BT_RFCOMM_TTY, PKCS8_PRIVATE_KEY_PARSER (chrisohearn, betizzel/omarchy-m5#9)
 # Same package name as the image's kernel (linux-aurora); the version sorts above up273.
@@ -74,7 +77,7 @@ sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
             'e8d5c2a4877871cdc91e406e3547329996dc8bd2103b1cdb117fb8a88537f2a7'
-            '5bdb6a129b4270eb75b817570d2447ad2986a279ab3a2985ecb80e1a8c2cc001'
+            'f2055a005206f5d301689ec74df0dbb33d56b83a2d9202cbd99ced5718c65d93'
             'a1d21c3c4803cfcc97edccc11b633f89367515e0f336dcacbdddc66782ff0157'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 
