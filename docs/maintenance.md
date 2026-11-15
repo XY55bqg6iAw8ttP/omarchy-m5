@@ -42,16 +42,16 @@ contributors) and Satya Benson (satchlj, an aurora-silicon member). The #293 com
 > - @edimoldovan (J714c): front camera tuning and the camera light (kernel 0007-0009, 0011-0013), the J714 sound profiles.
 > - @FatBoy721 (J714s): the HDMI port, HDMI hold and HPD forwarding (kernel 0017-0019, Aura 0007), seen on a Samsung Odyssey G9.
 > - @Isaac-Duarte (J714s): fan targets (kernel 0024, reproduced here), dock display routing and the DP tunnel fix (0020-0023, 0025-0026; carried, no dock tried here yet).
-> - @chrisohearn (K114s): the reports behind release 6's RFCOMM and hyprland-m5 fixes and the boot guard (#8, #9, #11), and the K114s installer admission offered in #10.
+> - @chrisohearn (K114s): the reports behind release 6's RFCOMM and hyprland-m5 fixes (#8, #9) and behind the boot guard for the kernel pin (#11, committed, not in an image yet), and the K114s installer admission offered in #10.
 > - @joshuaswarren: J714c and T6050 work in the kernel base (tiled 5K displays, firmware 27 display modes) and the M5 Max 27.3 GPU build in Aura 0003.
 > - @sithglan (K116s): sent the K114/K116 27.2 GPU identity (kernel 0005) and the PMP power domains through s2idle (0028); the Aura chainload copy stub.
 > - @erikwb: T6050 USB4 and external display work in the kernel base, which USB-C DisplayPort builds on.
 > - @MarianoMiguel: the T6050 die0 range over the ISP watchdog, merged upstream and in the kernel base.
 > - @kazuhidet (M4 Air): the busy-card discovery in the firmware package that lets PipeWire find the speakers.
-> - @funkzy: an earlier 27.2 display method table (credited in the older `patches/linux-aurora` series); M5 Ultra Mac Studio work, watched.
+> - @funkzy: an earlier 27.2 display method table (credited in the older `patches/linux-aurora` series); M5 Ultra Mac Studio work upstream.
 > - @MikaVohl (J716s): the omarchy-M5-pro repo, watched.
 > - @nickyrice04 (M5 Max): the ilinux repo, watched.
-> - @XY55bqg6iAw8ttP (J714c): the trackpad reset, SMC sensors and keyboard backlight device tree upstream, watched.
+> - @XY55bqg6iAw8ttP (J714c): the trackpad reset, SMC sensors and keyboard backlight device tree, open upstream.
 >
 > If you are missing from this list, or something here is wrong, please say so below.
 >
