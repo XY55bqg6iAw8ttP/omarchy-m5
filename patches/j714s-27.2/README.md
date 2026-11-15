@@ -7,6 +7,10 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 `kmutil configure-boot --compress` after `bputil -nc`; Linux runs at EL2 on every CPU inside the
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
+Status (2026-11-14, latest): kernel v272-7 is v272-6 plus the firewall matches (`xt_hl`,
+`ip6t_rt`: ufw's IPv6 rules), same sources and patches; **built, not booted**. Package
+`linux-aurora-7.3.0.aurora17.v272-7-aarch64.pkg.tar.zst`, sha256 `96d8f4b0...1620d2aa`.
+
 Status (2026-11-14, later): kernel v272-6 is **built, not booted** (not installed, not in any
 release). It replaces v272-5, which was never installed. It re-pins the kernel to upstream
 `a5ebec5fd092` (Ryan Murray's revert of the GPU deferred BO cleanup drain, the H17 ANE work, DCP
