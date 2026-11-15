@@ -20,6 +20,7 @@ Rules for sending:
 | AVE: T6050 encoder on the 27.3 firmware | [aurora-silicon/linux#1747](https://github.com/aurora-silicon/linux/pull/1747) | merged 2026-11-13 |
 | ANE: T6050 on the 27.3 firmware | [aurora-silicon/linux#1746](https://github.com/aurora-silicon/linux/pull/1746) | open |
 | R1: two Omarchy installs on one disk share the boot filesystem IDs (issue, generator offered as one possible fix) | [omacom/omarchy-mac-installer#219](https://github.com/omacom/omarchy-mac-installer/issues/219) | issue opened 2026-11-14 |
+| J714s in the installer: the installer changes offered, with what they depend on (issue, not a PR: upstream's engine has no T6050 entry and its pinned kernel no T6050 device tree; plan in [upstream-installer-plan.md](upstream-installer-plan.md)) | [omacom/omarchy-mac-installer#221](https://github.com/omacom/omarchy-mac-installer/issues/221) | issue opened 2026-11-15 |
 | T1 + T2: J714s on 27.2 results, with FatBoy721's HDMI v2 and Jens Axboe's #1645 | [omacom/linux-aurora#293 comment](https://github.com/omacom/linux-aurora/issues/293#issuecomment-6886977253) | posted 2026-11-14 |
 
 ## Ready to send (proven on the J714s)
@@ -44,7 +45,7 @@ Nothing left here. Checked 2026-11-14:
 
 | # | Change | The test it waits for |
 | --- | --- | --- |
-| W1 | J714s in the installer: 27.2 Mach-O Stage 1, "Finish setup" text, the 15 s Stage 1 window | a fresh install with our installer on a J714s |
+| W1 | J714s in the installer: 27.2 Mach-O Stage 1, "Finish setup" text, admission | test done: fresh install of release 6 on 2026-11-15. Offered in [#221](https://github.com/omacom/omarchy-mac-installer/issues/221); the order and what each pull request waits for are in [upstream-installer-plan.md](upstream-installer-plan.md) |
 | W2 | J714s camera and DCP rows for 27.2 (Aura tables) | compare with what upstream has now; a camera capture on v272-7 |
 | W3 | ANE 27.2 pin (retarget #1746 from 27.3 to 27.2) | an ANE workload on 27.2, not just the device coming up |
 | W4 | AVE 27.2 layout | an encode on 27.2 (today: probe only) |
