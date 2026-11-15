@@ -1,0 +1,105 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: TripleU <182648541+TripleU613@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 16:52:26 -0500
+Subject: [PATCH] J714s release 8: kernel v272-12 (lid sleep, s2idle) and
+ firmware j714s13 (one boot guard for every M5 board)
+
+Re-pinned from betizzel/omarchy-m5 9b74652: linux-aurora
+7.3.0.aurora17.v272-12 (d2dcbe31..., 44289449 bytes): aurora-silicon/linux
+integration/aurora c0a2a752 plus patches/j714s-27.2/linux 0001-0032
+(v272-11 rebased, with the J714s suspend-to-idle stack: Jens Axboe's
+#1647, Isaac-Duarte's #2012 and #2018; four patches now upstream dropped).
+Deep sleep stays off (CONFIG_APPLE_SOC_SLEEP not set): mem_sleep offers
+s2idle only. The qualification pins follow 7.3.0-17.v272-12-ARCH.
+
+omarchy-aurora-firmware 20261014.j714s13 (af8a8d00..., 55533 bytes) from
+82d914e (chrisohearn's betizzel/omarchy-m5#16): the j714s12 boot guard as
+m5-boot-guard for every M5 board, the board read from the device tree.
+Nothing else changes. Set j714s-dev-runtime-fd29d86c50ef.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ .../candidate-package-manifest.json           | 24 +++++++++----------
+ image-builder/builder/stage1_qualification.py |  4 ++--
+ 2 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
+index 283e7ec..fc323fb 100644
+--- a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
++++ b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
+@@ -1,7 +1,7 @@
+ {
+   "schema": 1,
+   "candidate_only": true,
+-  "set": "j714s-dev-runtime-625fa91d3d01",
++  "set": "j714s-dev-runtime-fd29d86c50ef",
+   "source": {
+     "repository": "omacom/omarchy",
+     "commit": "a948d8a6871f446b335258c827648ac5f4e9428b",
+@@ -114,15 +114,15 @@
+     },
+     {
+       "name": "linux-aurora",
+-      "version": "7.3.0.aurora17.v272-11",
++      "version": "7.3.0.aurora17.v272-12",
+       "arch": "aarch64",
+-      "filename": "linux-aurora-7.3.0.aurora17.v272-11-aarch64.pkg.tar.zst",
+-      "sha256": "c2fdaa2473478ad2b1499e9dadd0da04a137811f621f1f22c560f430e5910b8d",
++      "filename": "linux-aurora-7.3.0.aurora17.v272-12-aarch64.pkg.tar.zst",
++      "sha256": "d2dcbe315bd5577367ff405e19f6d91506c4914bd7fa3f5d66d38349c301a4fb",
+       "source": {
+         "repository": "betizzel/omarchy-m5",
+-        "commit": "ee5df842e0d4da94c0ee5158ab59ad92893f8e84"
++        "commit": "9b74652a81652493a997d1fec9f9a927c94adc57"
+       },
+-      "size_bytes": 44227182
++      "size_bytes": 44289449
+     },
+     {
+       "name": "m1n1-aurora",
+@@ -162,15 +162,15 @@
+     },
+     {
+       "name": "omarchy-aurora-firmware",
+-      "version": "20261014.j714s12-1",
++      "version": "20261014.j714s13-1",
+       "arch": "aarch64",
+-      "filename": "omarchy-aurora-firmware-20261014.j714s12-1-aarch64.pkg.tar.zst",
+-      "sha256": "4486b6c539cb8ff2e2db5d0f1816151b0f8058481a852c97dabe0c7bb3350401",
++      "filename": "omarchy-aurora-firmware-20261014.j714s13-1-aarch64.pkg.tar.zst",
++      "sha256": "af8a8d003ed5bbafc084ac72f83751beb20fc4f2458abfacfc8be8a079e73bc7",
+       "source": {
+         "repository": "betizzel/omarchy-m5",
+-        "commit": "101a6e6c4fa1dfb8738da540c45cf7c3a1effe57"
++        "commit": "82d914ed33ba8bb4dc2f2b5bd32646ce6f41b095"
+       },
+-      "size_bytes": 52467
++      "size_bytes": 55533
+     },
+     {
+       "name": "omarchy-mac",
+@@ -264,5 +264,5 @@
+     "No physical installer or hardware qualification",
+     "No supported release or catalog promotion"
+   ],
+-  "set_sha256": "625fa91d3d0198b5154f26ff1ec6ead9051ff8531383a113dabfbd5303c82ca8"
++  "set_sha256": "fd29d86c50ef8a8971b38fad16319a87501e909927530c1670b5370d685937b6"
+ }
+diff --git a/image-builder/builder/stage1_qualification.py b/image-builder/builder/stage1_qualification.py
+index 5c66a55..e97fd77 100644
+--- a/image-builder/builder/stage1_qualification.py
++++ b/image-builder/builder/stage1_qualification.py
+@@ -65,8 +65,8 @@ SYSTEM_FIRMWARE = re.compile(r"(?:mBoot|iBoot)-[0-9]+(?:\.[0-9]+)*\Z")
+ # _aurorarel=17.v272; pkgrel 2 is release 2's re-pin on integration/aurora a34d26c2; "v272"
+ # sorts above "up273"). Checked against the built archive's pkgver-pkgrel and its
+ # usr/lib/modules/<release> directory; candidate-package-manifest.json matches.
+-J714S_KERNEL_VERSION = "7.3.0.aurora17.v272-11"
+-J714S_KERNEL_RELEASE = "7.3.0-17.v272-11-ARCH"
++J714S_KERNEL_VERSION = "7.3.0.aurora17.v272-12"
++J714S_KERNEL_RELEASE = "7.3.0-17.v272-12-ARCH"
+ J714S_ARGUMENTS = ("macsmc.m5_pcio_budget=2", "macsmc.m5_n1_budget=3")
+ # What the merged kernel (betizzel/omarchy-m5 linux-aurora-n1 0001-0008) was verified
+ # with on bare metal, besides the budgets: PMGR domains read-only except the ones its
+-- 
+2.56.0
+
