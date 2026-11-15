@@ -82,7 +82,7 @@ Each kernel builds on the one above it. v272-8 hung the logo install on its firs
 | #1618 PCI: mask Clock PM on adopted T6050 endpoints | evidence is from a J775c bisection; the rebased head was not booted, and no J714/J716 result |
 | #1873 drm/apple: alpha-only formats on the T6050 internal primary plane | its boot check on the M5 is listed as not verified yet |
 | #1698 nvme: post-M4 ANS keep-live across s2idle, opt-in | draft; its default-off rework was not rebuilt or booted |
-| aura #214 T6050 SIO tables and sleep wake sources | no J714s test given; feeds deep sleep, which is not in our tree |
+| aura #214 T6050 SIO tables and sleep wake sources | merged 2026-11-15 (52af355c): comes with the next Aura bump; its kboot part only acts on an `apple,t6050-sleep` node, which our device tree does not have (no deep sleep yet) |
 | aura #230 GPU firmware-version hint (merged) | only removes harmless log lines on 27.2; goes in with the next Aura bump |
 | satchlj `t6050-smc-key-inventory` | read-only SMC key dump for research, no user-facing change |
 | aura #259 T6050 internal display handoff on the 27.3 beta (joshuaswarren) | 27.3 beta only (our stub is 27.2), a draft not booted |
