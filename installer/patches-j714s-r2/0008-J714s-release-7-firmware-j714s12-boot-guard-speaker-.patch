@@ -1,0 +1,64 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: TripleU <182648541+TripleU613@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 12:49:29 -0500
+Subject: [PATCH] J714s release 7: firmware j714s12 (boot guard, speaker
+ switch-over waits for the card)
+
+Re-pinned from betizzel/omarchy-m5 101a6e6: omarchy-aurora-firmware
+20261014.j714s12 (4486b6c5..., 52467 bytes) adds a pacman hook that stops
+any transaction replacing or removing linux-aurora, m1n1-aurora,
+uboot-aurora or omarchy-aurora-firmware with builds that are not J714s
+builds (betizzel/omarchy-m5#11: an Omarchy channel switch overwrites
+pacman.conf and its IgnorePkg line), and makes aurora-speaker-upgrade wait
+up to 60 s for the speaker card before it runs. Nothing else changes; the
+kernel pins stay at 7.3.0-17.v272-11-ARCH. Set j714s-dev-runtime-625fa91d3d01.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ .../candidate-package-manifest.json                | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
+index ee4811a..283e7ec 100644
+--- a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
++++ b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
+@@ -1,7 +1,7 @@
+ {
+   "schema": 1,
+   "candidate_only": true,
+-  "set": "j714s-dev-runtime-c4fe82ac5a13",
++  "set": "j714s-dev-runtime-625fa91d3d01",
+   "source": {
+     "repository": "omacom/omarchy",
+     "commit": "a948d8a6871f446b335258c827648ac5f4e9428b",
+@@ -162,15 +162,15 @@
+     },
+     {
+       "name": "omarchy-aurora-firmware",
+-      "version": "20261014.j714s10-1",
++      "version": "20261014.j714s12-1",
+       "arch": "aarch64",
+-      "filename": "omarchy-aurora-firmware-20261014.j714s10-1-aarch64.pkg.tar.zst",
+-      "sha256": "3e98e8fb81a51e95437375d593f395c63aab464de89e67bf2c7385d9a3f6395d",
++      "filename": "omarchy-aurora-firmware-20261014.j714s12-1-aarch64.pkg.tar.zst",
++      "sha256": "4486b6c539cb8ff2e2db5d0f1816151b0f8058481a852c97dabe0c7bb3350401",
+       "source": {
+         "repository": "betizzel/omarchy-m5",
+-        "commit": "0abeef96d6ff8c3ef6fabb18071733462fb8a646"
++        "commit": "101a6e6c4fa1dfb8738da540c45cf7c3a1effe57"
+       },
+-      "size_bytes": 49407
++      "size_bytes": 52467
+     },
+     {
+       "name": "omarchy-mac",
+@@ -264,5 +264,5 @@
+     "No physical installer or hardware qualification",
+     "No supported release or catalog promotion"
+   ],
+-  "set_sha256": "c4fe82ac5a138958624ee901d2506fcbbccaa7908f318d4d1f26e90829a30ccb"
++  "set_sha256": "625fa91d3d0198b5154f26ff1ec6ead9051ff8531383a113dabfbd5303c82ca8"
+ }
+-- 
+2.56.0
+
