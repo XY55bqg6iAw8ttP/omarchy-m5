@@ -48,6 +48,7 @@ Nothing left here. Checked 2026-11-14:
 | W2 | J714s camera and DCP rows for 27.2 (Aura tables) | compare with what upstream has now; a camera capture on v272-7 |
 | W3 | ANE 27.2 pin (retarget #1746 from 27.3 to 27.2) | an ANE workload on 27.2, not just the device coming up |
 | W4 | AVE 27.2 layout | an encode on 27.2 (today: probe only) |
+| W5 | Deep sleep on the J714s: DjDeveloperr's suspend-to-RAM series, [aurora-silicon/linux#1963](https://github.com/aurora-silicon/linux/pull/1963) (draft, 23 commits, opened 2026-11-15) | his public series alone leaves the internal panel dark and external displays gone after a wake; his measured runs used a private stack on top (display coprocessor restart, DART/power steps, device-tree values). Take it when the panel lights after a wake with the public commits, and test from RAM first: a failed wake needs the owner at the Mac |
 
 ## Open problems found here (no fix yet)
 
