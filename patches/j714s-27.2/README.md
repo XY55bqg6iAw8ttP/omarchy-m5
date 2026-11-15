@@ -8,7 +8,14 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
 Status (2026-11-14, latest): kernel v272-7 is v272-6 plus the firewall matches (`xt_hl`,
-`ip6t_rt`: ufw's IPv6 rules), same sources and patches; **built, not booted**. Package
+`ip6t_rt`: ufw's IPv6 rules), same sources and patches. **Booted on TripleU613's J714s on 2026-11-14** (installed by
+package over release 4): sound cards, Neural Engine device and ufw up at boot. External displays
+on a Samsung Odyssey G9 (G91SD), seen by the owner: HDMI (FatBoy721's v2) at 5120x1440 at 60, 120
+and 144 Hz and at 3840x2160 at 60 Hz (that 4K mode stayed blank with v1 on v272-4); USB-C
+DisplayPort at 5120x1440 at 144 Hz, 10-bit with DSC, after a replug (plugged in at boot it was
+not detected once; on v272-4 the same port only offered 640x480-class fallback modes). Two
+`link fault 22` lines still show at plug-in. Not tried: a dock, three displays (#1921), and the
+merged-mode fallback. Package
 `linux-aurora-7.3.0.aurora17.v272-7-aarch64.pkg.tar.zst`, sha256 `96d8f4b0...1620d2aa`.
 
 Status (2026-11-14, later): kernel v272-6 is **built, not booted** (not installed, not in any
