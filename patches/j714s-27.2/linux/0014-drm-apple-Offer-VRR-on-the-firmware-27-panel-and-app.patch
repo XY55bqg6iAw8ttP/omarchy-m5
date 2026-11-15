@@ -1,7 +1,7 @@
-From 6ac705ddc854435980df9ef84d238789b9c04067 Mon Sep 17 00:00:00 2001
+From c1a5de77cd6837c8b878a0e73398799bb8665016 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 12:29:34 -0500
-Subject: [PATCH 14/23] drm/apple: Offer VRR on the firmware 27 panel and apply
+Subject: [PATCH 14/32] drm/apple: Offer VRR on the firmware 27 panel and apply
  VRR_ENABLED (J716s daily)
 
 The T6050 ProMotion panel reports its 120 Hz timing with both
@@ -44,10 +44,10 @@ Claude-Session: https://claude.ai/code/session_01BV6NpmcwB5iJuY9huL52C5
  4 files changed, 91 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index 2fe421fe3652..a3ffcfc8b0b6 100644
+index 78859c8e29df..98c21ee2a24e 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -662,6 +662,8 @@ struct apple_dcp {
+@@ -680,6 +680,8 @@ struct apple_dcp {
  	bool typec_hpd_held;
  	bool use_timestamps;
  	bool vrr_enabled;
@@ -56,7 +56,7 @@ index 2fe421fe3652..a3ffcfc8b0b6 100644
  	/*
  	 * The mode set asks for a PQ signal; output_pq: the one set carries it;
  	 * output_edr: a panel shows the PQ content as EDR, edr_sent: swaps
-@@ -1151,6 +1153,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
+@@ -1202,6 +1204,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
  	       dcp_has_panel(dcp);
  }
  
@@ -72,10 +72,10 @@ index 2fe421fe3652..a3ffcfc8b0b6 100644
   * Does @dcp's firmware speak the 14.7 AFK, DPTX and DPAV endpoint protocol,
   * whichever IOMFB path drives it? DCP_FIRMWARE_V_14_7 is the native DCPLink
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index 3b474f1565f3..15e25aa9b8df 100644
+index 21a0c8a82229..5a8ced923d7a 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -1563,6 +1563,12 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
+@@ -1602,6 +1602,12 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
  		WRITE_ONCE(dcp->vrr_enabled, false);
  		dev_warn(dcp->dev, "adaptive swap timed out, restoring fixed refresh\n");
  	}
@@ -88,7 +88,7 @@ index 3b474f1565f3..15e25aa9b8df 100644
  	dev_warn(dcp->dev, "swap not completed, retraining the display\n");
  	dcp_mode_invalidate(&dcp->mode_state);
  	dcp_drm_crtc_vblank(dcp->crtc);
-@@ -1573,7 +1579,8 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
+@@ -1612,7 +1618,8 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
  
  void dcp_swap_watchdog_arm(struct apple_dcp *dcp)
  {
@@ -99,10 +99,10 @@ index 3b474f1565f3..15e25aa9b8df 100644
  			msecs_to_jiffies(DCP_SWAP_WATCHDOG_MS);
  		mod_delayed_work(system_dfl_wq, &dcp->swap_watchdog_wq,
 diff --git a/drivers/gpu/drm/apple/iomfb.c b/drivers/gpu/drm/apple/iomfb.c
-index 301fdec5508b..b730134ba175 100644
+index 336f6f46fdea..5bdcddaef12d 100644
 --- a/drivers/gpu/drm/apple/iomfb.c
 +++ b/drivers/gpu/drm/apple/iomfb.c
-@@ -44,6 +44,23 @@
+@@ -45,6 +45,23 @@
  #include "parser.h"
  #include "trace.h"
  
@@ -126,7 +126,7 @@ index 301fdec5508b..b730134ba175 100644
  struct dcp_identity_trace {
  	struct apple_dcp *dcp;
  	atomic_t *count;
-@@ -2115,7 +2132,12 @@ int dcp_modes_replace(struct apple_dcp *dcp, struct dcp_parse_ctx *ctx,
+@@ -2361,7 +2378,12 @@ int dcp_modes_replace(struct apple_dcp *dcp, struct dcp_parse_ctx *ctx,
  				       !dcp_has_panel(dcp);
  		ctx->pq_dsc = dcp->fw_compat == DCP_FIRMWARE_V_27_0;
  	}
@@ -137,10 +137,10 @@ index 301fdec5508b..b730134ba175 100644
 +	 */
 +	ctx->zero_vrr_range_fallback = dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP ||
 +		(dcp_fw27_panel(dcp) && READ_ONCE(fw27_panel_vrr));
+ 	ctx->internal_present_deadline = dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP;
  	if (dcp->fixed_connector_type != DRM_MODE_CONNECTOR_eDP &&
  	    smp_load_acquire(&dcp->dptxport[0].tile_hint)) {
- 		ctx->tiled_width = dcp->dptxport[0].tile_width;
-@@ -2489,6 +2511,8 @@ int dcp_get_modes(struct drm_connector *connector)
+@@ -2804,6 +2826,8 @@ int dcp_get_modes(struct drm_connector *connector)
  		}
  		vrr_capable |= modes[i].vrr;
  	}
@@ -149,7 +149,7 @@ index 301fdec5508b..b730134ba175 100644
  	drm_connector_set_vrr_capable_property(connector, vrr_capable);
  modes_done:
  	mutex_unlock(&dcp->dcpavserv.lock);
-@@ -3695,6 +3719,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
+@@ -4064,6 +4088,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
  	schedule_work(&dcp->vblank_wq);
  }
  
@@ -194,7 +194,7 @@ index 301fdec5508b..b730134ba175 100644
  void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  {
  	struct platform_device *pdev = to_apple_crtc(crtc)->dcp;
-@@ -3761,6 +3823,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
+@@ -4130,6 +4192,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  			dcp_hdr_metadata_sync(dcp, crtc, commit);
  	}
  
@@ -207,18 +207,18 @@ index 301fdec5508b..b730134ba175 100644
  		iomfb_queue_atomic(dcp, crtc, commit);
  		return;
 diff --git a/drivers/gpu/drm/apple/iomfb_template.c b/drivers/gpu/drm/apple/iomfb_template.c
-index 35271bc7c6dc..5803ca0f0c7f 100644
+index c34e27a12ad2..82445bb4e199 100644
 --- a/drivers/gpu/drm/apple/iomfb_template.c
 +++ b/drivers/gpu/drm/apple/iomfb_template.c
-@@ -4044,6 +4044,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
- 	struct dcp_wait_cookie *cookie;
+@@ -4076,6 +4076,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  	struct dcp_color_mode *cmode = NULL;
  	bool paired = false;
+ 	bool keep_mode = false;
 +	bool vrr_on;
  	int ret;
  
  	if (!lookup_mode(dcp, &crtc_state->mode, mode)) {
-@@ -4088,6 +4089,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
+@@ -4130,6 +4131,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  
  	/* Built-in ProMotion panels require timestamps even in fixed-120 mode. */
  	dcp->use_timestamps = mode->needs_timestamps && dcp->main_display;
@@ -226,7 +226,7 @@ index 35271bc7c6dc..5803ca0f0c7f 100644
  
  	cookie = kzalloc(sizeof(*cookie), GFP_KERNEL);
  	if (!cookie) {
-@@ -4112,7 +4114,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
+@@ -4157,7 +4159,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  #if (DCP_FW_H17(DCP_FW_VER) && DCP_FW_VER >= DCP_FW_VERSION(27, 0, 0))
  	if ((ret = dcp_peer_modeset_v27(dcp, mode->timing_mode_id,
  				      mode->color_mode_id,
@@ -235,7 +235,7 @@ index 35271bc7c6dc..5803ca0f0c7f 100644
  		cookie->status = ret;
  		paired = true;
  		if (!ret)
-@@ -4128,9 +4130,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
+@@ -4173,9 +4175,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  	if (mode->vrr &&
  		   dcp->hw.iomfb_method_profile !=
  		   DCP_IOMFB_METHODS_H17P_EXTERNAL)
@@ -246,7 +246,7 @@ index 35271bc7c6dc..5803ca0f0c7f 100644
  	else
  		dcp_set_digital_out_mode(dcp, false, &dcp->mode,
  					 complete_set_digital_out_mode, cookie);
-@@ -4184,7 +4184,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
+@@ -4229,7 +4229,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  				 READ_ONCE(cookie->status));
  	}
  	kref_put(&cookie->refcount, release_wait_cookie);

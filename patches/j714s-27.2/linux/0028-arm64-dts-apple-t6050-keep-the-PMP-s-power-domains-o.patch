@@ -1,7 +1,8 @@
-From 873a954aad5e1128340f7789320e273152bce4ca Mon Sep 17 00:00:00 2001
+From f6a2a96fe295340da3b2cda11db35d33f0157079 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Thu, 12 Nov 2026 12:19:50 -0700
-Subject: [PATCH 5/5] arm64: dts: apple: t6050: keep the PMP's power domains on
+Subject: [PATCH 28/32] arm64: dts: apple: t6050: keep the PMP's power domains
+ on
 
 The PMP's firmware runs from the moment its driver starts it, and in a
 suspend-to-idle the driver leaves it running: only a firmware-driven sleep

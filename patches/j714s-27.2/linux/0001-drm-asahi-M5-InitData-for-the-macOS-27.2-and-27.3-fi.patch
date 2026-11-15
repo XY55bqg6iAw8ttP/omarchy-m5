@@ -1,7 +1,7 @@
-From be1cafb3463bd030b33ab894b049442a599f6590 Mon Sep 17 00:00:00 2001
+From 4c571e0d27daa7795e880a828c7cbd243300940a Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 10:56:02 -0500
-Subject: [PATCH 01/23] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
+Subject: [PATCH 01/32] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
  firmware (#1173)
 
 aurora-silicon/linux #1173 (Rolando Trevino, rolotrealanis98; head

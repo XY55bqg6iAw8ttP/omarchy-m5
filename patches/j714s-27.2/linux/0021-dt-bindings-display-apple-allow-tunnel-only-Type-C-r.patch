@@ -1,7 +1,7 @@
-From 5ec50d8f5e9d6776105b17d31a6d1c589538964e Mon Sep 17 00:00:00 2001
+From cf7a3ecc5cd925499dced49bde12c7d55b21e146 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:56:38 -0700
-Subject: [PATCH 21/23] dt-bindings: display: apple: allow tunnel-only Type-C
+Subject: [PATCH 21/32] dt-bindings: display: apple: allow tunnel-only Type-C
  routes
 
 A DCP route that carries USB4 DP tunnels only is not a Type-C mode-switch:
@@ -101,10 +101,10 @@ index 7b2e28ac3dca..9bd123527b2c 100644
        - '#address-cells'
        - '#size-cells'
 diff --git a/Documentation/devicetree/bindings/display/apple,dcp.yaml b/Documentation/devicetree/bindings/display/apple,dcp.yaml
-index d0bc33404c24..97da243b79c4 100644
+index e6c04ae9e697..680fc93ef2e5 100644
 --- a/Documentation/devicetree/bindings/display/apple,dcp.yaml
 +++ b/Documentation/devicetree/bindings/display/apple,dcp.yaml
-@@ -426,12 +426,23 @@ properties:
+@@ -488,12 +488,23 @@ properties:
              maxItems: 1
            mode-switch:
              type: boolean

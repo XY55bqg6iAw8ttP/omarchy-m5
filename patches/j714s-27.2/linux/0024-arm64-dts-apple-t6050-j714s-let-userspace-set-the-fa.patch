@@ -1,8 +1,8 @@
-From 142544a2a3e3dd82b8b86a379750a8cd15e30653 Mon Sep 17 00:00:00 2001
+From 7d9e29863c69a2dd37d6766412d0c8181a705ca3 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 16:22:02 -0700
-Subject: [PATCH 1/5] arm64: dts: apple: t6050-j714s: let userspace set the fan
- speeds
+Subject: [PATCH 24/32] arm64: dts: apple: t6050-j714s: let userspace set the
+ fan speeds
 
 Mark both J714s fans apple,fan-manual-control, as the M4 Pro/Max
 MacBook Pros and the J704 already are, so fanX_target is writable
@@ -36,10 +36,10 @@ Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
  1 file changed, 12 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index 7166e951ac3d..33f076f29622 100644
+index b1dcc1d9d98f..9e565552c9c3 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -579,10 +579,10 @@ &jpeg1 {
+@@ -599,10 +599,10 @@ &jpeg1 {
  #include "t6050-j714s-pmp-tunables.dtsi"
  
  /*
@@ -54,7 +54,7 @@ index 7166e951ac3d..33f076f29622 100644
   *
   * Discovery refuses to run once any temperature channel exists, so the shared
   * temperature nodes go (their keys are discovered anyway), and so does
-@@ -600,13 +600,20 @@ &smc_hwmon {
+@@ -620,13 +620,20 @@ &smc_hwmon {
  	/delete-node/ temperature-TCHP;
  	/delete-node/ temperature-TW0P;
  

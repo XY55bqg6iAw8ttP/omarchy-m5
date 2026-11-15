@@ -2,13 +2,10 @@
 # macOS 27.2 stub (UniversalMac_27.2_26B123, mBoot-20457.41.3), booted from a padded Aura Mach-O
 # Stage 1 with SPTM off: Linux at EL2 on every CPU inside the CTXR execute window.
 #
-# The one J714s image line. aurora-silicon/linux integration/aurora at a5ebec5fd092 (includes DP
-# audio #1748/#1749/#1750, the J714s Secure Enclave, CLPC, CPU PMU, JPEG, ProRes, MagSafe PD,
-# external displays, T6050 EL2 errata #1724, the appledrm combo-PHY softdep #1745, the 27.3 AVE
-# build #1747, the J714s left-front USB4 router #1791, camera sizes #1835, the 27.2 AOP endpoints
-# #1645, T6050 GPU mailboxes by interrupt #1844, the 120 Hz-only T6050 internal panel modes, the
-# revert of the GPU deferred BO cleanup drain 018c588abf87, the H17 ANE task stream and
-# zin_ane_compiler 10.205 programs, and DCP fixes #1891) plus
+# The one J714s image line. aurora-silicon/linux integration/aurora at c0a2a7522b4e (v272-12
+# re-pin, 2026-11-15; includes DjDeveloperr's T6050 sleep series #1963 and its J714s deep-sleep DT,
+# the N1 entry reset #2022, #1950 fast-die, the G17 fixes #1925/#1946/#1948, DP audio, the J714s
+# Secure Enclave, CLPC, CPU PMU, JPEG, ProRes, MagSafe PD, external displays, #1645, #1835, #1891) plus
 # linux-j714s-27.2.patch, betizzel/omarchy-m5 patches/j714s-27.2/linux:
 #   0001     #1173, GPU InitData for 27.2 (26B123) and 27.3 (Rolando Trevino)
 #   0002-04  rolotrealanis98's firmware 27 DCP fixes and the 27.3 IOMFB table (27.3 rollback stub)
@@ -24,31 +21,28 @@
 #   0017     FatBoy721's J714s HDMI port (DT)
 #   0018-19  FatBoy721's HDMI v2: per-DCP flip hold while a T6050 HDMI output connects
 #            (appledrm.hdmi_hold_presents=0 turns it off) and the converter IRQ_HPD forwarder
-#            (tested on his J714s on 27.3, not on 27.2)
 #   0020-23  Isaac-Duarte's #1921 (open) at 4c6a7b451f34: a third dock display through dcpext1
-#            on the right port (own tunnel slots for DP IN 2/3, tunnel-only Type-C routes).
-#            With 0017's HDMI on dcpext3 no merged-mode peer is left (see the README)
-#   0024     Isaac-Duarte's #1944 (open): J714s fans take a userspace target (SoC hotspot 105-111 C
-#            with the firmware curve idling the fans; tested on his J714s)
+#            on the right port (own tunnel slots for DP IN 2/3, tunnel-only Type-C routes)
+#   0024     Isaac-Duarte's #1944 (open): J714s fans take a userspace target
 #   0025-26  Isaac-Duarte's #1930 (open): stop waiting for a link on a DP tunnel the dock withdrew
-#            (Thunderbolt 5 dock display left dark; tested on his J714s)
 #   0027     DjDeveloperr's #1721 (open): no LDCM command to a dry SN201202x port, as macOS
-#            (19 boots on J714s)
-#   0028     Jens Axboe's #1789 (open, sent by sithglan): the PMP's power domains stay on through
-#            s2idle (PMP fault at wake; tested lightly on K116s)
+#   0028     Jens Axboe's #1789 (open, sent by sithglan): the PMP's power domains stay on through s2idle
+#   0029-30  #1647 (open, sithglan; Jens Axboe's commits) at 70bf8ed1867b: the K116s qualified for
+#            suspend-to-idle over the adopted N1 link; below a kernel-trained port (the SD reader)
+#            only awake-path devices must stay in D0
+#   0031     #2012 (open, Isaac-Duarte), its last commit af590f044ca2: the J714s qualified for s2idle
+#   0032     #2018 (open, Isaac-Duarte) at ad7f44429aab: the Type-C PHY's domains held through s2idle
+#            (both USB-C ports dead after a wake without it). Upstream merge order: #1647, #1789,
+#            #2018, #2012 or all together.
+# Dropped at the v272-12 re-pin (upstream carries them): #1925, #1946, #1948 (G17), #1950 (fast-die).
 # Config (v272-9): BT_RFCOMM, BT_RFCOMM_TTY, PKCS8_PRIVATE_KEY_PARSER (chrisohearn, betizzel/omarchy-m5#9)
-#   0029-31  Diljit Singh's G17 fixes, merged upstream after the pin (#1925 b60e6ef1bc, #1946
-#            3ad9af366a, #1948 5c25150ed6): no lost-device report for a closed client's work, kept
-#            render graphs give back their pool pages, a refused render takes back idle pools
-#   0032     DjDeveloperr's #1950 (open): J714s clusters enforce the PMP's fast-die effort (his J714s:
-#            sustained all-core 49-56 -> 115-119 Gfma/s, CPU die 114 -> 109 C; his default DT since 11-14)
 # Same package name as the image's kernel (linux-aurora); the version sorts above up273.
 
 _auroraver=7.3.0
 _aurorarel=17.v272
-pkgrel=11
+pkgrel=12
 
-_commit=a5ebec5fd092327b16ff26366cb3840448285578
+_commit=c0a2a7522b4eb123f3f1fcf1c9b842b773ae480f
 
 # Any m1n1 1.6.1 loads these device trees. The Neo's own Stage 2 comes from the
 # image, so the floor stays where M1 and M2 users' m1n1-aurora already meets it.
@@ -74,11 +68,11 @@ source=(validate-config.py configure.sh "linux-${_commit}.tar.gz::https://github
         speakersafetyd-hold.conf)
 sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             'b95c0f0ddf106f3861e0e62a746af6a881fb8e0f356a892961f9e86062877400'
-            '6789feab89c7075dd3dbbddda9da8c42c03f4eb7b4ea10a2780e316c5e8341ed'
+            '228565c674c3d550d7813f631f293cfcd22ef09db97793dbc200c7040ccfa596'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
             'e8d5c2a4877871cdc91e406e3547329996dc8bd2103b1cdb117fb8a88537f2a7'
-            'cb2fdf7589df199b681d65cab26c6dfb5365acb04855101ca2274096eb6039c9'
+            'd048c8c874f1496c600e220ece55759026eb0825fed05bfd018ad749006902be'
             'a1d21c3c4803cfcc97edccc11b633f89367515e0f336dcacbdddc66782ff0157'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 

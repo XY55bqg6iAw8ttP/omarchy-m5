@@ -1,7 +1,7 @@
-From ac5b0b0b9a9d075daa033c68397a150b16a1267a Mon Sep 17 00:00:00 2001
+From 7b1a9c326f7a093b327fb1dd8bc7f9e3eb5486be Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:40:33 -0700
-Subject: [PATCH 20/23] drm/apple: dcp-fabric: give T6050 DP IN 2 and 3 their
+Subject: [PATCH 20/32] drm/apple: dcp-fabric: give T6050 DP IN 2 and 3 their
  own tunnel slots
 
 A port's Thunderbolt DP tunnels are kept in two owner slots, primary and
@@ -223,7 +223,7 @@ index ef6381b15907..fed2534f6584 100644
  	KUNIT_CASE_PARAM(fabric_shared_wiring_test, fabric_wiring_gen_params),
  	KUNIT_CASE(fabric_binding_cookie_test),
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
-index 7c158398c812..6d50b8dffcf0 100644
+index 318a1604aa1f..a3ead157dcc5 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric.c
 @@ -96,8 +96,21 @@ struct apple_dcp_typec_port {
@@ -250,7 +250,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	/* Keep a port on its last DCP while that pipeline remains free. */
  	struct apple_dcp_typec_route *preferred_route;
  	/* DRM connector for this physical port, driven by whichever DCP owns it */
-@@ -361,6 +374,52 @@ bool dcp_typec_fixed_crtcs(void)
+@@ -371,6 +384,52 @@ bool dcp_typec_fixed_crtcs(void)
  	return of_machine_is_compatible("apple,t6050");
  }
  
@@ -303,7 +303,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  static struct apple_connector *
  dcp_typec_route_connector(struct apple_dcp_typec_route *route, bool tunnel)
  {
-@@ -1316,9 +1375,9 @@ static void dcp_fabric_snapshot_port(struct apple_dcp_typec_port *port,
+@@ -1326,9 +1385,9 @@ static void dcp_fabric_snapshot_port(struct apple_dcp_typec_port *port,
  	struct dcp_fabric_route **tail = &port->core.routes;
  
  	lockdep_assert_held(&dcp_typec_fabric_lock);
@@ -316,7 +316,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	port->core.preferred =
  		port->preferred_route ? &port->preferred_route->core : NULL;
  	port->core.wanted = port->dp_wanted && !port->typec_yielded;
-@@ -1939,7 +1998,7 @@ static int dcp_typec_route_set(struct typec_mux_dev *mux,
+@@ -1963,7 +2022,7 @@ static int dcp_typec_route_set(struct typec_mux_dev *mux,
  		}
  
  		/* a Thunderbolt/USB4 DP tunnel is torn down by its own path */
@@ -325,7 +325,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  			port->applied_valid = true;
  			return 0;
  		}
-@@ -1973,7 +2032,7 @@ static int dcp_typec_route_set(struct typec_mux_dev *mux,
+@@ -1997,7 +2056,7 @@ static int dcp_typec_route_set(struct typec_mux_dev *mux,
  	 * way): don't act on or remember this state; the tunnel teardown drops
  	 * what was recorded so the next update is applied.
  	 */
@@ -334,7 +334,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  		port->applied_valid = false;
  		return 0;
  	}
-@@ -2720,6 +2779,12 @@ static int dcp_tb_candidate(void *data)
+@@ -2744,6 +2803,12 @@ static int dcp_tb_candidate(void *data)
  	struct apple_dcp_typec_route *best, *planned = NULL;
  	struct mux_control *ctl;
  	unsigned int dpin = ctx->dpin;
@@ -347,7 +347,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	unsigned int stream = dcp_fabric_dpin_slot(dpin);
  	bool ordered;
  	int ret;
-@@ -3116,8 +3181,7 @@ static int dcp_tb_split_locked(struct apple_dcp_typec_port *port,
+@@ -3140,8 +3205,7 @@ static int dcp_tb_split_locked(struct apple_dcp_typec_port *port,
  static int dcp_tb_release_locked(struct apple_dcp_typec_port *port,
  				 unsigned int dpin)
  {
@@ -357,7 +357,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	struct apple_dcp *dcp;
  	int ret;
  
-@@ -3158,7 +3222,7 @@ static int dcp_tb_release_locked(struct apple_dcp_typec_port *port,
+@@ -3182,7 +3246,7 @@ static int dcp_tb_release_locked(struct apple_dcp_typec_port *port,
  		return ret;
  	}
  	*slot = NULL;
@@ -366,7 +366,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	/* re-apply the next Type-C mux state in full */
  	port->applied_valid = false;
  	if (dcp->hdmi_hpd && dcp->active &&
-@@ -3178,7 +3242,7 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
+@@ -3202,7 +3266,7 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
  	unsigned int dpin = ctx->dpin;
  	int ret;
  
@@ -375,7 +375,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  
  	if (dpin == 1 && (tiled_split || port->split_dcp)) {
  		ret = dcp_tb_split_locked(port, ctx);
-@@ -3215,24 +3279,19 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
+@@ -3239,24 +3303,19 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
  		return dcp_tb_release_locked(port, dpin);
  
  	{
@@ -411,7 +411,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  		if (ret > 0)
  			return 0;
  		if (ret) {
-@@ -3262,8 +3321,7 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
+@@ -3286,8 +3345,7 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
  static void dcp_tb_finish_request(struct apple_dcp_typec_port *port,
  				  const struct dcp_tb_attach_context *request)
  {
@@ -421,7 +421,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	struct apple_dcp *dcp;
  	bool matching;
  
-@@ -3417,7 +3475,7 @@ int apple_dcp_tb_dp_event(struct device_node *connector_np, unsigned int dpin,
+@@ -3441,7 +3499,7 @@ int apple_dcp_tb_dp_event(struct device_node *connector_np, unsigned int dpin,
  
  		if (pos->connector_np != connector_np)
  			continue;
@@ -430,7 +430,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  		if (route && route->tunnel && route->tunnel_dpin == dpin &&
  		    route->tunnel_generation == generation) {
  			dcp = route->dcp;
-@@ -4274,8 +4332,7 @@ static void dcp_typec_port_bind_connector(struct apple_dcp_typec_port *port,
+@@ -4298,8 +4356,7 @@ static void dcp_typec_port_bind_connector(struct apple_dcp_typec_port *port,
  		if (WARN_ON(!route))
  			return;
  		route->connector = connector;
@@ -440,7 +440,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	} else if (secondary) {
  		port->secondary_connector = connector;
  		owner = port->secondary_owner;
-@@ -4331,30 +4388,23 @@ static void dcp_typec_route_unregister(void *data)
+@@ -4355,30 +4412,23 @@ static void dcp_typec_route_unregister(void *data)
  		port->preferred_route = NULL;
  	if (port->split_dcp == route->dcp)
  		dcp_tb_split_teardown_locked(port, true);

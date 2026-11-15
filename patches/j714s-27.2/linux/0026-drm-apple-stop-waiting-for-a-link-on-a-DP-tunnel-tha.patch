@@ -1,7 +1,7 @@
-From 55c25aed764e477ddaa35a5e58582dbaf40a4412 Mon Sep 17 00:00:00 2001
+From 2c807a34d9765d1968f8be2cbafc028e7b7437f8 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 13:23:08 -0700
-Subject: [PATCH 3/5] drm/apple: stop waiting for a link on a DP tunnel that
+Subject: [PATCH 26/32] drm/apple: stop waiting for a link on a DP tunnel that
  went
 
 A Thunderbolt 5 dock (Ugreen 10-in-1) on a J714s withdraws its first DP
@@ -37,10 +37,10 @@ Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
  1 file changed, 67 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index fa771f5d7d99..908ffdb5521e 100644
+index e96f1694af5e..5c47b5906555 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -2069,6 +2069,63 @@ static int dcp_t8132_wait_teardown_answers(struct apple_dcp *dcp, u32 port,
+@@ -2142,6 +2142,63 @@ static int dcp_t8132_wait_teardown_answers(struct apple_dcp *dcp, u32 port,
   * With a @session, every step checks that it is still the live one, and a
   * revoked session returns -ESTALE without touching the new one's state.
   */
@@ -104,7 +104,7 @@ index fa771f5d7d99..908ffdb5521e 100644
  static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable,
  				const struct dcp_fabric_session *session, bool cable,
  				bool recovery)
-@@ -2076,7 +2133,7 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
+@@ -2149,7 +2206,7 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
  	/* T8122 dcpext: HPD only after the link wait, see dcp_ext_dptx_607() */
  	bool late_hpd = dcp_ext_dptx_607(dcp);
  	bool t8132 = dcp_is_t8132_ext(dcp);
@@ -113,7 +113,7 @@ index fa771f5d7d99..908ffdb5521e 100644
  	unsigned long timeout;
  	u64 generation;
  	u8 dfp_port;
-@@ -2224,12 +2281,18 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
+@@ -2297,12 +2354,18 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
  	}
  	timeout = dcp_uses_t6020_tunnel_flow(dcp) ?
  		  DPTX_TUNNEL_CONNECT_TIMEOUT : DPTX_CONNECT_TIMEOUT;

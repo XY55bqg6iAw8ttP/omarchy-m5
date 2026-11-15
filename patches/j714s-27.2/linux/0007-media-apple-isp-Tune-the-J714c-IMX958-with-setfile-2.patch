@@ -1,7 +1,7 @@
-From 25ecd0ede9a92b20f06d6ed16dc41bf4e7283d14 Mon Sep 17 00:00:00 2001
+From 27d36571b505a00bd6c99a5b0d4ff44e7eef5ba8 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
-Subject: [PATCH 07/23] media: apple: isp: Tune the J714c IMX958 with setfile
+Subject: [PATCH 07/32] media: apple: isp: Tune the J714c IMX958 with setfile
  2226_02
 
 macOS's appleh16camerad carries three setfiles naming sensor 0x958:

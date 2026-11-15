@@ -1,7 +1,7 @@
-From fcfa2736b497107021944bfd3eaf1d97a4375ebe Mon Sep 17 00:00:00 2001
+From 653fce1081ee5b7948ffb0e4aa0ce502ebe664db Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 18:21:40 -0500
-Subject: [PATCH 03/23] drm/apple: Refuse panel brightness once the display
+Subject: [PATCH 03/32] drm/apple: Refuse panel brightness once the display
  processor crashed
 
 A panel that presents its level in the swap gets a new level only with
@@ -21,7 +21,7 @@ Signed-off-by: Rolando Trevino <rolotrealanis@gmail.com>
  1 file changed, 6 insertions(+)
 
 diff --git a/drivers/gpu/drm/apple/dcp_backlight.c b/drivers/gpu/drm/apple/dcp_backlight.c
-index f2e55c9a9418..80b9a52f57c5 100644
+index 0f332de569d1..a4e7270e64ae 100644
 --- a/drivers/gpu/drm/apple/dcp_backlight.c
 +++ b/drivers/gpu/drm/apple/dcp_backlight.c
 @@ -246,6 +246,9 @@ static int dcp_get_brightness(struct backlight_device *bd)
@@ -34,7 +34,7 @@ index f2e55c9a9418..80b9a52f57c5 100644
  
  	if (dcp_backlight_active(dcp) || dcp_backlight_desktop(dcp)) {
  		/*
-@@ -786,6 +789,9 @@ static int dcp_set_brightness(struct backlight_device *bd)
+@@ -816,6 +819,9 @@ static int dcp_set_brightness(struct backlight_device *bd)
  
  	if (READ_ONCE(dcp->quiescing))
  		return -ENODEV;

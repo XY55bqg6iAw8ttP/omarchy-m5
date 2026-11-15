@@ -1,7 +1,7 @@
-From ed2bf75af510185670b33fec822829fcfa9066af Mon Sep 17 00:00:00 2001
+From d8405432270d0920d3330eb81dd06e6e4ac07b28 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 18/23] drm/apple: T6050 HDMI: complete flips locally while the
+Subject: [PATCH 18/32] drm/apple: T6050 HDMI: complete flips locally while the
  output connects
 
 A monitor that wakes from standby when the HDMI link comes up drops HPD about
@@ -39,10 +39,10 @@ Signed-off-by: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
  5 files changed, 56 insertions(+)
 
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
-index 1e057d87c782..7c158398c812 100644
+index 666053f3f948..318a1604aa1f 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric.c
-@@ -5219,6 +5219,7 @@ irqreturn_t dcp_dp2hdmi_hpd(int irq, void *data)
+@@ -5347,6 +5347,7 @@ irqreturn_t dcp_dp2hdmi_hpd(int irq, void *data)
  	if (dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP)
  		return dcp_desktop_dp2hdmi_hpd(dcp);
  
@@ -51,10 +51,10 @@ index 1e057d87c782..7c158398c812 100644
  	dcp_hdmi_update_locked(dcp);
  	/* The GPIO edge detector is off throughout an oneshot handler. */
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index a3ffcfc8b0b6..393b0c6d2a70 100644
+index 98c21ee2a24e..f1b9701fc856 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -999,6 +999,9 @@ struct apple_dcp {
+@@ -1049,6 +1049,9 @@ struct apple_dcp {
  	struct delayed_work hdmi_recheck_wq;
  	/* T6030 HDMI converter service requests, see dcp-hdmi.c */
  	struct dcp_hdmi *hdmi;
@@ -64,7 +64,7 @@ index a3ffcfc8b0b6..393b0c6d2a70 100644
  
  	/*
  	 * Interrupts of a Thunderbolt DP tunnel's DP IN adapter, to pass to
-@@ -1087,6 +1090,7 @@ void iomfb_queue_crc_h17p(struct apple_dcp *dcp, u32 swap_id);
+@@ -1138,6 +1141,7 @@ void iomfb_queue_crc_h17p(struct apple_dcp *dcp, u32 swap_id);
  void dcp_drm_crtc_page_flip(struct apple_dcp *dcp, ktime_t now);
  void dcp_handle_hotplug_actions(struct apple_dcp *dcp, unsigned int action);
  bool dcp_external_hotplug(struct apple_dcp *dcp, bool connected);
@@ -73,10 +73,10 @@ index a3ffcfc8b0b6..393b0c6d2a70 100644
  void dcp_announce_work(struct work_struct *work);
  void dcp_external_crtc_released(struct apple_dcp *dcp);
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index 15e25aa9b8df..fa771f5d7d99 100644
+index 5a8ced923d7a..e96f1694af5e 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -4438,6 +4438,8 @@ static int dcp_enable_dp2hdmi_hpd(struct apple_dcp *dcp)
+@@ -4530,6 +4530,8 @@ static int dcp_enable_dp2hdmi_hpd(struct apple_dcp *dcp)
  		bool connected = gpiod_get_value_cansleep(dcp->hdmi_hpd);
  		dev_info(dcp->dev, "%s: DP2HDMI HPD connected:%d\n", __func__, connected);
  
@@ -85,7 +85,7 @@ index 15e25aa9b8df..fa771f5d7d99 100644
  		if (connected && !READ_ONCE(dcp->hdmi_yielded))
  			dcp_dptx_connect(dcp, 0);
  		else if (!connected)
-@@ -6708,6 +6710,9 @@ static int dcp_platform_probe_pipe(struct platform_device *pdev)
+@@ -6818,6 +6820,9 @@ static int dcp_platform_probe_pipe(struct platform_device *pdev)
  		ret = dcp_hdmi_init(dcp);
  		if (ret)
  			return ret;
@@ -96,10 +96,10 @@ index 15e25aa9b8df..fa771f5d7d99 100644
  			int irq = gpiod_to_irq(dcp->hdmi_hpd);
  			if (irq < 0 && dcp->external_native) {
 diff --git a/drivers/gpu/drm/apple/iomfb.c b/drivers/gpu/drm/apple/iomfb.c
-index b730134ba175..888402c4400f 100644
+index 5bdcddaef12d..25452d2e18ab 100644
 --- a/drivers/gpu/drm/apple/iomfb.c
 +++ b/drivers/gpu/drm/apple/iomfb.c
-@@ -3757,6 +3757,46 @@ static bool dcp_fw27_vrr_switch(struct apple_dcp *dcp, struct drm_crtc *crtc,
+@@ -4126,6 +4126,46 @@ static bool dcp_fw27_vrr_switch(struct apple_dcp *dcp, struct drm_crtc *crtc,
  	return false;
  }
  
@@ -146,7 +146,7 @@ index b730134ba175..888402c4400f 100644
  void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  {
  	struct platform_device *pdev = to_apple_crtc(crtc)->dcp;
-@@ -3785,6 +3825,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
+@@ -4154,6 +4194,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  		return;
  	}
  
@@ -159,10 +159,10 @@ index b730134ba175..888402c4400f 100644
  		iomfb_v26_6_flush(dcp, crtc, commit);
  		return;
 diff --git a/drivers/gpu/drm/apple/iomfb_template.c b/drivers/gpu/drm/apple/iomfb_template.c
-index 5803ca0f0c7f..13d86066b1f3 100644
+index 82445bb4e199..7ce5d0d7137f 100644
 --- a/drivers/gpu/drm/apple/iomfb_template.c
 +++ b/drivers/gpu/drm/apple/iomfb_template.c
-@@ -2473,6 +2473,7 @@ void DCP_FW_NAME(iomfb_poweron)(struct apple_dcp *dcp)
+@@ -2491,6 +2491,7 @@ void DCP_FW_NAME(iomfb_poweron)(struct apple_dcp *dcp)
  	u32 handle;
  #endif
  	dev_info(dcp->dev, "dcp_poweron() starting\n");

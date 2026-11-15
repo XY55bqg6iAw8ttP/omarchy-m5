@@ -1,7 +1,7 @@
-From be1cafb3463bd030b33ab894b049442a599f6590 Mon Sep 17 00:00:00 2001
+From 4c571e0d27daa7795e880a828c7cbd243300940a Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 10:56:02 -0500
-Subject: [PATCH 01/23] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
+Subject: [PATCH 01/32] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
  firmware (#1173)
 
 aurora-silicon/linux #1173 (Rolando Trevino, rolotrealanis98; head
@@ -1625,10 +1625,10 @@ index 949bd81d00ed..9e8b1392d94f 100644
 -- 
 2.56.0
 
-From 4dd9cfab112465e0014c0adb715283e74a4290ac Mon Sep 17 00:00:00 2001
+From 94105c6b59ffd51105a28a385c1e7891c1aaa9c4 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 15:41:37 -0500
-Subject: [PATCH 02/23] drm/apple: Name the firmware 27 adaptive sync parameter
+Subject: [PATCH 02/32] drm/apple: Name the firmware 27 adaptive sync parameter
 
 The firmware 27 template instance sends adaptive sync as a bare 15,
 where every other instance sends IOMFBPARAM_ADAPTIVE_SYNC (14). The DCP
@@ -1653,7 +1653,7 @@ Signed-off-by: Rolando Trevino <rolotrealanis@gmail.com>
  2 files changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/iomfb.h b/drivers/gpu/drm/apple/iomfb.h
-index 33d6c489c7b4..29f3e1912d6f 100644
+index e5a22ca45c4b..2570bc8d788e 100644
 --- a/drivers/gpu/drm/apple/iomfb.h
 +++ b/drivers/gpu/drm/apple/iomfb.h
 @@ -57,6 +57,13 @@ enum dcpep_type {
@@ -1671,10 +1671,10 @@ index 33d6c489c7b4..29f3e1912d6f 100644
  
  #define IOMFB_MESSAGE_TYPE	GENMASK_ULL( 3,  0)
 diff --git a/drivers/gpu/drm/apple/iomfb_template.c b/drivers/gpu/drm/apple/iomfb_template.c
-index 7763b7c03b53..1817b65d4768 100644
+index 2ae38159ab06..f184ffabfaeb 100644
 --- a/drivers/gpu/drm/apple/iomfb_template.c
 +++ b/drivers/gpu/drm/apple/iomfb_template.c
-@@ -2443,7 +2443,7 @@ static void dcp_on_set_parameter(struct apple_dcp *dcp, void *out, void *cookie)
+@@ -2461,7 +2461,7 @@ static void dcp_on_set_parameter(struct apple_dcp *dcp, void *out, void *cookie)
  	struct dcp_set_parameter_dcp param = {
  		.param =
  #if (DCP_FW_H17(DCP_FW_VER) && DCP_FW_VER >= DCP_FW_VERSION(27, 0, 0))
@@ -1683,7 +1683,7 @@ index 7763b7c03b53..1817b65d4768 100644
  #else
  		IOMFBPARAM_ADAPTIVE_SYNC,
  #endif
-@@ -4011,7 +4011,7 @@ static void dcp_set_adaptive_sync(struct apple_dcp *dcp, u32 min_vrr,
+@@ -4042,7 +4042,7 @@ static void dcp_set_adaptive_sync(struct apple_dcp *dcp, u32 min_vrr,
  	struct dcp_set_parameter_dcp param = {
  		.param =
  #if (DCP_FW_H17(DCP_FW_VER) && DCP_FW_VER >= DCP_FW_VERSION(27, 0, 0))
@@ -1695,10 +1695,10 @@ index 7763b7c03b53..1817b65d4768 100644
 -- 
 2.56.0
 
-From fcfa2736b497107021944bfd3eaf1d97a4375ebe Mon Sep 17 00:00:00 2001
+From 653fce1081ee5b7948ffb0e4aa0ce502ebe664db Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 18:21:40 -0500
-Subject: [PATCH 03/23] drm/apple: Refuse panel brightness once the display
+Subject: [PATCH 03/32] drm/apple: Refuse panel brightness once the display
  processor crashed
 
 A panel that presents its level in the swap gets a new level only with
@@ -1718,7 +1718,7 @@ Signed-off-by: Rolando Trevino <rolotrealanis@gmail.com>
  1 file changed, 6 insertions(+)
 
 diff --git a/drivers/gpu/drm/apple/dcp_backlight.c b/drivers/gpu/drm/apple/dcp_backlight.c
-index f2e55c9a9418..80b9a52f57c5 100644
+index 0f332de569d1..a4e7270e64ae 100644
 --- a/drivers/gpu/drm/apple/dcp_backlight.c
 +++ b/drivers/gpu/drm/apple/dcp_backlight.c
 @@ -246,6 +246,9 @@ static int dcp_get_brightness(struct backlight_device *bd)
@@ -1731,7 +1731,7 @@ index f2e55c9a9418..80b9a52f57c5 100644
  
  	if (dcp_backlight_active(dcp) || dcp_backlight_desktop(dcp)) {
  		/*
-@@ -786,6 +789,9 @@ static int dcp_set_brightness(struct backlight_device *bd)
+@@ -816,6 +819,9 @@ static int dcp_set_brightness(struct backlight_device *bd)
  
  	if (READ_ONCE(dcp->quiescing))
  		return -ENODEV;
@@ -1744,10 +1744,10 @@ index f2e55c9a9418..80b9a52f57c5 100644
 -- 
 2.56.0
 
-From abf0cf23647152d5df1e33f29abb05b31f3edfe1 Mon Sep 17 00:00:00 2001
+From 2f55d656faae1afac448c761e62a8d8e732323c4 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 08:13:48 -0500
-Subject: [PATCH 04/23] drm/apple: firmware 27.3: the full IOMFB method table
+Subject: [PATCH 04/32] drm/apple: firmware 27.3: the full IOMFB method table
  and the 27.3 swap record (J716s daily)
 
 Private to the J716s daily: the IDs beyond the 20 traced ones and the 27.3 swap layout were
@@ -1766,20 +1766,20 @@ Claude-Session: https://claude.ai/code/session_01BV6NpkesyT31Ta49VjQELY
  5 files changed, 154 insertions(+), 42 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index b71eff588bdd..2fe421fe3652 100644
+index fd4f4c5746c3..78859c8e29df 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -568,6 +568,8 @@ struct apple_dcp {
- 	struct dcp_swap_submit_req_v27 present_v27;
- 	/* Both paired wire records belong to the primary endpoint lock. */
- 	struct dcp_swap_submit_req_v27 peer_present_v27;
+@@ -586,6 +586,8 @@ struct apple_dcp {
+ 	bool v27_a407;
+ 	struct dcp_swap_submit_req_v27_a407 present_v27_a407;
+ 	struct dcp_swap_submit_req_v27_a407 peer_present_v27_a407;
 +	/* The firmware 27.3 copy of either record (iomfb_v27_swap_wire()). */
 +	struct dcp_swap_submit_req_v27_3 present_v27_3;
  
  	/* DCP shared memory */
  	void *shmem;
 diff --git a/drivers/gpu/drm/apple/iomfb-peer-runtime-v27.inc b/drivers/gpu/drm/apple/iomfb-peer-runtime-v27.inc
-index bd4e50ad1fe6..325691adfea4 100644
+index eb5e11c6868e..1433b0176170 100644
 --- a/drivers/gpu/drm/apple/iomfb-peer-runtime-v27.inc
 +++ b/drivers/gpu/drm/apple/iomfb-peer-runtime-v27.inc
 @@ -60,6 +60,8 @@ static void dcp_peer_started_on_owner(struct apple_dcp *owner, void *data, void
@@ -1791,7 +1791,7 @@ index bd4e50ad1fe6..325691adfea4 100644
  
  	lockdep_assert_held(&owner->iomfb.lock);
  	if (IS_ERR_OR_NULL(peer) || peer != cookie || resp->ret || resp->swap_id != id) {
-@@ -84,13 +86,15 @@ static void dcp_peer_started_on_owner(struct apple_dcp *owner, void *data, void
+@@ -113,13 +115,15 @@ static void dcp_peer_started_on_owner(struct apple_dcp *owner, void *data, void
  	dcp_peer_swap_armed_v27(owner, id);
  	trace_iomfb_swap_submit(owner, id);
  	trace_iomfb_swap_submit(peer, id);
@@ -1812,7 +1812,7 @@ index bd4e50ad1fe6..325691adfea4 100644
  	if (READ_ONCE(peer->crashed))
  		dcp_peer_swap_error(owner, "peer publication", -EIO);
 diff --git a/drivers/gpu/drm/apple/iomfb_template.c b/drivers/gpu/drm/apple/iomfb_template.c
-index 1817b65d4768..35271bc7c6dc 100644
+index f184ffabfaeb..c34e27a12ad2 100644
 --- a/drivers/gpu/drm/apple/iomfb_template.c
 +++ b/drivers/gpu/drm/apple/iomfb_template.c
 @@ -423,6 +423,11 @@ static void dcp_swap_submit(struct apple_dcp *dcp, bool oob,
@@ -1827,7 +1827,7 @@ index 1817b65d4768..35271bc7c6dc 100644
  
  	if (dcp->hw.iomfb_method_profile != DCP_IOMFB_METHODS_H17G) {
  		iomfb_serialize_present_h17p(&dcp->present_h17p, request);
-@@ -438,23 +443,24 @@ static void dcp_swap_submit(struct apple_dcp *dcp, bool oob,
+@@ -456,23 +461,24 @@ static void dcp_swap_submit(struct apple_dcp *dcp, bool oob,
  		dcp->present_v27.swap.brightness_nits =
  			get_unaligned_le64(dcp->present_h17p.swap + 0x35e);
  		dcp_external_stamp_submit(dcp, &dcp->present_v27.swap);
@@ -1862,10 +1862,10 @@ index 1817b65d4768..35271bc7c6dc 100644
  }
  #else
 diff --git a/drivers/gpu/drm/apple/iomfb_v27.c b/drivers/gpu/drm/apple/iomfb_v27.c
-index fb7ae71161de..e1cc9ed2810d 100644
+index 27e5eef581db..540b03796413 100644
 --- a/drivers/gpu/drm/apple/iomfb_v27.c
 +++ b/drivers/gpu/drm/apple/iomfb_v27.c
-@@ -167,37 +167,58 @@ static const struct dcp_method_entry dcp_methods_27_2[dcpep_num_methods] = {
+@@ -213,37 +213,58 @@ static const struct dcp_method_entry dcp_methods_27_2[dcpep_num_methods] = {
  };
  
  /*
@@ -1953,7 +1953,7 @@ index fb7ae71161de..e1cc9ed2810d 100644
  };
  
  const struct dcp_method_entry *iomfb_v27_methods(const char *compat)
-@@ -237,6 +258,47 @@ const char *iomfb_v27_missing_method(const struct dcp_method_entry *methods,
+@@ -307,6 +328,47 @@ const char *iomfb_v27_missing_method(const struct dcp_method_entry *methods,
  	return first;
  }
  
@@ -2002,10 +2002,10 @@ index fb7ae71161de..e1cc9ed2810d 100644
  #define dcp_methods (dcp->v27_methods)
  
 diff --git a/drivers/gpu/drm/apple/iomfb_v27.h b/drivers/gpu/drm/apple/iomfb_v27.h
-index 28063a45d6a6..8a5271105ffd 100644
+index 915de53c68bf..be4576e03f01 100644
 --- a/drivers/gpu/drm/apple/iomfb_v27.h
 +++ b/drivers/gpu/drm/apple/iomfb_v27.h
-@@ -89,8 +89,46 @@ static_assert(offsetof(struct dcp_swap_v27, bl_limit) == 0x376);
+@@ -129,10 +129,48 @@ static_assert(offsetof(struct dcp_swap_v27, bl_limit) == 0x376);
  static_assert(offsetof(struct dcp_swap_v27, edr_scale) == 0x37e);
  static_assert(offsetof(struct dcp_swap_v27, edr_headroom) == 0x3e6);
  
@@ -2044,6 +2044,8 @@ index 28063a45d6a6..8a5271105ffd 100644
 +
  void iomfb_serialize_present_v27(struct dcp_swap_submit_req_v27 *wire,
  				const struct dcp_swap_submit_req_h17p *request);
+ void iomfb_serialize_present_v27_a407(struct dcp_swap_submit_req_v27_a407 *wire,
+ 				      const struct dcp_swap_submit_req_h17p *request);
 +struct apple_dcp;
 +bool iomfb_v27_swap_is_27_3(const struct apple_dcp *dcp);
 +void *iomfb_v27_swap_wire(const struct apple_dcp *dcp,
@@ -2055,10 +2057,10 @@ index 28063a45d6a6..8a5271105ffd 100644
 -- 
 2.56.0
 
-From 256a65af207648d684489c9c3a6c36bd75b6fbcd Mon Sep 17 00:00:00 2001
+From e9db0075c06c391c3e9246fe177a361988dd5cc9 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Wed, 11 Nov 2026 12:00:39 -0700
-Subject: [PATCH 05/23] drm/asahi: t6050: identify the 27.2 (26B8125) G17S
+Subject: [PATCH 05/32] drm/asahi: t6050: identify the 27.2 (26B8125) G17S
  firmware of the K114/K116
 
 Applies on top of aurora-silicon/linux PR #1173.
@@ -2137,10 +2139,10 @@ index 9e8b1392d94f..6b7ebe1852da 100644
 -- 
 2.56.0
 
-From ad52f01aa474337e52d9471a72f5f15c7f756f36 Mon Sep 17 00:00:00 2001
+From 16d5d29a2db7b96c715969c571781cae0366c01d Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 23:52:29 -0500
-Subject: [PATCH 06/23] accel/ane, media: apple: ave: T6050 Neural Engine on
+Subject: [PATCH 06/32] accel/ane, media: apple: ave: T6050 Neural Engine on
  macOS 27.3; AVE builds by TEXT CRC
 
 The T6050 ANE driver admits one preloaded firmware build, the macOS 27.0
@@ -2348,10 +2350,10 @@ index 2dc8d2239b89..1612cf973253 100644
  	return 0;
  fail:
 diff --git a/drivers/accel/ane/ane_fw_cold.h b/drivers/accel/ane/ane_fw_cold.h
-index a9bea3958790..d3497f50ec53 100644
+index 0af12b6ca1bc..45588345b49e 100644
 --- a/drivers/accel/ane/ane_fw_cold.h
 +++ b/drivers/accel/ane/ane_fw_cold.h
-@@ -153,6 +153,9 @@ struct ane_fw_handoff {
+@@ -152,6 +152,9 @@ struct ane_fw_handoff {
  	bool regions_ok;
  	u64 phys[2], size[2], dva[2];
  	bool text_ok;
@@ -2362,10 +2364,10 @@ index a9bea3958790..d3497f50ec53 100644
  	bool crash_kernel;
  };
 diff --git a/drivers/accel/ane/ane_fw_platform.c b/drivers/accel/ane/ane_fw_platform.c
-index 411b1732e41a..3cd75deb62ef 100644
+index 219e4560ca0a..dec7fdf6ce22 100644
 --- a/drivers/accel/ane/ane_fw_platform.c
 +++ b/drivers/accel/ane/ane_fw_platform.c
-@@ -50,6 +50,33 @@ static const u8 ane_t6050_text_pin_27_0[] = {
+@@ -64,6 +64,33 @@ static const u8 ane_t6050_text_pin_27_0[] = {
  	0xd1, 0xa2, 0x20, 0xd0, 0xee, 0x43, 0x8b, 0x8f,
  };
  
@@ -2399,7 +2401,7 @@ index 411b1732e41a..3cd75deb62ef 100644
  const struct ane_fw_platform ane_h16_platform = {
  	.h16_profiles = ane_h16_profiles,
  	.h16_profile_count = ARRAY_SIZE(ane_h16_profiles),
-@@ -176,6 +203,8 @@ const struct ane_fw_platform ane_t6050_platform = {
+@@ -240,6 +267,8 @@ const struct ane_fw_platform ane_t6050_platform = {
  	.dart_revision = 0x204,
  	.dapf_count = 5,
  	.text_pin = ane_t6050_text_pin_27_0,
@@ -2409,10 +2411,10 @@ index 411b1732e41a..3cd75deb62ef 100644
  
  /*
 diff --git a/drivers/accel/ane/ane_fw_platform.h b/drivers/accel/ane/ane_fw_platform.h
-index dd5e3278c423..1c1d662bf253 100644
+index 6f4372e8ad3c..c5626bce703b 100644
 --- a/drivers/accel/ane/ane_fw_platform.h
 +++ b/drivers/accel/ane/ane_fw_platform.h
-@@ -24,6 +24,20 @@ enum ane_fw_irq_role {
+@@ -27,6 +27,20 @@ enum ane_fw_irq_role {
  	ANE_FW_IRQ_CHANNELS,
  };
  
@@ -2433,10 +2435,10 @@ index dd5e3278c423..1c1d662bf253 100644
  /* Later firmware generations must never enter the H14 staging path. */
  struct ane_fw_platform {
  	const struct ane_h16_profile *h16_profiles;
-@@ -99,11 +113,17 @@ struct ane_fw_platform {
- 	u16 dart_revision;
- 	u8 dapf_count;
+@@ -106,11 +120,17 @@ struct ane_fw_platform {
  	const u8 *text_pin;
+ 	/* H16: an aux-3 window, which the build's XL tunables go to. */
+ 	bool has_xl;
 +	/*
 +	 * The preloaded builds this SoC admits. When set, they replace
 +	 * preload_dva, preload_size and text_pin for the hand-off checks.
@@ -2452,7 +2454,7 @@ index dd5e3278c423..1c1d662bf253 100644
  			    const u64 size[2], const u64 dva[2])
  {
  	u64 end[2];
-@@ -111,14 +131,51 @@ ane_fw_preload_ranges_valid(const struct ane_fw_platform *soc, const u64 phys[2]
+@@ -118,14 +138,51 @@ ane_fw_preload_ranges_valid(const struct ane_fw_platform *soc, const u64 phys[2]
  
  	for (i = 0; i < 2; i++) {
  		if (!phys[i] || !IS_ALIGNED(phys[i], SZ_16K) ||
@@ -2507,10 +2509,10 @@ index dd5e3278c423..1c1d662bf253 100644
   * The system sleep path of a device the ane_t6021 driver bound. Devices of
   * the shared firmware platform (H16, H17) carry the backend's drvdata and
 diff --git a/drivers/accel/ane/ane_fw_platform_test.c b/drivers/accel/ane/ane_fw_platform_test.c
-index 7fa82abf63fa..53eb20cb1300 100644
+index 6755523e7abe..f407e7c74ad6 100644
 --- a/drivers/accel/ane/ane_fw_platform_test.c
 +++ b/drivers/accel/ane/ane_fw_platform_test.c
-@@ -37,6 +37,40 @@ static void ane_preload_ranges_test(struct kunit *test)
+@@ -38,6 +38,40 @@ static void ane_preload_ranges_test(struct kunit *test)
  	KUNIT_EXPECT_FALSE(test, ane_fw_preload_ranges_valid(&soc, phys, size, dva));
  }
  
@@ -2551,7 +2553,7 @@ index 7fa82abf63fa..53eb20cb1300 100644
  /*
   * H16 and H17 devices (any firmware platform) take the backend's sleep path,
   * never the rtclient one; only the H13/H14 rtclient (no platform) does.
-@@ -70,6 +104,7 @@ static struct kunit_case ane_fw_platform_cases[] = {
+@@ -95,6 +129,7 @@ static struct kunit_case ane_fw_platform_cases[] = {
  	KUNIT_CASE(ane_platform_staged_bind_test),
  	KUNIT_CASE(ane_platform_sleep_path_test),
  	KUNIT_CASE(ane_preload_ranges_test),
@@ -2670,10 +2672,10 @@ index 38bafb89d223..84a89ba43729 100644
  
  #endif
 diff --git a/drivers/media/platform/apple/ave/ave-sess.c b/drivers/media/platform/apple/ave/ave-sess.c
-index 395e26c48fd8..1ff063195a37 100644
+index 4e860b5916f0..82cef285deb7 100644
 --- a/drivers/media/platform/apple/ave/ave-sess.c
 +++ b/drivers/media/platform/apple/ave/ave-sess.c
-@@ -267,6 +267,8 @@ static int ave_sess_params(struct ave_ctx *ctx, struct ave_params *p)
+@@ -275,6 +275,8 @@ static int ave_sess_params(struct ave_ctx *ctx, struct ave_params *p)
  			 p->bframes ? "with" : "no");
  		return -EOPNOTSUPP;
  	}
@@ -2683,7 +2685,7 @@ index 395e26c48fd8..1ff063195a37 100644
  }
  
 diff --git a/drivers/media/platform/apple/ave/ave.h b/drivers/media/platform/apple/ave/ave.h
-index cf158479c996..4e2550ff472c 100644
+index d8075a8d38bc..05dd6fa2fe0c 100644
 --- a/drivers/media/platform/apple/ave/ave.h
 +++ b/drivers/media/platform/apple/ave/ave.h
 @@ -207,9 +207,9 @@ struct ave_variant {
@@ -2702,10 +2704,10 @@ index cf158479c996..4e2550ff472c 100644
 -- 
 2.56.0
 
-From 25ecd0ede9a92b20f06d6ed16dc41bf4e7283d14 Mon Sep 17 00:00:00 2001
+From 27d36571b505a00bd6c99a5b0d4ff44e7eef5ba8 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
-Subject: [PATCH 07/23] media: apple: isp: Tune the J714c IMX958 with setfile
+Subject: [PATCH 07/32] media: apple: isp: Tune the J714c IMX958 with setfile
  2226_02
 
 macOS's appleh16camerad carries three setfiles naming sensor 0x958:
@@ -2797,10 +2799,10 @@ index 3551018baf17..79a4445d1c4f 100644
 -- 
 2.56.0
 
-From aed7f16262146b3075cdbb9ba77a44b4c743fd22 Mon Sep 17 00:00:00 2001
+From 27a68ed12a93e715a224179985fdddd49192718b Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:11:59 +0100
-Subject: [PATCH 08/23] media: apple: isp: Compute the T6050 setfile's noise
+Subject: [PATCH 08/32] media: apple: isp: Compute the T6050 setfile's noise
  reduction radial gains
 
 The IMX958 setfile 2226_02 carries its noise reduction radial gains
@@ -2980,10 +2982,10 @@ index 79a4445d1c4f..6b7e6b5f9a70 100644
 -- 
 2.56.0
 
-From 977011c94d911a57e1639e7f444df175a4b5c235 Mon Sep 17 00:00:00 2001
+From 12fcaeac8da2a9830ba9f2a80ad8c7e74390968d Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:13:01 +0100
-Subject: [PATCH 09/23] media: apple: isp: Set the J714c lens shading target
+Subject: [PATCH 09/32] media: apple: isp: Set the J714c lens shading target
  and scene metering
 
 macOS's appleh16camerad sets the IMX958's lens shading ideal percent to
@@ -3123,10 +3125,10 @@ index 6b7e6b5f9a70..c13914ef62e9 100644
 -- 
 2.56.0
 
-From 01abf42cb1c54a8223d03f541b96909db238f7cb Mon Sep 17 00:00:00 2001
+From 10cdc1c1b409ec1e5664207b9c85f8a6bcc5f031 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 11:16:29 -0500
-Subject: [PATCH 10/23] arm64: dts: apple: t6050-j714s: Also offer 2560x1440
+Subject: [PATCH 10/32] arm64: dts: apple: t6050-j714s: Also offer 2560x1440
  from sensor config 6
 
 DjDeveloperr's J714s presets (#1835) crop and scale sensor config 6 to
@@ -3144,10 +3146,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 10 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index f9d5789c9855..4cea8adb301b 100644
+index cffcd7f74359..4c83017c57bd 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -618,6 +618,9 @@ fan-F1Ac {
+@@ -638,6 +638,9 @@ fan-F1Ac {
   * the first) cropped and scaled by the ISP per size. Each crop is centred on that frame;
   * the landscape sizes take two-thirds of its width, the portrait sizes the same length of
   * its height and the square that side.
@@ -3157,7 +3159,7 @@ index f9d5789c9855..4cea8adb301b 100644
   */
  &isp0 {
  	/delete-node/ sensor-presets;
-@@ -672,6 +675,13 @@ preset6 {
+@@ -692,6 +695,13 @@ preset6 {
  			apple,output-size = <1080 1920>;
  			apple,crop = <950 426 1140 2026>;
  		};
@@ -3174,10 +3176,10 @@ index f9d5789c9855..4cea8adb301b 100644
 -- 
 2.56.0
 
-From a9e5791e1adcc6f393c32194fc8f3e3b633aefcd Mon Sep 17 00:00:00 2001
+From 40ec8af14692967d29ec90cc306ba61787460812 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:35 +0100
-Subject: [PATCH 11/23] media: apple: isp: Drive the J714c camera light from
+Subject: [PATCH 11/32] media: apple: isp: Drive the J714c camera light from
  the driver
 
 On the J714c the camera light belongs to the exclave indicator
@@ -3403,10 +3405,10 @@ index 09b691228650..3c39a1d5fc9d 100644
 -- 
 2.56.0
 
-From 8a0c5f34cc11245308c7565fbbe9598030f393f9 Mon Sep 17 00:00:00 2001
+From 527c6f4b750838f68225a8be6cdd6d2aa3c26d0b Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
-Subject: [PATCH 12/23] media: apple: isp: Turn the J714c camera light off
+Subject: [PATCH 12/32] media: apple: isp: Turn the J714c camera light off
  after a firmware halt
 
 A firmware that dies mid-start can leave the sensor powered, and a
@@ -3513,10 +3515,10 @@ index 3c39a1d5fc9d..a35961de0f15 100644
 -- 
 2.56.0
 
-From 818d74db010733b93cae5e832818692ed00f153c Mon Sep 17 00:00:00 2001
+From 54e1a8f4755b1a0dab7eb41e54050a13fe7397c0 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 05:03:13 -0500
-Subject: [PATCH 13/23] arm64: dts: apple: t6050-j714s: Describe the camera
+Subject: [PATCH 13/32] arm64: dts: apple: t6050-j714s: Describe the camera
  light
 
 edimoldovan's camera light driver (omacom/linux-aurora #422, 5a3e9d8a5f0b
@@ -3536,10 +3538,10 @@ Claude-Session: https://claude.ai/code/session_01H3rUWsmTuAiei3A7JojjHG
  1 file changed, 18 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index 4cea8adb301b..d0b713627078 100644
+index 4c83017c57bd..e7447a37c614 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -623,6 +623,24 @@ fan-F1Ac {
+@@ -643,6 +643,24 @@ fan-F1Ac {
   * same frame 1:1, unscaled.
   */
  &isp0 {
@@ -3567,10 +3569,10 @@ index 4cea8adb301b..d0b713627078 100644
 -- 
 2.56.0
 
-From 6ac705ddc854435980df9ef84d238789b9c04067 Mon Sep 17 00:00:00 2001
+From c1a5de77cd6837c8b878a0e73398799bb8665016 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 12:29:34 -0500
-Subject: [PATCH 14/23] drm/apple: Offer VRR on the firmware 27 panel and apply
+Subject: [PATCH 14/32] drm/apple: Offer VRR on the firmware 27 panel and apply
  VRR_ENABLED (J716s daily)
 
 The T6050 ProMotion panel reports its 120 Hz timing with both
@@ -3613,10 +3615,10 @@ Claude-Session: https://claude.ai/code/session_01BV6NpmcwB5iJuY9huL52C5
  4 files changed, 91 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index 2fe421fe3652..a3ffcfc8b0b6 100644
+index 78859c8e29df..98c21ee2a24e 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -662,6 +662,8 @@ struct apple_dcp {
+@@ -680,6 +680,8 @@ struct apple_dcp {
  	bool typec_hpd_held;
  	bool use_timestamps;
  	bool vrr_enabled;
@@ -3625,7 +3627,7 @@ index 2fe421fe3652..a3ffcfc8b0b6 100644
  	/*
  	 * The mode set asks for a PQ signal; output_pq: the one set carries it;
  	 * output_edr: a panel shows the PQ content as EDR, edr_sent: swaps
-@@ -1151,6 +1153,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
+@@ -1202,6 +1204,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
  	       dcp_has_panel(dcp);
  }
  
@@ -3641,10 +3643,10 @@ index 2fe421fe3652..a3ffcfc8b0b6 100644
   * Does @dcp's firmware speak the 14.7 AFK, DPTX and DPAV endpoint protocol,
   * whichever IOMFB path drives it? DCP_FIRMWARE_V_14_7 is the native DCPLink
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index 3b474f1565f3..15e25aa9b8df 100644
+index 21a0c8a82229..5a8ced923d7a 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -1563,6 +1563,12 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
+@@ -1602,6 +1602,12 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
  		WRITE_ONCE(dcp->vrr_enabled, false);
  		dev_warn(dcp->dev, "adaptive swap timed out, restoring fixed refresh\n");
  	}
@@ -3657,7 +3659,7 @@ index 3b474f1565f3..15e25aa9b8df 100644
  	dev_warn(dcp->dev, "swap not completed, retraining the display\n");
  	dcp_mode_invalidate(&dcp->mode_state);
  	dcp_drm_crtc_vblank(dcp->crtc);
-@@ -1573,7 +1579,8 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
+@@ -1612,7 +1618,8 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
  
  void dcp_swap_watchdog_arm(struct apple_dcp *dcp)
  {
@@ -3668,10 +3670,10 @@ index 3b474f1565f3..15e25aa9b8df 100644
  			msecs_to_jiffies(DCP_SWAP_WATCHDOG_MS);
  		mod_delayed_work(system_dfl_wq, &dcp->swap_watchdog_wq,
 diff --git a/drivers/gpu/drm/apple/iomfb.c b/drivers/gpu/drm/apple/iomfb.c
-index 301fdec5508b..b730134ba175 100644
+index 336f6f46fdea..5bdcddaef12d 100644
 --- a/drivers/gpu/drm/apple/iomfb.c
 +++ b/drivers/gpu/drm/apple/iomfb.c
-@@ -44,6 +44,23 @@
+@@ -45,6 +45,23 @@
  #include "parser.h"
  #include "trace.h"
  
@@ -3695,7 +3697,7 @@ index 301fdec5508b..b730134ba175 100644
  struct dcp_identity_trace {
  	struct apple_dcp *dcp;
  	atomic_t *count;
-@@ -2115,7 +2132,12 @@ int dcp_modes_replace(struct apple_dcp *dcp, struct dcp_parse_ctx *ctx,
+@@ -2361,7 +2378,12 @@ int dcp_modes_replace(struct apple_dcp *dcp, struct dcp_parse_ctx *ctx,
  				       !dcp_has_panel(dcp);
  		ctx->pq_dsc = dcp->fw_compat == DCP_FIRMWARE_V_27_0;
  	}
@@ -3706,10 +3708,10 @@ index 301fdec5508b..b730134ba175 100644
 +	 */
 +	ctx->zero_vrr_range_fallback = dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP ||
 +		(dcp_fw27_panel(dcp) && READ_ONCE(fw27_panel_vrr));
+ 	ctx->internal_present_deadline = dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP;
  	if (dcp->fixed_connector_type != DRM_MODE_CONNECTOR_eDP &&
  	    smp_load_acquire(&dcp->dptxport[0].tile_hint)) {
- 		ctx->tiled_width = dcp->dptxport[0].tile_width;
-@@ -2489,6 +2511,8 @@ int dcp_get_modes(struct drm_connector *connector)
+@@ -2804,6 +2826,8 @@ int dcp_get_modes(struct drm_connector *connector)
  		}
  		vrr_capable |= modes[i].vrr;
  	}
@@ -3718,7 +3720,7 @@ index 301fdec5508b..b730134ba175 100644
  	drm_connector_set_vrr_capable_property(connector, vrr_capable);
  modes_done:
  	mutex_unlock(&dcp->dcpavserv.lock);
-@@ -3695,6 +3719,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
+@@ -4064,6 +4088,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
  	schedule_work(&dcp->vblank_wq);
  }
  
@@ -3763,7 +3765,7 @@ index 301fdec5508b..b730134ba175 100644
  void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  {
  	struct platform_device *pdev = to_apple_crtc(crtc)->dcp;
-@@ -3761,6 +3823,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
+@@ -4130,6 +4192,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  			dcp_hdr_metadata_sync(dcp, crtc, commit);
  	}
  
@@ -3776,18 +3778,18 @@ index 301fdec5508b..b730134ba175 100644
  		iomfb_queue_atomic(dcp, crtc, commit);
  		return;
 diff --git a/drivers/gpu/drm/apple/iomfb_template.c b/drivers/gpu/drm/apple/iomfb_template.c
-index 35271bc7c6dc..5803ca0f0c7f 100644
+index c34e27a12ad2..82445bb4e199 100644
 --- a/drivers/gpu/drm/apple/iomfb_template.c
 +++ b/drivers/gpu/drm/apple/iomfb_template.c
-@@ -4044,6 +4044,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
- 	struct dcp_wait_cookie *cookie;
+@@ -4076,6 +4076,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  	struct dcp_color_mode *cmode = NULL;
  	bool paired = false;
+ 	bool keep_mode = false;
 +	bool vrr_on;
  	int ret;
  
  	if (!lookup_mode(dcp, &crtc_state->mode, mode)) {
-@@ -4088,6 +4089,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
+@@ -4130,6 +4131,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  
  	/* Built-in ProMotion panels require timestamps even in fixed-120 mode. */
  	dcp->use_timestamps = mode->needs_timestamps && dcp->main_display;
@@ -3795,7 +3797,7 @@ index 35271bc7c6dc..5803ca0f0c7f 100644
  
  	cookie = kzalloc(sizeof(*cookie), GFP_KERNEL);
  	if (!cookie) {
-@@ -4112,7 +4114,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
+@@ -4157,7 +4159,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  #if (DCP_FW_H17(DCP_FW_VER) && DCP_FW_VER >= DCP_FW_VERSION(27, 0, 0))
  	if ((ret = dcp_peer_modeset_v27(dcp, mode->timing_mode_id,
  				      mode->color_mode_id,
@@ -3804,7 +3806,7 @@ index 35271bc7c6dc..5803ca0f0c7f 100644
  		cookie->status = ret;
  		paired = true;
  		if (!ret)
-@@ -4128,9 +4130,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
+@@ -4173,9 +4175,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  	if (mode->vrr &&
  		   dcp->hw.iomfb_method_profile !=
  		   DCP_IOMFB_METHODS_H17P_EXTERNAL)
@@ -3815,7 +3817,7 @@ index 35271bc7c6dc..5803ca0f0c7f 100644
  	else
  		dcp_set_digital_out_mode(dcp, false, &dcp->mode,
  					 complete_set_digital_out_mode, cookie);
-@@ -4184,7 +4184,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
+@@ -4229,7 +4229,7 @@ int DCP_FW_NAME(iomfb_modeset)(struct apple_dcp *dcp,
  				 READ_ONCE(cookie->status));
  	}
  	kref_put(&cookie->refcount, release_wait_cookie);
@@ -3827,10 +3829,10 @@ index 35271bc7c6dc..5803ca0f0c7f 100644
 -- 
 2.56.0
 
-From c1163ac73cf2e7b341affcb14ca8f6535a61e64c Mon Sep 17 00:00:00 2001
+From 6af6d2b34f2d46bc235cb2632efdbce402ecf70b Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 23:54:15 -0500
-Subject: [PATCH 15/23] accel/ane, media: apple: ave: T6050 Neural Engine and
+Subject: [PATCH 15/32] accel/ane, media: apple: ave: T6050 Neural Engine and
  encoder on macOS 27.2
 
 The J714s 27.2 stub (UniversalMac_27.2_26B123, J714s identity) preloads
@@ -3865,10 +3867,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  6 files changed, 48 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/accel/ane/ane_fw_platform.c b/drivers/accel/ane/ane_fw_platform.c
-index 3cd75deb62ef..4f4a033f79b2 100644
+index dec7fdf6ce22..2ad203340e31 100644
 --- a/drivers/accel/ane/ane_fw_platform.c
 +++ b/drivers/accel/ane/ane_fw_platform.c
-@@ -58,6 +58,15 @@ static const u8 ane_t6050_text_pin_27_3[] = {
+@@ -72,6 +72,15 @@ static const u8 ane_t6050_text_pin_27_3[] = {
  	0xc7, 0x19, 0x10, 0xac, 0x66, 0xdc, 0x60, 0x66,
  };
  
@@ -3884,7 +3886,7 @@ index 3cd75deb62ef..4f4a033f79b2 100644
  /*
   * T6050 builds, by their ADT ane0 segment-ranges. 27.3 moved 0x2c000 bytes
   * from DATA into TEXT; the firmware span (heap tail, pool, IPC) is unchanged.
-@@ -69,6 +78,16 @@ static const struct ane_fw_preload_build ane_t6050_builds[] = {
+@@ -83,6 +92,16 @@ static const struct ane_fw_preload_build ane_t6050_builds[] = {
  		.size = { 0xc0000, 0x2ac000 },
  		.text_pin = ane_t6050_text_pin_27_0,
  	},
@@ -3902,10 +3904,10 @@ index 3cd75deb62ef..4f4a033f79b2 100644
  		.name = "27.3",
  		.dva = { 0x10000000000, 0x100000ec000 },
 diff --git a/drivers/accel/ane/ane_fw_platform.h b/drivers/accel/ane/ane_fw_platform.h
-index 1c1d662bf253..0335337f4853 100644
+index c5626bce703b..54cdee1949c5 100644
 --- a/drivers/accel/ane/ane_fw_platform.h
 +++ b/drivers/accel/ane/ane_fw_platform.h
-@@ -28,7 +28,8 @@ enum ane_fw_irq_role {
+@@ -31,7 +31,8 @@ enum ane_fw_irq_role {
   * One firmware build the loader may preload: the device addresses and sizes
   * of its TEXT and DATA segments and the digest of its TEXT. Apple moves the
   * TEXT/DATA split between macOS releases (T6050: 27.0 TEXT 0xc0000 and DATA
@@ -3985,7 +3987,7 @@ index 41bea75af116..a79d9c875c67 100644
  	return NULL;
  }
 diff --git a/drivers/media/platform/apple/ave/ave.h b/drivers/media/platform/apple/ave/ave.h
-index 4e2550ff472c..d74b8ba579ab 100644
+index 05dd6fa2fe0c..ad9c7b28956e 100644
 --- a/drivers/media/platform/apple/ave/ave.h
 +++ b/drivers/media/platform/apple/ave/ave.h
 @@ -174,6 +174,12 @@ enum ave_opcode {
@@ -4004,10 +4006,10 @@ index 4e2550ff472c..d74b8ba579ab 100644
 -- 
 2.56.0
 
-From 58aeec15a41d0f3c0c5235e37d22e76ceb394db6 Mon Sep 17 00:00:00 2001
+From 8a4a36e4ea97b01b25efaceb7f64f530ab12c109 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:06:46 -0500
-Subject: [PATCH 16/23] accel/ane: T6050: pin the macOS 27.2 (26B123) ANE TEXT
+Subject: [PATCH 16/32] accel/ane: T6050: pin the macOS 27.2 (26B123) ANE TEXT
 
 Read from the first J714s 27.2 boot: H17 ANE: preloaded TEXT sha256 b15dd8fb3367a6d5a77935a62b4c6c9d6a6e166cd11c1b2a886c65f114d7c40e.
 
@@ -4017,10 +4019,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/accel/ane/ane_fw_platform.c b/drivers/accel/ane/ane_fw_platform.c
-index 4f4a033f79b2..ea0a81891b6c 100644
+index 2ad203340e31..6079ea9a3999 100644
 --- a/drivers/accel/ane/ane_fw_platform.c
 +++ b/drivers/accel/ane/ane_fw_platform.c
-@@ -59,13 +59,17 @@ static const u8 ane_t6050_text_pin_27_3[] = {
+@@ -73,13 +73,17 @@ static const u8 ane_t6050_text_pin_27_3[] = {
  };
  
  /*
@@ -4047,10 +4049,10 @@ index 4f4a033f79b2..ea0a81891b6c 100644
 -- 
 2.56.0
 
-From 8f8834c3f27832ba229bd9ef58fa4540c7e36eb7 Mon Sep 17 00:00:00 2001
+From 230742322dd284e04baea316b57f2ce78d0fb4c9 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:30:00 -0500
-Subject: [PATCH 17/23] arm64: dts: apple: t6050-j714s: Describe the HDMI port
+Subject: [PATCH 17/32] arm64: dts: apple: t6050-j714s: Describe the HDMI port
 
 The J714s HDMI port: dcpext3 -> the atc3 display crossbar -> ATC3 as a fixed
 four-lane DP PHY (the J714sAP ADT has no usb-drd3) -> the on-board DP-to-HDMI
@@ -4191,10 +4193,10 @@ index 000000000000..7677e05b0d6f
 +	/delete-property/ resets;
 +};
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index d0b713627078..7166e951ac3d 100644
+index e7447a37c614..b1dcc1d9d98f 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -1011,3 +1011,6 @@ &ave0_dart1 {
+@@ -1032,3 +1032,6 @@ &ave0_dart1 {
  &ave0 {
  	status = "okay";
  };
@@ -4204,10 +4206,10 @@ index d0b713627078..7166e951ac3d 100644
 -- 
 2.56.0
 
-From ed2bf75af510185670b33fec822829fcfa9066af Mon Sep 17 00:00:00 2001
+From d8405432270d0920d3330eb81dd06e6e4ac07b28 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 18/23] drm/apple: T6050 HDMI: complete flips locally while the
+Subject: [PATCH 18/32] drm/apple: T6050 HDMI: complete flips locally while the
  output connects
 
 A monitor that wakes from standby when the HDMI link comes up drops HPD about
@@ -4245,10 +4247,10 @@ Signed-off-by: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
  5 files changed, 56 insertions(+)
 
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
-index 1e057d87c782..7c158398c812 100644
+index 666053f3f948..318a1604aa1f 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric.c
-@@ -5219,6 +5219,7 @@ irqreturn_t dcp_dp2hdmi_hpd(int irq, void *data)
+@@ -5347,6 +5347,7 @@ irqreturn_t dcp_dp2hdmi_hpd(int irq, void *data)
  	if (dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP)
  		return dcp_desktop_dp2hdmi_hpd(dcp);
  
@@ -4257,10 +4259,10 @@ index 1e057d87c782..7c158398c812 100644
  	dcp_hdmi_update_locked(dcp);
  	/* The GPIO edge detector is off throughout an oneshot handler. */
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index a3ffcfc8b0b6..393b0c6d2a70 100644
+index 98c21ee2a24e..f1b9701fc856 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -999,6 +999,9 @@ struct apple_dcp {
+@@ -1049,6 +1049,9 @@ struct apple_dcp {
  	struct delayed_work hdmi_recheck_wq;
  	/* T6030 HDMI converter service requests, see dcp-hdmi.c */
  	struct dcp_hdmi *hdmi;
@@ -4270,7 +4272,7 @@ index a3ffcfc8b0b6..393b0c6d2a70 100644
  
  	/*
  	 * Interrupts of a Thunderbolt DP tunnel's DP IN adapter, to pass to
-@@ -1087,6 +1090,7 @@ void iomfb_queue_crc_h17p(struct apple_dcp *dcp, u32 swap_id);
+@@ -1138,6 +1141,7 @@ void iomfb_queue_crc_h17p(struct apple_dcp *dcp, u32 swap_id);
  void dcp_drm_crtc_page_flip(struct apple_dcp *dcp, ktime_t now);
  void dcp_handle_hotplug_actions(struct apple_dcp *dcp, unsigned int action);
  bool dcp_external_hotplug(struct apple_dcp *dcp, bool connected);
@@ -4279,10 +4281,10 @@ index a3ffcfc8b0b6..393b0c6d2a70 100644
  void dcp_announce_work(struct work_struct *work);
  void dcp_external_crtc_released(struct apple_dcp *dcp);
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index 15e25aa9b8df..fa771f5d7d99 100644
+index 5a8ced923d7a..e96f1694af5e 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -4438,6 +4438,8 @@ static int dcp_enable_dp2hdmi_hpd(struct apple_dcp *dcp)
+@@ -4530,6 +4530,8 @@ static int dcp_enable_dp2hdmi_hpd(struct apple_dcp *dcp)
  		bool connected = gpiod_get_value_cansleep(dcp->hdmi_hpd);
  		dev_info(dcp->dev, "%s: DP2HDMI HPD connected:%d\n", __func__, connected);
  
@@ -4291,7 +4293,7 @@ index 15e25aa9b8df..fa771f5d7d99 100644
  		if (connected && !READ_ONCE(dcp->hdmi_yielded))
  			dcp_dptx_connect(dcp, 0);
  		else if (!connected)
-@@ -6708,6 +6710,9 @@ static int dcp_platform_probe_pipe(struct platform_device *pdev)
+@@ -6818,6 +6820,9 @@ static int dcp_platform_probe_pipe(struct platform_device *pdev)
  		ret = dcp_hdmi_init(dcp);
  		if (ret)
  			return ret;
@@ -4302,10 +4304,10 @@ index 15e25aa9b8df..fa771f5d7d99 100644
  			int irq = gpiod_to_irq(dcp->hdmi_hpd);
  			if (irq < 0 && dcp->external_native) {
 diff --git a/drivers/gpu/drm/apple/iomfb.c b/drivers/gpu/drm/apple/iomfb.c
-index b730134ba175..888402c4400f 100644
+index 5bdcddaef12d..25452d2e18ab 100644
 --- a/drivers/gpu/drm/apple/iomfb.c
 +++ b/drivers/gpu/drm/apple/iomfb.c
-@@ -3757,6 +3757,46 @@ static bool dcp_fw27_vrr_switch(struct apple_dcp *dcp, struct drm_crtc *crtc,
+@@ -4126,6 +4126,46 @@ static bool dcp_fw27_vrr_switch(struct apple_dcp *dcp, struct drm_crtc *crtc,
  	return false;
  }
  
@@ -4352,7 +4354,7 @@ index b730134ba175..888402c4400f 100644
  void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  {
  	struct platform_device *pdev = to_apple_crtc(crtc)->dcp;
-@@ -3785,6 +3825,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
+@@ -4154,6 +4194,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  		return;
  	}
  
@@ -4365,10 +4367,10 @@ index b730134ba175..888402c4400f 100644
  		iomfb_v26_6_flush(dcp, crtc, commit);
  		return;
 diff --git a/drivers/gpu/drm/apple/iomfb_template.c b/drivers/gpu/drm/apple/iomfb_template.c
-index 5803ca0f0c7f..13d86066b1f3 100644
+index 82445bb4e199..7ce5d0d7137f 100644
 --- a/drivers/gpu/drm/apple/iomfb_template.c
 +++ b/drivers/gpu/drm/apple/iomfb_template.c
-@@ -2473,6 +2473,7 @@ void DCP_FW_NAME(iomfb_poweron)(struct apple_dcp *dcp)
+@@ -2491,6 +2491,7 @@ void DCP_FW_NAME(iomfb_poweron)(struct apple_dcp *dcp)
  	u32 handle;
  #endif
  	dev_info(dcp->dev, "dcp_poweron() starting\n");
@@ -4379,10 +4381,10 @@ index 5803ca0f0c7f..13d86066b1f3 100644
 -- 
 2.56.0
 
-From a474ff83d3ed2cdf022703afdcc018593fc85c55 Mon Sep 17 00:00:00 2001
+From 93d3b310dd88ca70c095e2ebe3980849038f98d8 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 19/23] drm/apple: forward HDMI converter service requests on
+Subject: [PATCH 19/32] drm/apple: forward HDMI converter service requests on
  T6050
 
 The J714s HDMI port is the same design as the T6030 one: dcpext drives an
@@ -4431,10 +4433,10 @@ index 0603de2a0e22..3ac28f24a7af 100644
 -- 
 2.56.0
 
-From ac5b0b0b9a9d075daa033c68397a150b16a1267a Mon Sep 17 00:00:00 2001
+From 7b1a9c326f7a093b327fb1dd8bc7f9e3eb5486be Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:40:33 -0700
-Subject: [PATCH 20/23] drm/apple: dcp-fabric: give T6050 DP IN 2 and 3 their
+Subject: [PATCH 20/32] drm/apple: dcp-fabric: give T6050 DP IN 2 and 3 their
  own tunnel slots
 
 A port's Thunderbolt DP tunnels are kept in two owner slots, primary and
@@ -4656,7 +4658,7 @@ index ef6381b15907..fed2534f6584 100644
  	KUNIT_CASE_PARAM(fabric_shared_wiring_test, fabric_wiring_gen_params),
  	KUNIT_CASE(fabric_binding_cookie_test),
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
-index 7c158398c812..6d50b8dffcf0 100644
+index 318a1604aa1f..a3ead157dcc5 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric.c
 @@ -96,8 +96,21 @@ struct apple_dcp_typec_port {
@@ -4683,7 +4685,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	/* Keep a port on its last DCP while that pipeline remains free. */
  	struct apple_dcp_typec_route *preferred_route;
  	/* DRM connector for this physical port, driven by whichever DCP owns it */
-@@ -361,6 +374,52 @@ bool dcp_typec_fixed_crtcs(void)
+@@ -371,6 +384,52 @@ bool dcp_typec_fixed_crtcs(void)
  	return of_machine_is_compatible("apple,t6050");
  }
  
@@ -4736,7 +4738,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  static struct apple_connector *
  dcp_typec_route_connector(struct apple_dcp_typec_route *route, bool tunnel)
  {
-@@ -1316,9 +1375,9 @@ static void dcp_fabric_snapshot_port(struct apple_dcp_typec_port *port,
+@@ -1326,9 +1385,9 @@ static void dcp_fabric_snapshot_port(struct apple_dcp_typec_port *port,
  	struct dcp_fabric_route **tail = &port->core.routes;
  
  	lockdep_assert_held(&dcp_typec_fabric_lock);
@@ -4749,7 +4751,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	port->core.preferred =
  		port->preferred_route ? &port->preferred_route->core : NULL;
  	port->core.wanted = port->dp_wanted && !port->typec_yielded;
-@@ -1939,7 +1998,7 @@ static int dcp_typec_route_set(struct typec_mux_dev *mux,
+@@ -1963,7 +2022,7 @@ static int dcp_typec_route_set(struct typec_mux_dev *mux,
  		}
  
  		/* a Thunderbolt/USB4 DP tunnel is torn down by its own path */
@@ -4758,7 +4760,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  			port->applied_valid = true;
  			return 0;
  		}
-@@ -1973,7 +2032,7 @@ static int dcp_typec_route_set(struct typec_mux_dev *mux,
+@@ -1997,7 +2056,7 @@ static int dcp_typec_route_set(struct typec_mux_dev *mux,
  	 * way): don't act on or remember this state; the tunnel teardown drops
  	 * what was recorded so the next update is applied.
  	 */
@@ -4767,7 +4769,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  		port->applied_valid = false;
  		return 0;
  	}
-@@ -2720,6 +2779,12 @@ static int dcp_tb_candidate(void *data)
+@@ -2744,6 +2803,12 @@ static int dcp_tb_candidate(void *data)
  	struct apple_dcp_typec_route *best, *planned = NULL;
  	struct mux_control *ctl;
  	unsigned int dpin = ctx->dpin;
@@ -4780,7 +4782,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	unsigned int stream = dcp_fabric_dpin_slot(dpin);
  	bool ordered;
  	int ret;
-@@ -3116,8 +3181,7 @@ static int dcp_tb_split_locked(struct apple_dcp_typec_port *port,
+@@ -3140,8 +3205,7 @@ static int dcp_tb_split_locked(struct apple_dcp_typec_port *port,
  static int dcp_tb_release_locked(struct apple_dcp_typec_port *port,
  				 unsigned int dpin)
  {
@@ -4790,7 +4792,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	struct apple_dcp *dcp;
  	int ret;
  
-@@ -3158,7 +3222,7 @@ static int dcp_tb_release_locked(struct apple_dcp_typec_port *port,
+@@ -3182,7 +3246,7 @@ static int dcp_tb_release_locked(struct apple_dcp_typec_port *port,
  		return ret;
  	}
  	*slot = NULL;
@@ -4799,7 +4801,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	/* re-apply the next Type-C mux state in full */
  	port->applied_valid = false;
  	if (dcp->hdmi_hpd && dcp->active &&
-@@ -3178,7 +3242,7 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
+@@ -3202,7 +3266,7 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
  	unsigned int dpin = ctx->dpin;
  	int ret;
  
@@ -4808,7 +4810,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  
  	if (dpin == 1 && (tiled_split || port->split_dcp)) {
  		ret = dcp_tb_split_locked(port, ctx);
-@@ -3215,24 +3279,19 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
+@@ -3239,24 +3303,19 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
  		return dcp_tb_release_locked(port, dpin);
  
  	{
@@ -4844,7 +4846,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  		if (ret > 0)
  			return 0;
  		if (ret) {
-@@ -3262,8 +3321,7 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
+@@ -3286,8 +3345,7 @@ static int dcp_tb_dispatch_request(void *data, const struct dcp_fabric_port *fou
  static void dcp_tb_finish_request(struct apple_dcp_typec_port *port,
  				  const struct dcp_tb_attach_context *request)
  {
@@ -4854,7 +4856,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	struct apple_dcp *dcp;
  	bool matching;
  
-@@ -3417,7 +3475,7 @@ int apple_dcp_tb_dp_event(struct device_node *connector_np, unsigned int dpin,
+@@ -3441,7 +3499,7 @@ int apple_dcp_tb_dp_event(struct device_node *connector_np, unsigned int dpin,
  
  		if (pos->connector_np != connector_np)
  			continue;
@@ -4863,7 +4865,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  		if (route && route->tunnel && route->tunnel_dpin == dpin &&
  		    route->tunnel_generation == generation) {
  			dcp = route->dcp;
-@@ -4274,8 +4332,7 @@ static void dcp_typec_port_bind_connector(struct apple_dcp_typec_port *port,
+@@ -4298,8 +4356,7 @@ static void dcp_typec_port_bind_connector(struct apple_dcp_typec_port *port,
  		if (WARN_ON(!route))
  			return;
  		route->connector = connector;
@@ -4873,7 +4875,7 @@ index 7c158398c812..6d50b8dffcf0 100644
  	} else if (secondary) {
  		port->secondary_connector = connector;
  		owner = port->secondary_owner;
-@@ -4331,30 +4388,23 @@ static void dcp_typec_route_unregister(void *data)
+@@ -4355,30 +4412,23 @@ static void dcp_typec_route_unregister(void *data)
  		port->preferred_route = NULL;
  	if (port->split_dcp == route->dcp)
  		dcp_tb_split_teardown_locked(port, true);
@@ -4915,10 +4917,10 @@ index 7c158398c812..6d50b8dffcf0 100644
 -- 
 2.56.0
 
-From 5ec50d8f5e9d6776105b17d31a6d1c589538964e Mon Sep 17 00:00:00 2001
+From cf7a3ecc5cd925499dced49bde12c7d55b21e146 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:56:38 -0700
-Subject: [PATCH 21/23] dt-bindings: display: apple: allow tunnel-only Type-C
+Subject: [PATCH 21/32] dt-bindings: display: apple: allow tunnel-only Type-C
  routes
 
 A DCP route that carries USB4 DP tunnels only is not a Type-C mode-switch:
@@ -5018,10 +5020,10 @@ index 7b2e28ac3dca..9bd123527b2c 100644
        - '#address-cells'
        - '#size-cells'
 diff --git a/Documentation/devicetree/bindings/display/apple,dcp.yaml b/Documentation/devicetree/bindings/display/apple,dcp.yaml
-index d0bc33404c24..97da243b79c4 100644
+index e6c04ae9e697..680fc93ef2e5 100644
 --- a/Documentation/devicetree/bindings/display/apple,dcp.yaml
 +++ b/Documentation/devicetree/bindings/display/apple,dcp.yaml
-@@ -426,12 +426,23 @@ properties:
+@@ -488,12 +488,23 @@ properties:
              maxItems: 1
            mode-switch:
              type: boolean
@@ -5049,10 +5051,10 @@ index d0bc33404c24..97da243b79c4 100644
 -- 
 2.56.0
 
-From bb2b2870f240439798ad52a795b65e43972ed610 Mon Sep 17 00:00:00 2001
+From f26ef461b13c44523a83d719264de30b77ddbfea Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:56:38 -0700
-Subject: [PATCH 22/23] drm/apple: dcp-fabric: support tunnel-only Type-C
+Subject: [PATCH 22/32] drm/apple: dcp-fabric: support tunnel-only Type-C
  routes
 
 A route marked apple,tunnel-only exists to give USB4 DP tunnels another
@@ -5314,10 +5316,10 @@ index fed2534f6584..542852e4409c 100644
  	KUNIT_CASE_PARAM(fabric_shared_wiring_test, fabric_wiring_gen_params),
  	KUNIT_CASE(fabric_binding_cookie_test),
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
-index 6d50b8dffcf0..d5164ecd5ff5 100644
+index a3ead157dcc5..cc2a66076c1a 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric.c
-@@ -1091,6 +1091,7 @@ static bool dcp_typec_move_starved_locked(void)
+@@ -1101,6 +1101,7 @@ static bool dcp_typec_move_starved_locked(void)
  			continue;
  		list_for_each_entry(route, &port->routes, port_link) {
  			if (route != owner && route->dcp->fixed_phy &&
@@ -5325,7 +5327,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  			    dcp_typec_route_available(route)) {
  				to = route;
  				break;
-@@ -1138,6 +1139,7 @@ static bool dcp_typec_move_off_hybrid_locked(struct apple_dcp_typec_port *port,
+@@ -1148,6 +1149,7 @@ static bool dcp_typec_move_off_hybrid_locked(struct apple_dcp_typec_port *port,
  		return false;
  	list_for_each_entry(route, &port->routes, port_link) {
  		if (route != owner && !route->dcp->fixed_phy && route->dcp->crtc &&
@@ -5333,7 +5335,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  		    dcp_typec_route_available(route)) {
  			to = route;
  			break;
-@@ -4292,6 +4294,25 @@ bool dcp_typec_port_has_candidate(unsigned int idx, struct platform_device *pdev
+@@ -4316,6 +4318,25 @@ bool dcp_typec_port_has_candidate(unsigned int idx, struct platform_device *pdev
  	return false;
  }
  
@@ -5359,7 +5361,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  /*
   * Is every pipeline that can drive port @idx unusable (a failed T8122
   * dcpext, or a T8132 dcpext, whose DRM outputs are its own, see
-@@ -4553,6 +4574,10 @@ static int dcp_register_typec_routes_present(void *data)
+@@ -4577,6 +4598,10 @@ static int dcp_register_typec_routes_present(void *data)
  			return dev_err_probe(dev, ret, "%pOF: missing crossbar state\n",
  					     route_np);
  
@@ -5370,7 +5372,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  		ret = of_property_read_u32_index(dev->of_node, "apple,typec-dptx-phys",
  						 route_index, &route->dptx_phy);
  		if (ret)
-@@ -4990,6 +5015,7 @@ static bool dcp_typec_hdmi_reclaim(struct apple_dcp *dcp)
+@@ -5118,6 +5143,7 @@ static bool dcp_typec_hdmi_reclaim(struct apple_dcp *dcp)
  		return false;
  	list_for_each_entry(route, &port->routes, port_link) {
  		if (route == owner || !route->dcp->crtc ||
@@ -5379,7 +5381,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  		    (owner->tunnel && !dcp_typec_tunnel_ctl(route, owner->tunnel_dpin)) ||
  		    (port->split_dcp == dcp && !dcp_follow_split_fits(route)))
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.h b/drivers/gpu/drm/apple/dcp-fabric.h
-index edca8065bd21..98f9d893c568 100644
+index ca3ddcd6700f..c1ee7b6c6e1d 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.h
 +++ b/drivers/gpu/drm/apple/dcp-fabric.h
 @@ -76,6 +76,7 @@ bool dcp_has_typec_routes(struct platform_device *pdev);
@@ -5393,10 +5395,10 @@ index edca8065bd21..98f9d893c568 100644
 -- 
 2.56.0
 
-From 8e0a7d1d8639ee97c400557016e37556982444da Mon Sep 17 00:00:00 2001
+From 775a5b55f70502a9d62f19b089f35715dc1ca455 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:40:33 -0700
-Subject: [PATCH 23/23] arm64: dts: apple: t6050-j714s: route dcpext1 to the
+Subject: [PATCH 23/32] arm64: dts: apple: t6050-j714s: route dcpext1 to the
  right port's DP tunnels
 
 The J714s describes routes for dcpext0 and dcpext2 only, keeping dcpext1
@@ -5504,11 +5506,11 @@ index f14c7ab163e3..003b229e2640 100644
 -- 
 2.56.0
 
-From 142544a2a3e3dd82b8b86a379750a8cd15e30653 Mon Sep 17 00:00:00 2001
+From 7d9e29863c69a2dd37d6766412d0c8181a705ca3 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 16:22:02 -0700
-Subject: [PATCH 1/5] arm64: dts: apple: t6050-j714s: let userspace set the fan
- speeds
+Subject: [PATCH 24/32] arm64: dts: apple: t6050-j714s: let userspace set the
+ fan speeds
 
 Mark both J714s fans apple,fan-manual-control, as the M4 Pro/Max
 MacBook Pros and the J704 already are, so fanX_target is writable
@@ -5542,10 +5544,10 @@ Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
  1 file changed, 12 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index 7166e951ac3d..33f076f29622 100644
+index b1dcc1d9d98f..9e565552c9c3 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -579,10 +579,10 @@ &jpeg1 {
+@@ -599,10 +599,10 @@ &jpeg1 {
  #include "t6050-j714s-pmp-tunables.dtsi"
  
  /*
@@ -5560,7 +5562,7 @@ index 7166e951ac3d..33f076f29622 100644
   *
   * Discovery refuses to run once any temperature channel exists, so the shared
   * temperature nodes go (their keys are discovered anyway), and so does
-@@ -600,13 +600,20 @@ &smc_hwmon {
+@@ -620,13 +620,20 @@ &smc_hwmon {
  	/delete-node/ temperature-TCHP;
  	/delete-node/ temperature-TW0P;
  
@@ -5585,11 +5587,11 @@ index 7166e951ac3d..33f076f29622 100644
 -- 
 2.56.0
 
-From d085379655924278a4edfb716479b7c4c8883b2e Mon Sep 17 00:00:00 2001
+From 57406b881258b6a4e741b87f9ce3c273f1b8d077 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 13:23:08 -0700
-Subject: [PATCH 2/5] thunderbolt: apple: tell appledrm whether a DP tunnel is
- still requested
+Subject: [PATCH 25/32] thunderbolt: apple: tell appledrm whether a DP tunnel
+ is still requested
 
 appledrm connects a DP tunnel's display from the DP IN adapter's ordered
 worker and waits for DCP to configure the link. A tunnel that is taken
@@ -5651,10 +5653,10 @@ index 034a74b852eb..09afceeda700 100644
 -- 
 2.56.0
 
-From 55c25aed764e477ddaa35a5e58582dbaf40a4412 Mon Sep 17 00:00:00 2001
+From 2c807a34d9765d1968f8be2cbafc028e7b7437f8 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 13:23:08 -0700
-Subject: [PATCH 3/5] drm/apple: stop waiting for a link on a DP tunnel that
+Subject: [PATCH 26/32] drm/apple: stop waiting for a link on a DP tunnel that
  went
 
 A Thunderbolt 5 dock (Ugreen 10-in-1) on a J714s withdraws its first DP
@@ -5690,10 +5692,10 @@ Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
  1 file changed, 67 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index fa771f5d7d99..908ffdb5521e 100644
+index e96f1694af5e..5c47b5906555 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -2069,6 +2069,63 @@ static int dcp_t8132_wait_teardown_answers(struct apple_dcp *dcp, u32 port,
+@@ -2142,6 +2142,63 @@ static int dcp_t8132_wait_teardown_answers(struct apple_dcp *dcp, u32 port,
   * With a @session, every step checks that it is still the live one, and a
   * revoked session returns -ESTALE without touching the new one's state.
   */
@@ -5757,7 +5759,7 @@ index fa771f5d7d99..908ffdb5521e 100644
  static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable,
  				const struct dcp_fabric_session *session, bool cable,
  				bool recovery)
-@@ -2076,7 +2133,7 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
+@@ -2149,7 +2206,7 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
  	/* T8122 dcpext: HPD only after the link wait, see dcp_ext_dptx_607() */
  	bool late_hpd = dcp_ext_dptx_607(dcp);
  	bool t8132 = dcp_is_t8132_ext(dcp);
@@ -5766,7 +5768,7 @@ index fa771f5d7d99..908ffdb5521e 100644
  	unsigned long timeout;
  	u64 generation;
  	u8 dfp_port;
-@@ -2224,12 +2281,18 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
+@@ -2297,12 +2354,18 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
  	}
  	timeout = dcp_uses_t6020_tunnel_flow(dcp) ?
  		  DPTX_TUNNEL_CONNECT_TIMEOUT : DPTX_CONNECT_TIMEOUT;
@@ -5791,10 +5793,10 @@ index fa771f5d7d99..908ffdb5521e 100644
 -- 
 2.56.0
 
-From 074dbf43478d5bf552e2990557162747b7514475 Mon Sep 17 00:00:00 2001
+From eca9f3e63a3492daa552500419a11bcd8f302561 Mon Sep 17 00:00:00 2001
 From: DjDeveloperr <hey@djdev.me>
 Date: Thu, 12 Nov 2026 15:01:46 -0500
-Subject: [PATCH 4/5] usb: typec: tipd: sn201202x: Send no LDCM command to a
+Subject: [PATCH 27/32] usb: typec: tipd: sn201202x: Send no LDCM command to a
  dry port
 
 On every probe, and again after a controller reset, the driver sends an
@@ -5828,10 +5830,10 @@ Signed-off-by: Diljit Singh <hey@djdev.me>
  2 files changed, 18 insertions(+)
 
 diff --git a/drivers/usb/typec/tipd/spmi.c b/drivers/usb/typec/tipd/spmi.c
-index ddd28b8d94e4..3a20ee2d5929 100644
+index 8a6b6b417775..0996a2eb6139 100644
 --- a/drivers/usb/typec/tipd/spmi.c
 +++ b/drivers/usb/typec/tipd/spmi.c
-@@ -300,6 +300,19 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
+@@ -302,6 +302,19 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
  	if (sn->ldcm_mitigation_known && sn->ldcm_mitigated == enable)
  		return 0;
  
@@ -5851,7 +5853,7 @@ index ddd28b8d94e4..3a20ee2d5929 100644
  	/*
  	 * Successful task completion is the controller's mitigation ACK.
  	 * Startup commands can take more than a second on SN201202x. Wait for
-@@ -310,6 +323,8 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
+@@ -312,6 +325,8 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
  	sn->ldcm_mitigation_known = !ret;
  	if (!ret)
  		sn->ldcm_mitigated = enable;
@@ -5860,7 +5862,7 @@ index ddd28b8d94e4..3a20ee2d5929 100644
  	return ret;
  }
  
-@@ -465,6 +480,7 @@ static void sn201202x_ldcm_invalidate(struct tps6598x *tps)
+@@ -467,6 +482,7 @@ static void sn201202x_ldcm_invalidate(struct tps6598x *tps)
  	tps->contaminant = TYPEC_CONTAMINANT_UNKNOWN;
  	sn->ldcm_mitigated = false;
  	sn->ldcm_mitigation_known = false;
@@ -5869,13 +5871,13 @@ index ddd28b8d94e4..3a20ee2d5929 100644
  }
  
 diff --git a/drivers/usb/typec/tipd/tps6598x.h b/drivers/usb/typec/tipd/tps6598x.h
-index 68d246b7397e..5b975a0267be 100644
+index 2174c9e89a73..da892da0a33d 100644
 --- a/drivers/usb/typec/tipd/tps6598x.h
 +++ b/drivers/usb/typec/tipd/tps6598x.h
-@@ -508,6 +508,8 @@ struct sn201202x {
- 	bool ldcm_mitigated;
- 	/* ldcm_mitigated matches the controller (unknown after a reset) */
+@@ -512,6 +512,8 @@ struct sn201202x {
  	bool ldcm_mitigation_known;
+ 	/* J714s, no connector (its MagSafe controller): only its system sleep state is driven */
+ 	bool sleep_only;
 +	/* A mitigation was requested since the controller's last reset */
 +	bool ldcm_requested;
  };
@@ -5884,10 +5886,11 @@ index 68d246b7397e..5b975a0267be 100644
 -- 
 2.56.0
 
-From 873a954aad5e1128340f7789320e273152bce4ca Mon Sep 17 00:00:00 2001
+From f6a2a96fe295340da3b2cda11db35d33f0157079 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Thu, 12 Nov 2026 12:19:50 -0700
-Subject: [PATCH 5/5] arm64: dts: apple: t6050: keep the PMP's power domains on
+Subject: [PATCH 28/32] arm64: dts: apple: t6050: keep the PMP's power domains
+ on
 
 The PMP's firmware runs from the moment its driver starts it, and in a
 suspend-to-idle the driver leaves it running: only a firmware-driven sleep
@@ -5954,617 +5957,366 @@ index 4c803c77a130..5c4a029f5751 100644
 -- 
 2.56.0
 
-From b1692da738d76bb8d67adf747b185d47812049b5 Mon Sep 17 00:00:00 2001
-From: Diljit Singh <hey@djdev.me>
-Date: Sat, 14 Nov 2026 14:38:41 -0500
-Subject: [PATCH 1/3] drm/asahi: g17: do not report a closed client's
- unfinished work as a lost device
+From be37a1c2716432f062cefd6891974469be31bbb5 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Wed, 11 Nov 2026 10:18:42 -0700
+Subject: [PATCH 29/32] PCI: apple: qualify the K116s for suspend-to-idle over
+ the adopted N1 link
 
-When a client closes its DRM file while one of its renders is still in
-the GPU, the queue teardown waits two seconds for that render and then
-fails it with ETIMEDOUT. The failure was logged as a render timeout and
-as a lost device of that client, although the client is gone and nothing
-can observe it. Killing a client whose render was queued behind another
-client's long ray-traversal pass could produce both lines.
+The adopted link's suspend check admits only the J716c; the K116s is its
+OLED sibling with the same T6050 host and the N1 on port 0, and the
+first s2idle attempt there failed with -EBUSY from the noirq suspend.
+Let it through the same checks.
 
-Treat the end of that wait like the other teardown errors of a closed
-client: a debug message, and no timeout report for the group unless
-verbose fault reporting is on. From then on the closed client's other
-ETIMEDOUT failures are treated the same way.
-
-The teardown cannot tell a render that was waiting its turn from one
-that was stuck, so a client killed while its own render hangs no longer
-leaves a warning. A hang that affects other clients is still reported
-through their watchdogs. A watchdog timeout of a client that is still
-there is reported as before, and so is the end of the wait for a client
-that only destroyed a queue.
-
-The host test that runs the status code on a host model follows the new
-field and function, and checks the rule: an open client still sees the
-end of its teardown wait, and a closed client's timeout is reported
-until such a wait has ended. One mutation covers the closed-client half.
-
-Signed-off-by: Diljit Singh <hey@djdev.me>
-(cherry picked from commit b60e6ef1bcc4ebbefae043a9ccc06ba015cd63da)
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[thomas: rebased onto integration, where the check also admits the K114c]
+Signed-off-by: Thomas Glanzmann <thomas@glanzmann.de>
 ---
- .../drm/asahi/g17/runtime/render/settle.rs    |  8 +++-
- drivers/gpu/drm/asahi/g17/status.rs           | 40 ++++++++++++++++---
- tools/asahi/g15-input-error-tests.py          | 27 +++++++++++--
- 3 files changed, 65 insertions(+), 10 deletions(-)
+ drivers/pci/controller/pcie-apple.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/asahi/g17/runtime/render/settle.rs b/drivers/gpu/drm/asahi/g17/runtime/render/settle.rs
-index 293d47bec11a..6bdc9e7c21e5 100644
---- a/drivers/gpu/drm/asahi/g17/runtime/render/settle.rs
-+++ b/drivers/gpu/drm/asahi/g17/runtime/render/settle.rs
-@@ -44,6 +44,8 @@ pub(in crate::g17) fn cancel_render(&self, packet: &Arc<Packet>) -> Result {
-             return Ok(());
-         }
-         if packet.is_published() {
-+            // Not a watchdog's verdict: the queue went away before its work finished.
-+            packet.completion.status().note_teardown_expired();
-             self.timeout_render(packet)
-         } else {
-             // The outer callback already completed a successful 0 -> 3
-@@ -90,7 +92,11 @@ pub(super) fn fail_render_packet(
-                     .as_mut()
-                     .and_then(|entry| entry.pair.as_mut())
-                 {
--                    pair.report_timeout(stamps, state);
-+                    if !packet.completion.status().unobserved_teardown(ETIMEDOUT)
-+                        || crate::debug::debug_enabled(crate::debug::DebugFlags::VerboseFaults)
-+                    {
-+                        pair.report_timeout(stamps, state);
-+                    }
-                     pair.expire_stamp_wait(packet, stamps, state)?;
-                 }
-             }
-diff --git a/drivers/gpu/drm/asahi/g17/status.rs b/drivers/gpu/drm/asahi/g17/status.rs
-index c0d905b83de0..54f5160f32f1 100644
---- a/drivers/gpu/drm/asahi/g17/status.rs
-+++ b/drivers/gpu/drm/asahi/g17/status.rs
-@@ -20,6 +20,9 @@ pub(crate) struct VmStatus {
-     reported_error: AtomicI32,
-     /// The client's VM handle is gone: no client can see a lost device any more.
-     client_closed: AtomicBool,
-+    /// A queue of this VM went away while its work was still in the GPU, and the wait for that
-+    /// work ended. Never cleared.
-+    teardown_expired: AtomicBool,
-     /// A failure of this VM has been logged as a warning.
-     warned: AtomicBool,
-     /// A GPU recovery found this VM's work guilty.
-@@ -56,6 +59,7 @@ pub(crate) fn new() -> impl PinInit<Self> {
-             error: AtomicI32::new(0),
-             reported_error: AtomicI32::new(0),
-             client_closed: AtomicBool::new(false),
-+            teardown_expired: AtomicBool::new(false),
-             warned: AtomicBool::new(false),
-             recovery_guilty: AtomicBool::new(false),
-             tgid,
-@@ -105,10 +109,11 @@ pub(crate) fn reported_error(&self) -> i32 {
-     ///
-     /// The first failure reported to a VM is logged once, with the reporting site: the client treats
-     /// any reported failure as a lost device, and nothing else in the kernel log names it.
--    /// Teardown of a closed client fails its queued work with ENOENT (VM context gone) or
--    /// ECANCELED (queue destroyed); nobody can see that, so it is only a debug message, and the
--    /// first other failure of that VM, such as device loss (EIO, ETIMEDOUT, ENODEV), is still
--    /// logged as a warning.
-+    /// Teardown of a closed client fails its queued work with ENOENT (VM context gone),
-+    /// ECANCELED (queue destroyed) or, when the wait for work still in the GPU ends
-+    /// ([`Self::note_teardown_expired`]), ETIMEDOUT; nobody can see that, so it is only a debug
-+    /// message, and the first other failure of that VM, such as device loss (EIO, ENODEV, or
-+    /// ETIMEDOUT while no teardown wait of the VM has ended), is still logged as a warning.
-     #[track_caller]
-     pub(crate) fn report_failure(&self, error: Error) {
-         let first = self.reported_error.compare_exchange(
-@@ -152,8 +157,16 @@ pub(crate) fn report_failure(&self, error: Error) {
-     }
+diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
+index 342c76f5cd46..694192325b6e 100644
+--- a/drivers/pci/controller/pcie-apple.c
++++ b/drivers/pci/controller/pcie-apple.c
+@@ -6542,9 +6542,14 @@ static int apple_pcie_check_adopted_s2idle(struct apple_pcie *pcie)
+ 	struct apple_pcie_port *port;
+ 	int error = 0;
  
-     /// A teardown error of a client whose VM handle is already gone.
--    fn unobserved_teardown(&self, error: Error) -> bool {
--        (error == ENOENT || error == ECANCELED) && self.client_closed.load(Ordering::Acquire)
-+    pub(crate) fn unobserved_teardown(&self, error: Error) -> bool {
-+        self.client_closed.load(Ordering::Acquire)
-+            && (error == ENOENT
-+                || error == ECANCELED
-+                || (error == ETIMEDOUT && self.teardown_expired.load(Ordering::Acquire)))
-+    }
-+
-+    /// A queue teardown stopped waiting for this VM's work, which now fails with ETIMEDOUT.
-+    pub(crate) fn note_teardown_expired(&self) {
-+        self.teardown_expired.store(true, Ordering::Release);
-     }
+-	/* Other adopted platforms and deeper sleep remain unqualified. */
++	/*
++	 * Qualified on the J716c, the K114c and the K116s. The K116s is the
++	 * J716c's OLED sibling: the same T6050 host, the N1 on port 0. Other
++	 * adopted platforms and deeper sleep remain unqualified.
++	 */
+ 	if (!(of_machine_is_compatible("apple,j716c") ||
+-	      of_machine_is_compatible("apple,k114c")) || !pm_suspend_no_platform())
++	      of_machine_is_compatible("apple,k114c") ||
++	      of_machine_is_compatible("apple,k116s")) || !pm_suspend_no_platform())
+ 		return -EBUSY;
  
-     /// Rejected submissions and contention leave the VM usable.
-@@ -229,6 +242,21 @@ fn only_a_closed_client_hides_teardown_errors() {
-         assert!(!status.unobserved_teardown(ENODEV));
-     }
- 
-+    #[test]
-+    fn a_closed_client_hides_the_end_of_its_teardown_wait() {
-+        let Ok(status) = KBox::pin_init(VmStatus::new(), GFP_KERNEL) else {
-+            panic!("allocation failed");
-+        };
-+        // A client that only destroyed a queue still sees the failure.
-+        status.note_teardown_expired();
-+        assert!(!status.unobserved_teardown(ETIMEDOUT));
-+        status.mark_client_closed();
-+        assert!(status.unobserved_teardown(ETIMEDOUT));
-+        assert!(!status.unobserved_teardown(EIO));
-+        status.report_failure(ETIMEDOUT);
-+        assert!(!status.warned.load(Ordering::Acquire));
-+    }
-+
-     #[test]
-     fn a_closing_file_hides_teardown_errors_before_its_vm_goes() {
-         let Ok(status) = KBox::pin_init(VmStatus::new(), GFP_KERNEL) else {
-diff --git a/tools/asahi/g15-input-error-tests.py b/tools/asahi/g15-input-error-tests.py
-index 9e56131381ae..0aa557e8dae8 100644
---- a/tools/asahi/g15-input-error-tests.py
-+++ b/tools/asahi/g15-input-error-tests.py
-@@ -43,9 +43,9 @@ struct Mirror{word:*mut i32}
- struct BStr<'a>(&'a [u8]);
- impl<'a> BStr<'a>{fn from_bytes(b:&'a [u8])->Self{Self(b)}}
- impl std::fmt::Display for BStr<'_>{fn fmt(&self,f:&mut std::fmt::Formatter<'_>)->std::fmt::Result{write!(f,"{}",String::from_utf8_lossy(self.0))}}
--struct VmStatus{error:AtomicI32,reported_error:AtomicI32,client_closed:AtomicBool,warned:AtomicBool,recovery_guilty:AtomicBool,tgid:i32,comm:[u8;16],mirror:Mutex<Option<Mirror>>}
-+struct VmStatus{error:AtomicI32,reported_error:AtomicI32,client_closed:AtomicBool,teardown_expired:AtomicBool,warned:AtomicBool,recovery_guilty:AtomicBool,tgid:i32,comm:[u8;16],mirror:Mutex<Option<Mirror>>}
- impl VmStatus {
-- fn new(word:*mut i32)->Self{Self{error:AtomicI32::new(0),reported_error:AtomicI32::new(0),client_closed:AtomicBool::new(false),warned:AtomicBool::new(false),recovery_guilty:AtomicBool::new(false),tgid:1,comm:*b"host-test\0\0\0\0\0\0\0",mirror:Mutex(StdMutex::new(Some(Mirror{word})))}}
-+ fn new(word:*mut i32)->Self{Self{error:AtomicI32::new(0),reported_error:AtomicI32::new(0),client_closed:AtomicBool::new(false),teardown_expired:AtomicBool::new(false),warned:AtomicBool::new(false),recovery_guilty:AtomicBool::new(false),tgid:1,comm:*b"host-test\0\0\0\0\0\0\0",mirror:Mutex(StdMutex::new(Some(Mirror{word})))}}
- __STATUS__
- }
- mod g17 {use super::*;__POLICY__}
-@@ -202,6 +202,26 @@ fn main(){
-   assert_eq!(fw.slots.releases,0);
-  }
-  assert_eq!(unrelated.vm.status.get(),0,"unrelated VM untouched");assert_eq!(unrelated.vm.status.reported_error(),0);assert_eq!(other_mirror.load(Ordering::SeqCst),0);assert_eq!(unrelated.fence.signals.load(Ordering::SeqCst),0);
-+ {
-+  // The end of a teardown wait is a failure nobody sees only once the client is closed; a
-+  // closed client's other timeouts are still reported until such a wait has ended.
-+  let mut word=0i32;let status=VmStatus::new(&mut word);
-+  status.note_teardown_expired();
-+  assert!(!status.unobserved_teardown(ETIMEDOUT),"an open client sees the end of its teardown wait");
-+  status.report_failure(ETIMEDOUT);
-+  assert!(status.warned.load(Ordering::SeqCst),"an open client's timeout is warned about");
-+  let mut word=0i32;let status=VmStatus::new(&mut word);
-+  status.client_closed.store(true,Ordering::SeqCst);
-+  assert!(!status.unobserved_teardown(ETIMEDOUT),"a closed client's timeout is reported until a teardown wait ended");
-+  assert!(status.unobserved_teardown(ECANCELED)&&status.unobserved_teardown(ENOENT));
-+  status.note_teardown_expired();
-+  assert!(status.unobserved_teardown(ETIMEDOUT)&&!status.unobserved_teardown(EIO));
-+  status.report_failure(ETIMEDOUT);
-+  assert!(!status.warned.load(Ordering::SeqCst),"a closed client's ended teardown wait is not warned about");
-+  assert_eq!(status.reported_error(),ETIMEDOUT.to_errno(),"the failure is still recorded");
-+  status.report_failure(EIO);
-+  assert!(status.warned.load(Ordering::SeqCst),"a closed client's device loss is still warned about");
-+ }
-  println!("PASS: production job/prefix/status bodies: input errors, binding reuse/release/retention, exhaustion retry, published-prefix lifetime and isolation");
- }
- '''
-@@ -236,7 +256,7 @@ def main():
-     code = PRELUDE.replace("__JOB__", bodies).replace("__STATUS__", "\n".join(
-         extract(status, marker) for marker in ["    pub(crate) fn get(", "    pub(crate) fn record(",
-         "    pub(crate) fn reported_error(", "    pub(crate) fn report_failure(",
--        "    fn unobserved_teardown("])).replace(
-+        "    pub(crate) fn unobserved_teardown(", "    pub(crate) fn note_teardown_expired("])).replace(
-         "__POLICY__", extract(policy, "pub(crate) fn inherited_error(")).replace(
-         "__PREFIX__", extract(engine, "    fn publish_prefix("))
-     variants = {"control": code}
-@@ -256,6 +276,7 @@ def main():
-             "binding-release-leaks": ("drop(self.binding.lock().take());", "let _ = self;", "release_binding must drop exactly once"),
-             "bound-job-rebinds": ("if slot.is_none() {", "if true {", "repeated bind must keep existing binding"),
-             "slot-exhaustion-not-retried": ("self.engine.slot_wait = true;", "self.engine.slot_wait = false;", "slot exhaustion must request retry"),
-+            "closed-client-timeout-always-quiet": ("(error == ETIMEDOUT && self.teardown_expired.load(Ordering::Acquire))", "error == ETIMEDOUT", "a closed client's timeout is reported until a teardown wait ended"),
-             "published-prefix-releases-binding": ("if job.progress.next() == job.progress.sent() {", "if true {", "published prefix must retain binding on append failure"),
-         }
-         for name, (old, new, message) in changes.items():
+ 	if (!(readl(pcie->base + CORE_RC_CTL) & CORE_RC_CTL_RUN) ||
 -- 
 2.56.0
 
-From 5ef09831908e4297d8aa1012a0191c95babde920 Mon Sep 17 00:00:00 2001
-From: Diljit Singh <hey@djdev.me>
-Date: Sat, 14 Nov 2026 18:49:45 -0500
-Subject: [PATCH 2/3] drm/asahi: g17: give back the pool pages of kept render
- graphs
+From 0a785f23b17d293873e67cd85436a35c8a2a0b68 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Wed, 11 Nov 2026 13:19:41 -0700
+Subject: [PATCH 30/32] PCI: apple: let devices below a kernel-trained port
+ leave D0 over s2idle
 
-A render graph stays allocated after its queue is released, until the GPU
-firmware is stopped, when the queue's work list still links work. Such a
-graph also kept its render pool with all of the pool's pages, mapped in
-the address window that every client's pools share. Each one took the
-room of a whole pool until then, so repeated failures in one session
-could use the window up; new render work would then wait for room and
-fail, and the client would see a lost device. This has not been seen in
-normal use.
+The adopted-link s2idle check walked the whole bus and refused to suspend
+when any device had left D0. With a kernel-trained second port (the SD
+reader on the K116s) the PCI core puts that root port into D3hot, and
+suspend failed with -EBUSY. Below a port Linux trained itself, only the
+devices that asked to stay awake need to remain in D0; the PCI core
+restores the rest. Below a port the boot loader trained, such as the
+N1's, every device must still be in D0, so the J716c and the K114c, whose
+only port is adopted, are checked as before.
 
-Give those pages back from the worker's housekeeping pass. The pool of a
-kept graph is never staged again; its pages go back once its final
-free-list release is consumed. The graph and the pool's identity stay as
-before.
-
-Signed-off-by: Diljit Singh <hey@djdev.me>
-(cherry picked from commit 3ad9af366a7251892f3ad9ecca21b086de834ddf)
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[thomas: skip only devices below a port Linux trained (port->pwren), so
+ adopted ports keep requiring D0 for every device]
+Signed-off-by: Thomas Glanzmann <thomas@glanzmann.de>
 ---
- drivers/gpu/drm/asahi/g17/runtime/render.rs | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/pci/controller/pcie-apple.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/drivers/gpu/drm/asahi/g17/runtime/render.rs b/drivers/gpu/drm/asahi/g17/runtime/render.rs
-index a725381da5ad..d984e3f0a2ca 100644
---- a/drivers/gpu/drm/asahi/g17/runtime/render.rs
-+++ b/drivers/gpu/drm/asahi/g17/runtime/render.rs
-@@ -1125,9 +1125,9 @@ fn shrink_pair(
+diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
+index 694192325b6e..439daa464e2b 100644
+--- a/drivers/pci/controller/pcie-apple.c
++++ b/drivers/pci/controller/pcie-apple.c
+@@ -6509,6 +6509,22 @@ static void apple_pcie_stop_for_sleep(struct device *dev)
  
-     /// Gives back the USC backing of render pools whose client VM pressure
-     /// reclaim evicted (an idle VM) and whose final free-list release was
--    /// consumed. The vacated backings go to the worker's deferred batch, which
--    /// frees them after the device mutex; a later job of that client re-arms
--    /// the pool first.
-+    /// consumed, and of the pools that kept graphs still hold. The vacated
-+    /// backings go to the worker's deferred batch, which frees them after the
-+    /// device mutex; a later job of an evicted client re-arms its pool first.
-     pub(in crate::g17) fn vacate_evicted_render_pools(
-         &mut self,
-         init: &crate::g17::initdata::InitData,
-@@ -1152,6 +1152,20 @@ pub(in crate::g17) fn vacate_evicted_render_pools(
-                 deferred.defer_render_backing(backing);
-             }
-         }
-+        // A kept graph's pool is never staged again; its pages go back once
-+        // its final free-list release is consumed.
-+        for graph in render.kept_graphs.iter() {
-+            if !deferred.render_backing_room() {
-+                break;
-+            }
-+            let pool = graph.pool();
-+            if pool.vacant() || !render.pools.released(u32::from(pool.id()), pool.control_va()) {
-+                continue;
-+            }
-+            if let Some(backing) = pool.vacate() {
-+                deferred.defer_render_backing(backing);
-+            }
-+        }
-         Ok(())
-     }
-     /// No graph is being built or grown.
+ static void apple_pcie_neo_save_functions(struct apple_pcie *pcie);
+ 
++/* Whether Linux trained the port above pdev itself (cold train), rather than adopting it */
++static bool apple_pcie_below_kernel_trained_port(struct pci_dev *pdev)
++{
++	struct pci_config_window *cfg = pdev->sysdata;
++	struct apple_pcie *pcie = apple_pcie_lookup(cfg->parent);
++	struct pci_dev *rp = pcie_find_root_port(pdev);
++	struct apple_pcie_port *port;
++
++	if (!rp)
++		return false;
++	list_for_each_entry(port, &pcie->ports, entry)
++		if (port->idx == PCI_SLOT(rp->devfn))
++			return !!port->pwren;
++	return false;
++}
++
+ /*
+  * The J716c radio drivers save PCI state without entering D3. The PCI core
+  * keeps the root port in D0 as well. Its host and DART have no switchable
+@@ -6523,6 +6539,16 @@ static int apple_pcie_check_d0(struct pci_dev *pdev, void *data)
+ 	int *error = data;
+ 	u16 value;
+ 
++	/*
++	 * Below a port the boot loader trained (the N1's), every device stays
++	 * in D0. Below a port Linux trained itself (the K116s SD reader's), the
++	 * PCI core restores what it suspends to D3hot, so only the devices that
++	 * asked to stay awake need to remain in D0.
++	 */
++	if (!device_awake_path(&pdev->dev) &&
++	    apple_pcie_below_kernel_trained_port(pdev))
++		return 0;
++
+ 	if (pci_read_config_word(pdev, PCI_VENDOR_ID, &value) ||
+ 	    value != pdev->vendor) {
+ 		*error = -ENODEV;
 -- 
 2.56.0
 
-From 1892880d46b9103c24917363b3bf1861e9297ff7 Mon Sep 17 00:00:00 2001
-From: Diljit Singh <hey@djdev.me>
-Date: Sat, 14 Nov 2026 19:41:21 -0500
-Subject: [PATCH 3/3] drm/asahi: g17: let a refused render take back idle
- render pools
+From 3c0b2d7c521e741f9e10990294ca97f5dd6e05d0 Mon Sep 17 00:00:00 2001
+From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 17:19:27 +0000
+Subject: [PATCH 31/32] PCI: apple: qualify the J714s for suspend-to-idle over
+ the adopted N1 link
 
-Every queue that renders has a render pool whose pages are mapped in an
-address window that the pools of all clients share; the window has room
-for about forty pools. A render that finds no room for its queue's pool
-first asks idle queues to give theirs back, and only then waits: a queue
-with nothing in flight, whose pool the firmware has released, populates
-its pool again on its next render.
+The adopted-link check admits the J716c, the K114c and the K116s. The
+J714s (MacBook Pro 14", M5 Pro) has the same T6050 host as the K116s,
+with the N1 on port 0, and every s2idle there failed in the noirq
+suspend:
 
-That request never returned a render pool. The reclaim hands the pages
-it takes back to the caller's batch, which frees them after the device
-lock is released, and it stops when the batch has no room; both callers
-passed a batch created without room for render pool pages. Until now a
-render pool was given back only when its queue was destroyed, or by the
-event worker after its whole client had been idle and evicted under
-memory pressure. A client that kept more queues with populated pools
-than the window holds therefore got no room for one more, although the
-others were idle: the render waited about 26 seconds and failed, and
-the client saw a lost device after
+  pcie-apple 1cb0000000.pcie: PM: dpm_run_callback(): apple_pcie_suspend_noirq returns -16
+  pcie-apple 1cb0000000.pcie: PM: failed to suspend noirq: error -16
 
-  G17 capacity refusal LowerVa count=...
-  GPU work of a client failed (EBUSY, ...)
+Like the K116s, the J714s has its SD card reader (a GL9755) on port 1,
+which the boot loader leaves down and Linux trains itself. The previous
+commit lets the devices below such a port leave D0 over s2idle, which
+the check needs on this board too.
 
-Give the reclaim of both capacity waits a batch with room for the pools
-it gives back, and run it only while the window is short: while it
-refuses a pool, or has no room left for one more. At other times a
-refusal of other capacity takes no pool back. On M5 nothing changes.
+Add the J714s to the list. For a clean wake it also needs the PMP's
+power domains kept on ("arm64: dts: apple: t6050: keep the PMP's power
+domains on"), and for the Type-C ports to work after the wake, the
+combo PHY's domains held through suspend-to-idle ("phy: apple:
+atc-t6050: keep the PHY's domains through suspend-to-idle").
 
-More queues rendering at the same time than the window has room for
-still wait, for up to about 26 seconds, until one has been idle long
-enough for the firmware to release its pool.
+This allowlist and the PHY's combo_sleep_board() are two separate
+per-board lists. A board added here without the PHY's s2idle hold gets
+Type-C ports that are dead after every wake, as the J716c, the K114c and
+the K116s likely do today (seen on the J714s only).
 
-Signed-off-by: Diljit Singh <hey@djdev.me>
-(cherry picked from commit 5c25150ed6d8f563d2eb49bcde2e79d8749df27a)
+Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 ---
- drivers/gpu/drm/asahi/g17/freelist.rs         | 10 +++-
- drivers/gpu/drm/asahi/g17/runtime.rs          | 46 +++++++++++++++++--
- .../drm/asahi/g17/runtime/render/submit.rs    |  8 +++-
- tools/asahi/g17-shared-pool-tests.py          | 19 ++++++++
- 4 files changed, 75 insertions(+), 8 deletions(-)
+ drivers/pci/controller/pcie-apple.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/asahi/g17/freelist.rs b/drivers/gpu/drm/asahi/g17/freelist.rs
-index 0f80469d074d..eecbdc59a80d 100644
---- a/drivers/gpu/drm/asahi/g17/freelist.rs
-+++ b/drivers/gpu/drm/asahi/g17/freelist.rs
-@@ -501,6 +501,11 @@ fn repopulate(&self) -> Result {
-     }
- }
+diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
+index 439daa464e2b..cf8ad34c9b7e 100644
+--- a/drivers/pci/controller/pcie-apple.c
++++ b/drivers/pci/controller/pcie-apple.c
+@@ -6569,13 +6569,15 @@ static int apple_pcie_check_adopted_s2idle(struct apple_pcie *pcie)
+ 	int error = 0;
  
-+/// What one render pool of the smallest size takes of the shared lower
-+/// window, with its guard.
-+pub(crate) const RENDER_POOL_SPAN: u64 =
-+    (TABLE_SIZE + RENDER_BLOCKS * FREE_LIST_BLOCK_SIZE + mmu::UAT_PGSZ) as u64;
-+
- /// Pool-object identities are independent of recycled firmware IDs and VAs.
- static RENDER_POOL_SERIAL: AtomicU64 = AtomicU64::new(0);
- 
-@@ -577,8 +582,9 @@ fn new(backing: Option<RenderBacking>) -> Result<Arc<Self>> {
- 
- /// A render pool retained by a logical context and every graph referencing it.
- /// Its backing can be given back while the pool's free-list release has been
--/// consumed and the client VM is evicted; a fresh backing is installed before
--/// the pool is staged again.
-+/// consumed: when the client VM is evicted, or when its queue is idle and the
-+/// shared window is short. A fresh backing is installed before the pool is
-+/// staged again.
- pub(crate) struct RenderPool {
-     storage: Arc<RenderStorage>,
-     /// Counts installed backings, so a re-armed backing is a new free-list
-diff --git a/drivers/gpu/drm/asahi/g17/runtime.rs b/drivers/gpu/drm/asahi/g17/runtime.rs
-index 3a04910495a9..8a729bfc6786 100644
---- a/drivers/gpu/drm/asahi/g17/runtime.rs
-+++ b/drivers/gpu/drm/asahi/g17/runtime.rs
-@@ -1357,7 +1357,8 @@ pub(super) struct DeferredBatch {
-     /// of vacated pools: unmapping and freeing happen in `finish`, off-lock.
-     bindings: KVVec<super::queue::compute::Binding>,
-     vacated: KVVec<super::queue::compute::Vacated>,
--    /// Backing of render pools vacated for evicted idle clients.
-+    /// Backing of render pools vacated for evicted idle clients, or given back
-+    /// by a capacity wait's reclaim.
-     render: KVVec<super::freelist::RenderBacking>,
-     /// Tiler-heap extensions removed from idle heaps, with their aliases.
-     tvb: KVVec<super::buffer::TvbRelease>,
-@@ -1380,6 +1381,13 @@ fn worker() -> Result<Self> {
-     fn publication() -> Result<Self> {
-         Self::with_capacity(2 * Self::DEPTH, 0)
-     }
-+    /// The reclaim transaction of a capacity wait: also room for the backing of
-+    /// every render pool it gives back, which `finish` frees off-lock.
-+    fn reclaim() -> Result<Self> {
-+        let mut batch = Self::publication()?;
-+        batch.render = KVVec::with_capacity(crate::hw::t8140::queues::RENDER_SLOTS, GFP_KERNEL)?;
-+        Ok(batch)
-+    }
-     fn with_capacity(capacity: usize, detached: usize) -> Result<Self> {
-         let render_slots = if detached != 0 {
-             crate::hw::t8140::queues::RENDER_SLOTS
-@@ -1402,7 +1410,7 @@ pub(super) fn defer_binding(&mut self, binding: super::queue::compute::Binding)
-             drop(binding);
-         }
-     }
--    /// Room for one more vacated render backing; the worker vacates no more.
-+    /// Room for one more vacated render backing; the caller vacates no more.
-     pub(super) fn render_backing_room(&self) -> bool {
-         self.render.len() < self.render.capacity()
-     }
-@@ -2825,11 +2833,35 @@ fn wait_release(
-         admission.check()
-     }
- 
-+    /// The shared lower window refuses free-list backing, or has no room for one
-+    /// more render pool: idle render pools are worth giving back. Never on M5,
-+    /// which places and reclaims its pools by identity.
-+    fn lower_window_short(&self) -> bool {
-+        if self.context.is_m5() {
-+            return false;
-+        }
-+        if super::freelist::lower_pressure() {
-+            return true;
-+        }
-+        let uat = {
-+            let state = self.shared.state.lock();
-+            match (*state).as_deref() {
-+                Some(firmware) => firmware.uat.clone(),
-+                None => return false,
-+            }
-+        };
-+        // Off the device mutex: this takes the address space's lock.
-+        uat.kernel_lower_vm()
-+            .capacity(crate::hw::t8140::dynamic::LOWER)
-+            .is_ok_and(|(_, largest)| largest < super::freelist::RENDER_POOL_SPAN)
-+    }
-+
-     /// Reclaim steps of a capacity wait that never sleep: observe consumed pool releases and,
-     /// under backing pressure, give idle pools back.
-     fn reclaim_capacity(&self, admission: &Admission<'_>, reclaim_backing: bool) -> Result {
-         admission.check()?;
--        let mut deferred = DeferredBatch::publication()?;
-+        let mut deferred = DeferredBatch::reclaim()?;
-+        let pools = reclaim_backing && self.lower_window_short();
-         let result: Result = (|| {
-             // A short reclaim transaction obeys the same session/epoch gate as
-             // publication. Never keep this lease while sleeping for capacity.
-@@ -2847,7 +2879,7 @@ fn reclaim_capacity(&self, admission: &Admission<'_>, reclaim_backing: bool) ->
-             // Pool eviction addresses backing allocation pressure, not channel
-             // occupancy. Normal idle expiry and the retained-pool cap still run
-             // in the event worker for either kind of admission wait.
--            if reclaim_backing {
-+            if pools {
-                 firmware.queues.reclaim_idle_render_pools(&firmware.init, &mut deferred)?;
-             }
-             if reclaim_backing && !firmware.render_control_backpressured() {
-@@ -2901,6 +2933,12 @@ fn all_logical_render_owners_fit_beside_shared_compute() {
-         // published identity was cancelled or retyped to achieve the fit.
-     }
- 
-+    #[test]
-+    fn a_reclaim_has_room_for_the_render_pools_it_gives_back() {
-+        assert!(!DeferredBatch::publication().unwrap().render_backing_room());
-+        assert!(DeferredBatch::reclaim().unwrap().render_backing_room());
-+    }
-+
-     #[test]
-     fn a_qid_floor_admits_only_the_render_pairs_it_leaves() {
-         use crate::g17::fw::variant::V25G83;
-diff --git a/drivers/gpu/drm/asahi/g17/runtime/render/submit.rs b/drivers/gpu/drm/asahi/g17/runtime/render/submit.rs
-index ec00c18be2ad..ca02ae5d0df6 100644
---- a/drivers/gpu/drm/asahi/g17/runtime/render/submit.rs
-+++ b/drivers/gpu/drm/asahi/g17/runtime/render/submit.rs
-@@ -341,7 +341,9 @@ fn wait_render_capacity(
-     /// Gives idle render backing back under capacity pressure. Returns whether
-     /// anything was returned, in which case the caller retries at once.
-     fn reclaim_render_capacity(&self) -> Result<bool> {
--        let mut deferred = DeferredBatch::publication()?;
-+        let mut deferred = DeferredBatch::reclaim()?;
-+        // Idle pools go back only while the shared window is short.
-+        let pools = self.lower_window_short();
-         let result: Result<bool> = (|| {
-             let lease = self.shared.preparations.try_enter()?;
-             let mut state = self.shared.state.lock();
-@@ -355,7 +357,9 @@ fn reclaim_render_capacity(&self) -> Result<bool> {
-                 return Ok(false);
-             }
-             firmware.queues.observe_pool_releases(&firmware.init, &mut deferred)?;
--            firmware.queues.reclaim_idle_render_pools(&firmware.init, &mut deferred)?;
-+            if pools {
-+                firmware.queues.reclaim_idle_render_pools(&firmware.init, &mut deferred)?;
-+            }
-             let mut published = 0;
-             if !firmware.render_control_backpressured() {
-                 (published, _) = firmware.queues.vacate_idle_pools(
-diff --git a/tools/asahi/g17-shared-pool-tests.py b/tools/asahi/g17-shared-pool-tests.py
-index 9c49872c01c3..64181543ea5b 100644
---- a/tools/asahi/g17-shared-pool-tests.py
-+++ b/tools/asahi/g17-shared-pool-tests.py
-@@ -114,7 +114,26 @@ fn main(){
- '''
- 
- 
-+def callers():
-+    """The reclaim only returns backing its batch has room for: both capacity
-+    waits must hand it the batch that has that room."""
-+    runtime = (ROOT / 'runtime.rs').read_text()
-+    submit = (ROOT / 'runtime/render/submit.rs').read_text()
-+    room = item(runtime, '    fn reclaim() -> Result<Self>')
-+    assert 'batch.render = KVVec::with_capacity(crate::hw::t8140::queues::RENDER_SLOTS' in room, room
-+    for text, signature in [(runtime, '    fn reclaim_capacity('), (submit, '    fn reclaim_render_capacity(')]:
-+        body = item(text, signature)
-+        assert 'reclaim_idle_render_pools(' in body, signature
-+        assert 'DeferredBatch::reclaim()?' in body and 'DeferredBatch::publication()' not in body, signature
-+        assert 'self.lower_window_short()' in body and 'if pools {' in body, signature
-+    assert 'self.render.len() < self.render.capacity()' in item(runtime, '    pub(super) fn render_backing_room('), 'room rule'
-+    short = item(runtime, '    fn lower_window_short(')
-+    assert 'lower_pressure()' in short and 'RENDER_POOL_SPAN' in short and 'is_m5()' in short, short
-+    print('PASS both capacity waits give the reclaim a batch with room for render pool backing, while the window is short')
-+
-+
- def main():
-+    callers()
-     source = fixture()
-     mutations = [('fixed', source),
-                  ('ignore-release-consumption', source.replace('!render.pools.released(u32::from(pool.id()), pool.control_va())', 'false')),
--- 
-2.56.0
-
-From cd54949d2b72ad22ef565e578be4481ea2ae70bc Mon Sep 17 00:00:00 2001
-From: DjDeveloperr <hey@djdev.me>
-Date: Sat, 14 Nov 2026 09:15:36 -0500
-Subject: [PATCH] arm64: dts: apple: t6050-j714s: Enforce the PMP's fast-die
- effort
-
-The PMP runs a control loop on the die's hot-spot sensors and publishes
-an effort for each CPU cluster in its FAST-DIE-CE range. The T6050 trees
-only asserted apple,firmware-managed-thermal, on the assumption that the
-firmware also lowers the clusters' performance state. It does not: under
-a sustained all-core load on J714s the effort reaches its maximum while
-every cluster keeps its top state. The dies then run above the
-firmware's target, and the CPUs get less work done than when the limit
-is enforced.
-
-Give J714s's three clusters apple,fast-die-effort, in the order of the
-ADT's fast-die-ctrl-ce-map (M0, M1, P), as the T6041 and T8140 trees do.
-apple-soc-cpufreq then turns the effort into a frequency limit. Reword
-the binding and the T6050 base comment to match: the firmware keeps
-voltage and PLL control, but not the throttling. Other T6050 boards are
-not qualified yet.
-
-Signed-off-by: Diljit Singh <hey@djdev.me>
----
- .../cpufreq/apple,cluster-cpufreq.yaml        | 12 ++++++-----
- arch/arm64/boot/dts/apple/t6050-base.dtsi     | 10 ++++++----
- arch/arm64/boot/dts/apple/t6050-j714s.dts     | 20 +++++++++++++++++++
- 3 files changed, 33 insertions(+), 9 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/cpufreq/apple,cluster-cpufreq.yaml b/Documentation/devicetree/bindings/cpufreq/apple,cluster-cpufreq.yaml
-index b7ed80708377..85acb1dcd6d9 100644
---- a/Documentation/devicetree/bindings/cpufreq/apple,cluster-cpufreq.yaml
-+++ b/Documentation/devicetree/bindings/cpufreq/apple,cluster-cpufreq.yaml
-@@ -65,16 +65,18 @@ properties:
-       - items:
-           - description: PMP report region
-           - description: Cluster lane (0 for E, 1 for P on T8140; 0 for
--              E, 1 for P0, 2 for P1 on T6041)
-+              E, 1 for P0, 2 for P1 on T6041; 0 for M0, 1 for M1, 2 for P
-+              on T6050)
-             enum: [0, 1, 2]
- 
-   apple,firmware-managed-thermal:
-     type: boolean
-     description:
--      The boot loader leaves the cluster's thermal limiting with the
--      firmware, which keeps the throttling, voltage and PLL control for the
--      whole time Linux runs. The T6050 driver registers DVFS only when this
--      is present.
-+      The boot loader leaves the cluster's voltage and PLL control with the
-+      firmware for the whole time Linux runs. The firmware does not lower
-+      the requested performance state itself; where it publishes an effort,
-+      apple,fast-die-effort lets the OS enforce it. The T6050 driver
-+      registers DVFS only when this is present.
- 
-   '#performance-domain-cells':
-     const: 0
-diff --git a/arch/arm64/boot/dts/apple/t6050-base.dtsi b/arch/arm64/boot/dts/apple/t6050-base.dtsi
-index dfa99f92f41f..471e849a8f46 100644
---- a/arch/arm64/boot/dts/apple/t6050-base.dtsi
-+++ b/arch/arm64/boot/dts/apple/t6050-base.dtsi
-@@ -97,10 +97,12 @@ cpus {
- 	 * (measured on J775D: every state's clock from a dependent-add chain). iBoot leaves M cluster
- 	 * 0 of each die in state 6 (2652 MHz), the other clusters in state 2.
- 	 *
--	 * Bring-up: the clusters' controllers (t6050-dieX.dtsi) assert apple,firmware-managed-thermal,
--	 * which the T6050 profile requires, before that ownership is qualified on this boot chain (no
--	 * Linux PMP driver runs; the SMC drives the fans). A qualification settles it: an all-core
--	 * load at the top states, watching TCMb, the fans and the measured clock.
-+	 * The clusters' controllers (t6050-dieX.dtsi) assert apple,firmware-managed-thermal, which the
-+	 * T6050 profile requires: the firmware keeps the voltage and PLL control. It does not lower a
-+	 * cluster's requested state on its own: on J714s, under a sustained all-core load, the PMP's
-+	 * fast-die effort reaches its maximum while the clusters stay at their top state, so boards
-+	 * whose PMP runs give each cluster apple,fast-die-effort (t6050-j714s.dts). Other boards are
-+	 * not qualified yet.
+ 	/*
+-	 * Qualified on the J716c, the K114c and the K116s. The K116s is the
+-	 * J716c's OLED sibling: the same T6050 host, the N1 on port 0. Other
+-	 * adopted platforms and deeper sleep remain unqualified.
++	 * Qualified on the J716c, the K114c, the K116s and the J714s: the same
++	 * T6050 host with the N1 adopted on port 0. The K116s and the J714s
++	 * (16- and 14-inch M5 Pro) also have a kernel-trained SD reader port.
++	 * Other adopted platforms and deeper sleep remain unqualified.
  	 */
- 	mcluster_opp: opp-table-mcluster {
- 		compatible = "operating-points-v2";
-diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index 33f076f29622..86ad24d023d5 100644
---- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
-+++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -465,6 +465,26 @@ &pmp0_report {
- 	status = "okay";
+ 	if (!(of_machine_is_compatible("apple,j716c") ||
+ 	      of_machine_is_compatible("apple,k114c") ||
+-	      of_machine_is_compatible("apple,k116s")) || !pm_suspend_no_platform())
++	      of_machine_is_compatible("apple,k116s") ||
++	      of_machine_is_compatible("apple,j714s")) || !pm_suspend_no_platform())
+ 		return -EBUSY;
+ 
+ 	if (!(readl(pcie->base + CORE_RC_CTL) & CORE_RC_CTL_RUN) ||
+-- 
+2.56.0
+
+From 04aebf90c8986350e2ebedcfa47d84fe1522b21b Mon Sep 17 00:00:00 2001
+From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 15:51:29 +0000
+Subject: [PATCH 32/32] phy: apple: atc-t6050: keep the PHY's domains through
+ suspend-to-idle
+
+On the J714s both Type-C ports are dead after a suspend-to-idle wake. A
+dock plugged in after it fails on either port before the PHY firmware is
+reached:
+
+  apple-t6050-dp-phy 2ab000000.phy: start of mode 1 failed (-110)
+  apple-t6050-dp-phy 383000000.phy: CIO mode failed (-110), reverse orientation, 1 ms
+
+and the port controllers then give up ("failed to place Type-C mux in
+safe mode: -5"). The same dock comes up in CIO mode on both ports after a
+fresh boot. It happened in three boots: in one (08:25) the ports had not
+been used before the sleep and both failed after it; in another (09:02)
+both had run in CIO mode before it, and the right port, the only one
+tried, failed after it; the third (12:03) is the traced run below.
+
+The display crossbar holds each port's usb-aon and common domains from
+its probe on, so those never switch off at runtime. genpd's noirq
+suspend gates a domain once every member device has suspended, runtime
+holds or not, so suspend-to-idle switches them off for the first time
+since boot. No firmware runs at an s2idle wake to set them up again, and
+the PHY has no s2idle callbacks: its cold start then times out in the
+first power-up step (1 ms, one 1000 us poll).
+
+Traced with the PHY module from before this change (pmgr-pwrstate and
+genpd dynamic debug): at the noirq suspend genpd gates atc2_usb, then
+atc2_common and atc2_usb_aon, then the same three for ATC1, and powers
+all six on again at the resume; each domain's genpd usage goes from 0 to
+1. The usb domain was off when genpd took it over (about 5 ms idle at
+boot, usage 0); the controller powered it up after boot. So, per
+pmgr-pwrstate's rule (GENPD_FLAG_ACTIVE_WAKEUP only for a domain on at
+probe), it lacks that flag, and the dwc3 glue in it is counted as
+suspended although its wakeup is enabled. The domain goes off when its
+last device, a DART, has suspended. Its parents, common and usb-aon,
+go off in the same cascade, as this, their last subdomain still on,
+goes off: their own devices (the crossbar's and the PHY's) had already
+been counted suspended. On a T8142 J813, whose ATC domains were on at
+boot, dwc3's wakeup keeps them all on through s2idle.
+
+Hold the PHY's domain devices out of the system transition when the
+sleep is suspend-to-idle, from the PM notifier's PM_SUSPEND_PREPARE to
+PM_POST_SUSPEND, so that they cover the prepare and complete phases as
+well. genpd then never counts a domain's devices all suspended, and each
+domain stays as runtime PM had it: an idle port's wrapper off, its usb
+domain as the USB controller holds it, the crossbar's on, a port in use
+as it was. thunderbolt/apple uses the same syscore mark for its
+router's domains, for a cable's lifetime.
+
+The hold is in the PHY rather than the crossbar or the device tree: the
+PHY is the device whose cold start needs the domains not gated since
+boot, and it already has the J714s sleep notifier. Which of the three
+gated domains (usb, common, usb-aon) holds what the PHY needs is not
+known, and the hold covers all three. Holding usb is a behaviour change
+of its own: before, atc*_usb, the dwc3 and its DARTs went off in s2idle;
+now they stay on, as dwc3-apple's s2idle path, which keeps the host in
+place, expects. The wrapper and the tunnel clock gates are held too and
+stay as runtime PM has them, off on an idle port. apple,sleep-retained
+would apply to deep sleep as well, where the PHY's own sleep handling
+decides what the always-on domain keeps. Giving the usb domain
+GENPD_FLAG_ACTIVE_WAKEUP, as the J813's domains have, would keep the
+chain on only while the dwc3 glue's wakeup stays enabled, which user
+space can turn off; it would need a new pmgr-pwrstate policy, since the
+flag follows the domain's state at probe on every SoC, and it would
+change deep sleep for those domains too. device_set_awake_path() on the
+PHY's domain devices would keep only domains with that flag, which usb
+lacks. The hold states the PHY's own requirement, whatever the wakeup
+policy, as the SEP (sep_pm_keep_domains()), the ISP's resident firmware
+and the USB4 router (thunderbolt/apple) hold theirs with the same
+syscore mark.
+
+Suspend-to-idle on the J714s needs "PCI: apple: qualify the J714s for
+suspend-to-idle over the adopted N1 link"; before it every attempt was
+refused, so this path had not run there. As with the PHY's deep-sleep
+notifier, this is in force on the J714s only, where the notifier is
+registered. A suspend-to-idle reached by writing "freeze" while "mem"
+means deep is not covered: the notifier goes by the default sleep, as
+dwc3-apple's does.
+
+Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+---
+ drivers/phy/apple/atc-t6050-combo.h | 47 ++++++++++++++++++++++++-----
+ drivers/phy/apple/atc-t6050-dp.c    |  1 +
+ 2 files changed, 41 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/phy/apple/atc-t6050-combo.h b/drivers/phy/apple/atc-t6050-combo.h
+index 2e5b8317f1ed..4ff849abb268 100644
+--- a/drivers/phy/apple/atc-t6050-combo.h
++++ b/drivers/phy/apple/atc-t6050-combo.h
+@@ -118,8 +118,9 @@ static void combo_pipe_fault(struct t6050_dp *dp, const char *what, int ret)
+ /*
+  * What the combo PHY gained for a deep sleep outside its sleep callbacks (a wrapper domain
+  * still held at a stop is released, a safe state with a domain still held is stopped again,
+- * the always-on domain's hold over the sleep) is in force on the board it has run on, the
+- * J714s. On another T6050 board the stop, the safe state and the probe are as before.
++ * the always-on domain's hold over the sleep) and its domains' hold over suspend-to-idle
++ * are in force on the board they have run on, the J714s. On another T6050 board the stop,
++ * the safe state and the probe are as before.
+  */
+ static bool combo_sleep_board(void)
+ {
+@@ -368,9 +369,34 @@ static void combo_resume(struct t6050_dp *dp)
+ }
+ 
+ /*
+- * A port in use keeps its always-on domain through a deep sleep: held out of the system
+- * transition from before its prepare to after its complete, so the power domain is not
+- * counted as suspended, and asked of the sleep driver, which lowers the word otherwise.
++ * Suspend-to-idle runs no firmware at the wake, and the PHY has no s2idle callbacks: its
++ * domains have to come out of it as they went in. The display crossbar holds the always-on
++ * and common domains from its probe on, so they never switch off at runtime, but genpd's
++ * noirq suspend gates a domain once every member device has suspended, runtime holds or
++ * not. On the J714s it gates usb (off at probe, so without GENPD_FLAG_ACTIVE_WAKEUP, and
++ * the wakeup of the dwc3 in it does not count), then common and always-on, its parents.
++ * Which of the three held the state the PHY needs is not known; after it, the PHY's first
++ * power-up handshake times out (-ETIMEDOUT) on both ports until a reboot. Hold every domain
++ * of the PHY out of the transition, from before its prepare to after its complete, so
++ * genpd never counts them all suspended: each stays in its runtime state. The usb domain,
++ * and with it the dwc3 and its DARTs, then stays on through s2idle, as dwc3-apple's
++ * s2idle path, which keeps the host in place, expects.
++ */
++static void combo_s2idle_hold(struct t6050_dp *dp, bool hold)
++{
++	for (unsigned int i = 0; i < dp->ndomains; i++)
++		dev_pm_syscore_device(dp->domain[i].dev, hold);
++	for (unsigned int i = 0; dp->dp_gates && i < ATC_DP_TUNNELS; i++)
++		dev_pm_syscore_device(dp->dp_gate[i].dev, hold);
++	dp->s2idle_held = hold;
++	dev_dbg(dp->dev, "domains %s suspend-to-idle\n", hold ? "held out of" : "released after");
++}
++
++/*
++ * Suspend-to-idle holds every domain of the PHY, see combo_s2idle_hold(). In a deep sleep a
++ * port in use keeps its always-on domain: held out of the system transition from before its
++ * prepare to after its complete, so the power domain is not counted as suspended, and asked
++ * of the sleep driver, which lowers the word otherwise.
+  */
+ static int combo_pm_notify(struct notifier_block *nb, unsigned long action, void *unused)
+ {
+@@ -379,7 +405,12 @@ static int combo_pm_notify(struct notifier_block *nb, unsigned long action, void
+ 	guard(mutex)(&dp->lock);
+ 	switch (action) {
+ 	case PM_SUSPEND_PREPARE:
+-		if (pm_suspend_default_s2idle() || dp->faulted || dp->aon_syscore ||
++		if (pm_suspend_default_s2idle()) {
++			if (!dp->s2idle_held)
++				combo_s2idle_hold(dp, true);
++			break;
++		}
++		if (dp->faulted || dp->aon_syscore ||
+ 		    dp->combo_mode == COMBO_SAFE || !dp->domain[0].active)
+ 			break;
+ 		if (!apple_sleep_usb_aon_keep(dp->port, true))
+@@ -388,6 +419,8 @@ static int combo_pm_notify(struct notifier_block *nb, unsigned long action, void
+ 		dp->aon_syscore = true;
+ 		break;
+ 	case PM_POST_SUSPEND:
++		if (dp->s2idle_held)
++			combo_s2idle_hold(dp, false);
+ 		apple_sleep_usb_aon_keep(dp->port, false);
+ 		if (dp->aon_syscore) {
+ 			dev_pm_syscore_device(dp->domain[0].dev, false);
+@@ -667,7 +700,7 @@ static int combo_setup(struct platform_device *pdev, struct t6050_dp *dp)
+ 			return PTR_ERR(dp->combo_phy[i]);
+ 		phy_set_drvdata(dp->combo_phy[i], dp);
+ 	}
+-	/* A deep sleep's hold of the always-on domain: see combo_sleep_board(). */
++	/* The domains' hold over a system sleep, deep or s2idle: see combo_sleep_board(). */
+ 	if (!combo_sleep_board())
+ 		return 0;
+ 	dp->pm_nb.notifier_call = combo_pm_notify;
+diff --git a/drivers/phy/apple/atc-t6050-dp.c b/drivers/phy/apple/atc-t6050-dp.c
+index 55c9e3cff2b2..75fdf78c490e 100644
+--- a/drivers/phy/apple/atc-t6050-dp.c
++++ b/drivers/phy/apple/atc-t6050-dp.c
+@@ -136,6 +136,7 @@ struct t6050_dp {
+ 	bool sleep_stopped;		/* stopped for a sleep that has not been accounted for yet */
+ 	bool aon_syscore;		/* the always-on domain is held out of this system transition */
+ 	bool aon_kept;			/* the stop left the always-on domain's reference in place */
++	bool s2idle_held;		/* every domain is held out of this suspend-to-idle */
  };
  
-+/*
-+ * The PMP runs a control loop on the die's hot-spot sensors and publishes an effort for each
-+ * cluster in its FAST-DIE-CE range, in the order of the ADT's fast-die-ctrl-ce-map: MACC0, MACC1
-+ * and PACC_ANE (the P cluster). The OS enforces it as a frequency limit; the ADT's CLPC node lists
-+ * the same range among its ptd-ranges. Without the limit the clusters keep their top state while
-+ * the effort sits at its maximum under a sustained all-core load. Until the PMP reports that it
-+ * runs (also on a boot without the PMP driver), cpufreq holds each cluster at its fallback limit.
-+ */
-+&cpufreq_mc0 {
-+	apple,fast-die-effort = <&pmp0_report 0>;
-+};
-+
-+&cpufreq_mc1 {
-+	apple,fast-die-effort = <&pmp0_report 1>;
-+};
-+
-+&cpufreq_pc {
-+	apple,fast-die-effort = <&pmp0_report 2>;
-+};
-+
- &pmc {
- 	/* PMP, CLPC and AP agents, once the PMP runs */
- 	apple,static-voters = <0 1 3>;
+ static int atc_domain_set(struct atc_domain *pd, bool active)
 -- 
 2.56.0
 

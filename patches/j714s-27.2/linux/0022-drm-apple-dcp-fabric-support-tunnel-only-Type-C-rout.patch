@@ -1,7 +1,7 @@
-From bb2b2870f240439798ad52a795b65e43972ed610 Mon Sep 17 00:00:00 2001
+From f26ef461b13c44523a83d719264de30b77ddbfea Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:56:38 -0700
-Subject: [PATCH 22/23] drm/apple: dcp-fabric: support tunnel-only Type-C
+Subject: [PATCH 22/32] drm/apple: dcp-fabric: support tunnel-only Type-C
  routes
 
 A route marked apple,tunnel-only exists to give USB4 DP tunnels another
@@ -263,10 +263,10 @@ index fed2534f6584..542852e4409c 100644
  	KUNIT_CASE_PARAM(fabric_shared_wiring_test, fabric_wiring_gen_params),
  	KUNIT_CASE(fabric_binding_cookie_test),
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
-index 6d50b8dffcf0..d5164ecd5ff5 100644
+index a3ead157dcc5..cc2a66076c1a 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric.c
-@@ -1091,6 +1091,7 @@ static bool dcp_typec_move_starved_locked(void)
+@@ -1101,6 +1101,7 @@ static bool dcp_typec_move_starved_locked(void)
  			continue;
  		list_for_each_entry(route, &port->routes, port_link) {
  			if (route != owner && route->dcp->fixed_phy &&
@@ -274,7 +274,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  			    dcp_typec_route_available(route)) {
  				to = route;
  				break;
-@@ -1138,6 +1139,7 @@ static bool dcp_typec_move_off_hybrid_locked(struct apple_dcp_typec_port *port,
+@@ -1148,6 +1149,7 @@ static bool dcp_typec_move_off_hybrid_locked(struct apple_dcp_typec_port *port,
  		return false;
  	list_for_each_entry(route, &port->routes, port_link) {
  		if (route != owner && !route->dcp->fixed_phy && route->dcp->crtc &&
@@ -282,7 +282,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  		    dcp_typec_route_available(route)) {
  			to = route;
  			break;
-@@ -4292,6 +4294,25 @@ bool dcp_typec_port_has_candidate(unsigned int idx, struct platform_device *pdev
+@@ -4316,6 +4318,25 @@ bool dcp_typec_port_has_candidate(unsigned int idx, struct platform_device *pdev
  	return false;
  }
  
@@ -308,7 +308,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  /*
   * Is every pipeline that can drive port @idx unusable (a failed T8122
   * dcpext, or a T8132 dcpext, whose DRM outputs are its own, see
-@@ -4553,6 +4574,10 @@ static int dcp_register_typec_routes_present(void *data)
+@@ -4577,6 +4598,10 @@ static int dcp_register_typec_routes_present(void *data)
  			return dev_err_probe(dev, ret, "%pOF: missing crossbar state\n",
  					     route_np);
  
@@ -319,7 +319,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  		ret = of_property_read_u32_index(dev->of_node, "apple,typec-dptx-phys",
  						 route_index, &route->dptx_phy);
  		if (ret)
-@@ -4990,6 +5015,7 @@ static bool dcp_typec_hdmi_reclaim(struct apple_dcp *dcp)
+@@ -5118,6 +5143,7 @@ static bool dcp_typec_hdmi_reclaim(struct apple_dcp *dcp)
  		return false;
  	list_for_each_entry(route, &port->routes, port_link) {
  		if (route == owner || !route->dcp->crtc ||
@@ -328,7 +328,7 @@ index 6d50b8dffcf0..d5164ecd5ff5 100644
  		    (owner->tunnel && !dcp_typec_tunnel_ctl(route, owner->tunnel_dpin)) ||
  		    (port->split_dcp == dcp && !dcp_follow_split_fits(route)))
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.h b/drivers/gpu/drm/apple/dcp-fabric.h
-index edca8065bd21..98f9d893c568 100644
+index ca3ddcd6700f..c1ee7b6c6e1d 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.h
 +++ b/drivers/gpu/drm/apple/dcp-fabric.h
 @@ -76,6 +76,7 @@ bool dcp_has_typec_routes(struct platform_device *pdev);

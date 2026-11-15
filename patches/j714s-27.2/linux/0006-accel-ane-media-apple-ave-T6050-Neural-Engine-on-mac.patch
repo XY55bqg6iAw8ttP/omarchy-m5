@@ -1,7 +1,7 @@
-From ad52f01aa474337e52d9471a72f5f15c7f756f36 Mon Sep 17 00:00:00 2001
+From 16d5d29a2db7b96c715969c571781cae0366c01d Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 23:52:29 -0500
-Subject: [PATCH 06/23] accel/ane, media: apple: ave: T6050 Neural Engine on
+Subject: [PATCH 06/32] accel/ane, media: apple: ave: T6050 Neural Engine on
  macOS 27.3; AVE builds by TEXT CRC
 
 The T6050 ANE driver admits one preloaded firmware build, the macOS 27.0
@@ -209,10 +209,10 @@ index 2dc8d2239b89..1612cf973253 100644
  	return 0;
  fail:
 diff --git a/drivers/accel/ane/ane_fw_cold.h b/drivers/accel/ane/ane_fw_cold.h
-index a9bea3958790..d3497f50ec53 100644
+index 0af12b6ca1bc..45588345b49e 100644
 --- a/drivers/accel/ane/ane_fw_cold.h
 +++ b/drivers/accel/ane/ane_fw_cold.h
-@@ -153,6 +153,9 @@ struct ane_fw_handoff {
+@@ -152,6 +152,9 @@ struct ane_fw_handoff {
  	bool regions_ok;
  	u64 phys[2], size[2], dva[2];
  	bool text_ok;
@@ -223,10 +223,10 @@ index a9bea3958790..d3497f50ec53 100644
  	bool crash_kernel;
  };
 diff --git a/drivers/accel/ane/ane_fw_platform.c b/drivers/accel/ane/ane_fw_platform.c
-index 411b1732e41a..3cd75deb62ef 100644
+index 219e4560ca0a..dec7fdf6ce22 100644
 --- a/drivers/accel/ane/ane_fw_platform.c
 +++ b/drivers/accel/ane/ane_fw_platform.c
-@@ -50,6 +50,33 @@ static const u8 ane_t6050_text_pin_27_0[] = {
+@@ -64,6 +64,33 @@ static const u8 ane_t6050_text_pin_27_0[] = {
  	0xd1, 0xa2, 0x20, 0xd0, 0xee, 0x43, 0x8b, 0x8f,
  };
  
@@ -260,7 +260,7 @@ index 411b1732e41a..3cd75deb62ef 100644
  const struct ane_fw_platform ane_h16_platform = {
  	.h16_profiles = ane_h16_profiles,
  	.h16_profile_count = ARRAY_SIZE(ane_h16_profiles),
-@@ -176,6 +203,8 @@ const struct ane_fw_platform ane_t6050_platform = {
+@@ -240,6 +267,8 @@ const struct ane_fw_platform ane_t6050_platform = {
  	.dart_revision = 0x204,
  	.dapf_count = 5,
  	.text_pin = ane_t6050_text_pin_27_0,
@@ -270,10 +270,10 @@ index 411b1732e41a..3cd75deb62ef 100644
  
  /*
 diff --git a/drivers/accel/ane/ane_fw_platform.h b/drivers/accel/ane/ane_fw_platform.h
-index dd5e3278c423..1c1d662bf253 100644
+index 6f4372e8ad3c..c5626bce703b 100644
 --- a/drivers/accel/ane/ane_fw_platform.h
 +++ b/drivers/accel/ane/ane_fw_platform.h
-@@ -24,6 +24,20 @@ enum ane_fw_irq_role {
+@@ -27,6 +27,20 @@ enum ane_fw_irq_role {
  	ANE_FW_IRQ_CHANNELS,
  };
  
@@ -294,10 +294,10 @@ index dd5e3278c423..1c1d662bf253 100644
  /* Later firmware generations must never enter the H14 staging path. */
  struct ane_fw_platform {
  	const struct ane_h16_profile *h16_profiles;
-@@ -99,11 +113,17 @@ struct ane_fw_platform {
- 	u16 dart_revision;
- 	u8 dapf_count;
+@@ -106,11 +120,17 @@ struct ane_fw_platform {
  	const u8 *text_pin;
+ 	/* H16: an aux-3 window, which the build's XL tunables go to. */
+ 	bool has_xl;
 +	/*
 +	 * The preloaded builds this SoC admits. When set, they replace
 +	 * preload_dva, preload_size and text_pin for the hand-off checks.
@@ -313,7 +313,7 @@ index dd5e3278c423..1c1d662bf253 100644
  			    const u64 size[2], const u64 dva[2])
  {
  	u64 end[2];
-@@ -111,14 +131,51 @@ ane_fw_preload_ranges_valid(const struct ane_fw_platform *soc, const u64 phys[2]
+@@ -118,14 +138,51 @@ ane_fw_preload_ranges_valid(const struct ane_fw_platform *soc, const u64 phys[2]
  
  	for (i = 0; i < 2; i++) {
  		if (!phys[i] || !IS_ALIGNED(phys[i], SZ_16K) ||
@@ -368,10 +368,10 @@ index dd5e3278c423..1c1d662bf253 100644
   * The system sleep path of a device the ane_t6021 driver bound. Devices of
   * the shared firmware platform (H16, H17) carry the backend's drvdata and
 diff --git a/drivers/accel/ane/ane_fw_platform_test.c b/drivers/accel/ane/ane_fw_platform_test.c
-index 7fa82abf63fa..53eb20cb1300 100644
+index 6755523e7abe..f407e7c74ad6 100644
 --- a/drivers/accel/ane/ane_fw_platform_test.c
 +++ b/drivers/accel/ane/ane_fw_platform_test.c
-@@ -37,6 +37,40 @@ static void ane_preload_ranges_test(struct kunit *test)
+@@ -38,6 +38,40 @@ static void ane_preload_ranges_test(struct kunit *test)
  	KUNIT_EXPECT_FALSE(test, ane_fw_preload_ranges_valid(&soc, phys, size, dva));
  }
  
@@ -412,7 +412,7 @@ index 7fa82abf63fa..53eb20cb1300 100644
  /*
   * H16 and H17 devices (any firmware platform) take the backend's sleep path,
   * never the rtclient one; only the H13/H14 rtclient (no platform) does.
-@@ -70,6 +104,7 @@ static struct kunit_case ane_fw_platform_cases[] = {
+@@ -95,6 +129,7 @@ static struct kunit_case ane_fw_platform_cases[] = {
  	KUNIT_CASE(ane_platform_staged_bind_test),
  	KUNIT_CASE(ane_platform_sleep_path_test),
  	KUNIT_CASE(ane_preload_ranges_test),
@@ -531,10 +531,10 @@ index 38bafb89d223..84a89ba43729 100644
  
  #endif
 diff --git a/drivers/media/platform/apple/ave/ave-sess.c b/drivers/media/platform/apple/ave/ave-sess.c
-index 395e26c48fd8..1ff063195a37 100644
+index 4e860b5916f0..82cef285deb7 100644
 --- a/drivers/media/platform/apple/ave/ave-sess.c
 +++ b/drivers/media/platform/apple/ave/ave-sess.c
-@@ -267,6 +267,8 @@ static int ave_sess_params(struct ave_ctx *ctx, struct ave_params *p)
+@@ -275,6 +275,8 @@ static int ave_sess_params(struct ave_ctx *ctx, struct ave_params *p)
  			 p->bframes ? "with" : "no");
  		return -EOPNOTSUPP;
  	}
@@ -544,7 +544,7 @@ index 395e26c48fd8..1ff063195a37 100644
  }
  
 diff --git a/drivers/media/platform/apple/ave/ave.h b/drivers/media/platform/apple/ave/ave.h
-index cf158479c996..4e2550ff472c 100644
+index d8075a8d38bc..05dd6fa2fe0c 100644
 --- a/drivers/media/platform/apple/ave/ave.h
 +++ b/drivers/media/platform/apple/ave/ave.h
 @@ -207,9 +207,9 @@ struct ave_variant {

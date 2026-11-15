@@ -7,6 +7,15 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 `kmutil configure-boot --compress` after `bputil -nc`; Linux runs at EL2 on every CPU inside the
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
+Status (2026-11-15): v272-12: v272-11 plus the J714s s2idle stack #1647/#2012/#2018; built, not
+booted. Re-pinned to upstream `integration/aurora` `c0a2a7522b4e`, which carries DjDeveloperr's
+T6050 sleep series #1963 that #2018 is built on. The series is rebased onto it. 0029-0032 are
+Jens Axboe's #1647 at `70bf8ed1867b` (two commits), Isaac-Duarte's #2012 last commit
+`af590f044ca2` and his #2018 at `ad7f44429aab`, all unchanged. Dropped because upstream now
+carries them: the old 0029-0031 (G17 #1925/#1946/#1948) and 0032 (#1950 fast-die). The recipe
+config leaves `CONFIG_APPLE_SOC_SLEEP` off, so `/sys/power/mem_sleep` offers `s2idle` only.
+Package `linux-aurora-7.3.0.aurora17.v272-12-aarch64.pkg.tar.zst`, sha256 `d2dcbe315bd5577367ff405e19f6d91506c4914bd7fa3f5d66d38349c301a4fb` (44289449 bytes).
+
 Status (2026-11-14, latest): kernel v272-7 is v272-6 plus the firewall matches (`xt_hl`,
 `ip6t_rt`: ufw's IPv6 rules), same sources and patches. **Booted on TripleU613's J714s on 2026-11-14** (installed by
 package over release 4): sound cards, Neural Engine device and ufw up at boot. External displays

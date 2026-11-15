@@ -1,7 +1,7 @@
-From 074dbf43478d5bf552e2990557162747b7514475 Mon Sep 17 00:00:00 2001
+From eca9f3e63a3492daa552500419a11bcd8f302561 Mon Sep 17 00:00:00 2001
 From: DjDeveloperr <hey@djdev.me>
 Date: Thu, 12 Nov 2026 15:01:46 -0500
-Subject: [PATCH 4/5] usb: typec: tipd: sn201202x: Send no LDCM command to a
+Subject: [PATCH 27/32] usb: typec: tipd: sn201202x: Send no LDCM command to a
  dry port
 
 On every probe, and again after a controller reset, the driver sends an
@@ -35,10 +35,10 @@ Signed-off-by: Diljit Singh <hey@djdev.me>
  2 files changed, 18 insertions(+)
 
 diff --git a/drivers/usb/typec/tipd/spmi.c b/drivers/usb/typec/tipd/spmi.c
-index ddd28b8d94e4..3a20ee2d5929 100644
+index 8a6b6b417775..0996a2eb6139 100644
 --- a/drivers/usb/typec/tipd/spmi.c
 +++ b/drivers/usb/typec/tipd/spmi.c
-@@ -300,6 +300,19 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
+@@ -302,6 +302,19 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
  	if (sn->ldcm_mitigation_known && sn->ldcm_mitigated == enable)
  		return 0;
  
@@ -58,7 +58,7 @@ index ddd28b8d94e4..3a20ee2d5929 100644
  	/*
  	 * Successful task completion is the controller's mitigation ACK.
  	 * Startup commands can take more than a second on SN201202x. Wait for
-@@ -310,6 +323,8 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
+@@ -312,6 +325,8 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
  	sn->ldcm_mitigation_known = !ret;
  	if (!ret)
  		sn->ldcm_mitigated = enable;
@@ -67,7 +67,7 @@ index ddd28b8d94e4..3a20ee2d5929 100644
  	return ret;
  }
  
-@@ -465,6 +480,7 @@ static void sn201202x_ldcm_invalidate(struct tps6598x *tps)
+@@ -467,6 +482,7 @@ static void sn201202x_ldcm_invalidate(struct tps6598x *tps)
  	tps->contaminant = TYPEC_CONTAMINANT_UNKNOWN;
  	sn->ldcm_mitigated = false;
  	sn->ldcm_mitigation_known = false;
@@ -76,13 +76,13 @@ index ddd28b8d94e4..3a20ee2d5929 100644
  }
  
 diff --git a/drivers/usb/typec/tipd/tps6598x.h b/drivers/usb/typec/tipd/tps6598x.h
-index 68d246b7397e..5b975a0267be 100644
+index 2174c9e89a73..da892da0a33d 100644
 --- a/drivers/usb/typec/tipd/tps6598x.h
 +++ b/drivers/usb/typec/tipd/tps6598x.h
-@@ -508,6 +508,8 @@ struct sn201202x {
- 	bool ldcm_mitigated;
- 	/* ldcm_mitigated matches the controller (unknown after a reset) */
+@@ -512,6 +512,8 @@ struct sn201202x {
  	bool ldcm_mitigation_known;
+ 	/* J714s, no connector (its MagSafe controller): only its system sleep state is driven */
+ 	bool sleep_only;
 +	/* A mitigation was requested since the controller's last reset */
 +	bool ldcm_requested;
  };
