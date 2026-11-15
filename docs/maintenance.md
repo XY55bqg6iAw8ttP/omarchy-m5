@@ -2,6 +2,51 @@
 
 Pull requests and issues on this repo: what came in, what we did, where it stands. Newest first.
 
+## 2026-11-15: #13, the K114s admitted in developer builds (chrisohearn)
+
+[#13](https://github.com/betizzel/omarchy-m5/pull/13) from chrisohearn: `installer/patches-j714s-r2/0009`
+(engine `k114sap` device, the 26B8125 stub row, the board 0x14 gate, `stage1-k114s` Mach-O members,
+k* trackpad firmware collection), TREE `fdd3eb0e`, engine `v0.9.2-omarchy.20261115.c979ebe82723`,
+`make-release-inputs.py --board` and `CHECK_APP_BOARD`. Merged after release 7 as merge commit
+a46d36c (his commit 47dca43 kept); the one conflict, the 0008/0009 rows in `installer/README.md`,
+kept both. His README section moved verbatim to [`docs/boards/k114s.md`](boards/k114s.md)
+(b2a9a03); the README keeps an "Other M5 boards" entry.
+
+Checked before merging, because the engine pin moves for the J714s too:
+
+- Tree: 0001-0009 rebuilds to `fdd3eb0e` (release 7's set still gives `fe2218e7`).
+- Engine: `Engine/prepare-engine.py` run twice reproduced `e220f68f…`, 17914568 bytes (four
+  identical repacks). Against release 7's engine only `main.py`, `omarchy_asahi.py` and `version.tag`
+  differ: the added `k114sap` device, 26B8125 row (devices `[k114sap]`) and `BOARD_MACHO` row, the
+  board gate (equivalent for `j714sap`: chip 0x6050, board 0x08) and the k* multitouch pass. On a
+  J714s that pass finds nothing: the J714s identity in the 26B123 manifest has FUD files only under
+  `Firmware/`, so `fud_firmware/` holds `Firmware` and `j714s`. The firmware rebuild path picks the
+  first 27.2 row, still 26B123.
+- Tests (`test/all`): Engine tooling 77, engine overlay 446 (release 7: 441), scripts 306, Packaging
+  36, all passing.
+- Unchanged between the two trees: `image-builder/` (with `stage1_qualification.py`),
+  `Integration/` and the Recovery sources; the engine is not inside the image. So the image,
+  its `installer_data.json` (j714sap, `board-macho-ctxr-v1`, 27.2) and its Stage 1 members
+  (`esp/aurora/stage1-j714s.{bin,macho}`, `esp/m1n1/boot-ctxr.bin`) would be the same; no image
+  was rebuilt.
+- App: `make-release-inputs.py` locally, against release 7's image, for both variants. The
+  release 7 tree and engine reproduce release 7's published catalogs byte for byte. The PR tree
+  differs only in `engineVersion`, `engineDigest`, the engine file name and size and
+  `downstreamRevision`. Then a CI run on the merge commit: `installer-app.yml` run 43748023300
+  (online, release 7's image, app 2.3.16). The run used a temporary `test-pr13-engine`
+  prerelease and published `test-pr13-app`; both releases and the `test-pr13` branch were
+  deleted afterwards. Same result in its sealed catalog: `apple,j714s` only, `metadataDigest`
+  `0357666f…` and `payloadDigest` `6d10e8b3…` equal to release 7's, and `check-app.sh` passed
+  with the default board.
+
+Engine published for the next J714s build: release
+[`engine-v0.9.2-omarchy.20261115.c979ebe82723`](https://github.com/betizzel/omarchy-m5/releases/tag/engine-v0.9.2-omarchy.20261115.c979ebe82723),
+asset `installer-v0.9.2-omarchy.20261115.c979ebe82723.tar.gz`, sha256
+`e220f68f9523ccbf184344b5940f38f4184e9d3582a985a6c404eb04f71e82a9`, 17914568 bytes (downloaded
+back and checked). The next build also needs new build inputs: `finish-inputs.py` puts the
+engine in the bundle, and `afdde351c894` carries the old one. This engine has not run an install
+on a J714s yet.
+
 ## 2026-11-15: invitation to send M5 work here
 
 Added [`CONTRIBUTING.md`](../CONTRIBUTING.md), a pull request template and a hardware test report
@@ -76,7 +121,7 @@ contributors) and Satya Benson (satchlj, an aurora-silicon member). The #293 com
 | Item | From | What we did | State |
 | --- | --- | --- | --- |
 | [#11](https://github.com/betizzel/omarchy-m5/issues/11) A channel switch, `omarchy refresh pacman` or `omarchy reinstall` drops the image's `IgnorePkg` pin and downgrades the kernel, m1n1 and U-Boot | chrisohearn | Confirmed against omacom/omarchy v4.5.0 (`omarchy-refresh-pacman` copies the channel template over `/etc/pacman.conf`, then `pacman -Syyuu`). Fix (646d264, refined in a later commit): firmware j714s11 ships a pacman hook outside `pacman.conf` (`00-omarchy-j714s-boot-guard.hook` + `j714s-boot-guard`) that stops any transaction replacing `linux-aurora`, `m1n1-aurora`, `uboot-aurora` or `omarchy-aurora-firmware` with a build that isn't a J714s build, or removing them. Tested in a throwaway container on ush and on the J714s (below). Shipped in firmware j714s12 in [release 7](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-7) | closed after release 7 was published |
-| [#10](https://github.com/betizzel/omarchy-m5/issues/10) K114s on release 3, `apple,k114s` installer admission offered | chrisohearn | Said yes to a PR, labelled as tested on his machine only, with the README pointing K114s owners to [his repo](https://github.com/chrisohearn/omarchy-m5p-oled). The trackpad fix he found (aurora-silicon/linux #1568, open draft for the K114c) isn't needed on the J714s, whose trackpad already works, and isn't in our series | open, waiting for his PR |
+| [#10](https://github.com/betizzel/omarchy-m5/issues/10) K114s on release 3, `apple,k114s` installer admission offered | chrisohearn | Said yes to a PR, labelled as tested on his machine only, with the README pointing K114s owners to [his repo](https://github.com/chrisohearn/omarchy-m5p-oled). The trackpad fix he found (aurora-silicon/linux #1568, open draft for the K114c) isn't needed on the J714s, whose trackpad already works, and isn't in our series | PR [#13](https://github.com/betizzel/omarchy-m5/pull/13) merged (see above) |
 | [#9](https://github.com/betizzel/omarchy-m5/issues/9) Kernel config: ufw `hl`/`rt` matches, RFCOMM, `pkcs8_key_parser` | chrisohearn | ufw matches since kernel v272-7 (release 5), RFCOMM and PKCS8 since v272-9; both modules load on v272-11 on the J714s | closed after [release 6](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6) (v272-11) was published |
 | [#8](https://github.com/betizzel/omarchy-m5/issues/8) hyprland-m5 0.57.2-2 moves `CMonitor` members, the stock titlebars plugin aborts Hyprland | chrisohearn | Fixed in hyprland-m5 0.57.2-3 (41d8d77, his fix 1). Crash reproduced on -2 and gone on -3 on the J714s ([upstream tracker](upstream.md)) | closed after [release 6](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-6) (hyprland-m5 0.57.2-3) was published |
 | [#7](https://github.com/betizzel/omarchy-m5/pull/7) J714s HDMI on 27.3 (PR) | FatBoy721 | All three commits carried into `patches/j714s-27.2` (kernel 0017-0019, Aura 0007). HDMI seen on an Odyssey G9 with v272-7. The 27.3 directory is history | closed, not merged (carried) |
