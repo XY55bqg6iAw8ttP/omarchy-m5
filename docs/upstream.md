@@ -60,11 +60,11 @@ Nothing left here. Checked 2026-11-14:
 
 ## Gathered from others, built, waiting on a boot (2026-11-15)
 
-Each kernel builds on the one above it. v272-8 hung the logo install on its first boot (Omarchy logo, no disk prompt). The logo ESP now has v272-7's device tree with v272-8's kernel, so the next boot shows which part hangs. Until then v272-9 and v272-10 are not installed.
+Each kernel builds on the one above it. v272-8 hung the logo install on its first boot (Omarchy logo, no disk prompt). On 2026-11-15 v272-8 (its own kernel and device tree) booted from RAM on the dev path (27.3 stub, older Aura) in about a minute, Wi-Fi up, so neither of its device-tree changes hangs a boot by itself; the logo install's hang is still to be explained (27.2 stub and its Stage 2). The logo ESP now has v272-7's device tree with v272-8's kernel, so the next boot shows which part hangs. Until then v272-9 and v272-10 are not installed.
 
 | Kernel | Adds | Source | Their hardware evidence |
 | --- | --- | --- | --- |
-| v272-8 | J714s fans take a userspace target | Isaac-Duarte, aurora-silicon/linux #1944 (open) | his J714s: hotspot 114 C with the firmware curve, builds back to 47-57 s |
+| v272-8 | J714s fans take a userspace target | Isaac-Duarte, aurora-silicon/linux #1944 (open) | his J714s: hotspot 114 C with the firmware curve, builds back to 47-57 s. **Ours, 2026-11-15:** fan1_target 3000 gave 2989 rpm, 0 handed it back (0 rpm idle) |
 | v272-8 | appledrm stops waiting on a DP tunnel the dock withdrew | Isaac-Duarte, #1930 (open) | his J714s with a Thunderbolt 5 dock |
 | v272-8 | no LDCM command to a dry SN201202x port | DjDeveloperr, #1721 (open) | 19 boots on a J714s |
 | v272-8 | the PMP's power domains stay on through s2idle | Jens Axboe, #1789 (open, sent by sithglan) | two clean s2idle cycles on a K116s |
