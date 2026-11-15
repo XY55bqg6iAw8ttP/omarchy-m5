@@ -31,8 +31,8 @@ Kernel and loader the upstream image takes:
 - omacom/m1n1 `m1n1-aurora` 1.6.1.aurora23 pins `ba130ff`. T6050 work open: #30 (edimoldovan,
   boot from disk on the J714c), #33-#37 (rolotrealanis98). #26 closed.
 - Our J714s path uses a different line: aurora-silicon/linux `integration/aurora` + aurora-silicon/aura,
-  with Aura's Mach-O Stage 1 on the 27.2 stub. The omacom line (#404, m1n1 #30) targets the 27.3 beta
-  firmware and a raw Stage 1.
+  with Aura's Mach-O Stage 1 on the 27.2 stub. The omacom line (#404, m1n1 #30) needs the 27.3 beta
+  firmware (on `mBoot-20457.41.3` the secondary cores don't start there).
 
 **So upstream's current image cannot boot a J714s, and its engine cannot even plan one.**
 
@@ -82,7 +82,7 @@ else's work, theirs to send.
 | j714s/0004 | image profile `j714s`: `stage1-j714s.{bin,macho}`, `boot-ctxr.bin` + pacman hook, payload name | b+d (needs J714s boot packages in omacom/omarchy-pkgs); payload name: c |
 | j714s/0005, 0007 | candidate manifest pins to our built packages, Recovery provenance | c |
 | j714s/0006 | `apple,j714s` in the developer list, `--developer-only` sealed catalog, model name | admission + model name: b+d; `--developer-only`: c |
-| j714s/0008 | Stage 1 proxy window 15 s; `compress` switch | window: c (debug aid); switch: b with 0002 |
+| j714s/0008 | Stage 1 proxy window 15 s; `compress` switch | b with 0002 (window value open, see follow-up 3) |
 | j714s/0009 | Finish-setup text names the step and the wrong turn | b, board-independent |
 | j714s/0010 | engine: J714s camera setfiles and ALS calibration | b+d; needs #208 |
 | j714s-r2/0001-0007 | release 2-6 package sets, Recovery provenance, pins | c |
@@ -111,8 +111,10 @@ Evidence used (one Mac): J714s, macOS 27.3, Omarchy stub on the 27.2 OS firmware
 stub's Recovery worked, first boot fine, kernel `7.3.0-17.v272-11-ARCH`. Every part of that result
 depends on our build: our ad hoc developer app and sealed catalog, our engine repack
 `v0.9.2-omarchy.20261113.774d9abc59d3`, our Recovery app (run 43477703681), and our packages
-(linux-aurora = aurora-silicon/linux a5ebec5f + 32 patches; m1n1-aurora = Aura 22b71758 + DP PHY
-tunables).
+(linux-aurora = aurora-silicon/linux a5ebec5f + 32 patches; m1n1-aurora = Aura 22b71758 + FatBoy721's
+DP PHY tunables). The install ran with the 15 s Stage 1 proxy window and `--compress` on (j714s/0008).
+The install result comes from the owner's report of 2026-11-15; `docs/fresh-install-j714s.md` does not
+record it yet.
 
 ## 4. Follow-up pull requests, in order
 
@@ -128,7 +130,9 @@ Send each only when what it needs is there, and as the maintainers answer #221.
 3. **Mach-O Stage 1 for the J714s on top of #157**: extend #157's Neo-only Mach-O mode to a board
    Mach-O kind (fill the raw Stage 1, carry it into the object, pad for the 128 MiB window, `kmutil
    inspect` check, `--compress`), credited to aurora-silicon/aurora-installer. Needs: #157 merged
-   (or DjDeveloperr's agreement to stack on it).
+   (or DjDeveloperr's agreement to stack on it). Open point: the Stage 1 window. Ours is 15000 ms
+   (a debug aid that let a stopped boot show on the cable); upstream's board rows use 0 ms (J713)
+   or 5000 ms (Neo), so the value to send is the maintainers' call.
 4. **Admission**: `apple,j714s` in `developer` in `supported-models.json` + model name. Needs: 2 and 3.
 5. **J714s image profile** (stage1-j714s.{bin,macho}, Stage 2, the hook). Needs: J714s-capable
    `linux-aurora` and `m1n1-aurora` in omacom/omarchy-pkgs (omacom/linux-aurora #404/#413 + a J714s
@@ -136,5 +140,5 @@ Send each only when what it needs is there, and as the maintainers answer #221.
 6. **Camera setfiles and ALS calibration collection** (j714s/0010). Needs: #208 merged, and 2.
 7. **#219** (boot filesystem IDs): waiting for the maintainers' choice of fix.
 
-Not to be sent: everything in class (c), the 15 s proxy window, the `--developer-only` catalog
-switch.
+Not to be sent: everything in class (c) and the `--developer-only` catalog switch. The Stage 1
+window goes with follow-up 3 at whatever value the maintainers want.

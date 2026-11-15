@@ -45,7 +45,7 @@ Nothing left here. Checked 2026-11-14:
 
 | # | Change | The test it waits for |
 | --- | --- | --- |
-| W1 | J714s in the installer: 27.2 Mach-O Stage 1, "Finish setup" text, admission | test done: fresh install of release 6 on 2026-11-15. Offered in [#221](https://github.com/omacom/omarchy-mac-installer/issues/221); the order and what each pull request waits for are in [upstream-installer-plan.md](upstream-installer-plan.md) |
+| W1 | J714s in the installer: 27.2 Mach-O Stage 1, "Finish setup" text, the Stage 1 window, admission | test done: fresh install of release 6 on 2026-11-15. Offered in [#221](https://github.com/omacom/omarchy-mac-installer/issues/221); the order and what each pull request waits for are in [upstream-installer-plan.md](upstream-installer-plan.md) |
 | W2 | J714s camera and DCP rows for 27.2 (Aura tables) | compare with what upstream has now; a camera capture on v272-7 |
 | W3 | ANE 27.2 pin (retarget #1746 from 27.3 to 27.2) | an ANE workload on 27.2, not just the device coming up |
 | W4 | AVE 27.2 layout | an encode on 27.2 (today: probe only) |
