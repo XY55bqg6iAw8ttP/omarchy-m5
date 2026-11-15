@@ -28,11 +28,19 @@
 #   0020-23  Isaac-Duarte's #1921 (open) at 4c6a7b451f34: a third dock display through dcpext1
 #            on the right port (own tunnel slots for DP IN 2/3, tunnel-only Type-C routes).
 #            With 0017's HDMI on dcpext3 no merged-mode peer is left (see the README)
+#   0024     Isaac-Duarte's #1944 (open): J714s fans take a userspace target (SoC hotspot 105-111 C
+#            with the firmware curve idling the fans; tested on his J714s)
+#   0025-26  Isaac-Duarte's #1930 (open): stop waiting for a link on a DP tunnel the dock withdrew
+#            (Thunderbolt 5 dock display left dark; tested on his J714s)
+#   0027     DjDeveloperr's #1721 (open): no LDCM command to a dry SN201202x port, as macOS
+#            (19 boots on J714s)
+#   0028     Jens Axboe's #1789 (open, sent by sithglan): the PMP's power domains stay on through
+#            s2idle (PMP fault at wake; tested lightly on K116s)
 # Same package name as the image's kernel (linux-aurora); the version sorts above up273.
 
 _auroraver=7.3.0
 _aurorarel=17.v272
-pkgrel=7
+pkgrel=8
 
 _commit=a5ebec5fd092327b16ff26366cb3840448285578
 
@@ -64,7 +72,7 @@ sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
             '4090f1c5bcf3ca0d096466950746ac5416ab91900d03bef15120046ca65ca038'
-            'ef6efb928629a49f23afa1602a8906be148a129a321fb954e9d210b8a090c803'
+            '00ce3db96f858722a9cba1b726562143d6e175a08db9b58be2b36b34868ae745'
             '84ae705545eb744a74661d420630c477b4f7240505ceb1f486957355bd349986'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 

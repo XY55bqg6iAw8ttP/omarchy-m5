@@ -5504,3 +5504,453 @@ index f14c7ab163e3..003b229e2640 100644
 -- 
 2.56.0
 
+From 142544a2a3e3dd82b8b86a379750a8cd15e30653 Mon Sep 17 00:00:00 2001
+From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 16:22:02 -0700
+Subject: [PATCH 1/5] arm64: dts: apple: t6050-j714s: let userspace set the fan
+ speeds
+
+Mark both J714s fans apple,fan-manual-control, as the M4 Pro/Max
+MacBook Pros and the J704 already are, so fanX_target is writable
+without the unsafe fan_control module parameter. The SMC still drives
+the fans until userspace writes a target, and writing 0 hands a fan
+back to the firmware. The M5 GPU governor already sets these fans
+through the same manual mode; a userspace target takes a fan over from
+it until 0 is written.
+
+Under bursty CPU load the firmware's curve leaves both fans at their
+idle speed (targets about 2320/2500 rpm) while the SoC hotspot (TCMb)
+reaches 105-111 C and the firmware lowers the CPU clocks. Faster fans
+set from userspace recover much of it: a clean Rust release build
+drops from 60 s to 47 s with the fans at their maximum. With the
+fan_control parameter on this machine, both fans took a manual speed
+and returned to the firmware's curve after 0 was written; that is the
+same driver path this property enables.
+
+J716s and J775D are left as they are until their fans are tested the
+same way.
+
+Tested on J714s (7.3.0-36.n1usb) with its installed device tree plus
+this property and fan_control=N: both fanX_target are 0644, the kernel
+is not tainted, fan 1 set to 4000 rpm ran at 3996 rpm and returned to
+the firmware's idle speed (2326 rpm) after 0 was written, with no
+macsmc-hwmon warnings.
+
+Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+---
+ arch/arm64/boot/dts/apple/t6050-j714s.dts | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
+index 7166e951ac3d..33f076f29622 100644
+--- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
++++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
+@@ -579,10 +579,10 @@ &jpeg1 {
+ #include "t6050-j714s-pmp-tunables.dtsi"
+ 
+ /*
+- * SMC sensors, as on J716s: the shared fan, power, voltage and current keys, plus
+- * every readable float T* key through apple,discover-temperatures in
+- * t6050-die0.dtsi, labelled with the key name. A key this SMC lacks only drops
+- * its channel.
++ * SMC sensors, as on J716s except that userspace may set the fans (below): the
++ * shared fan, power, voltage and current keys, plus every readable float T* key
++ * through apple,discover-temperatures in t6050-die0.dtsi, labelled with the key
++ * name. A key this SMC lacks only drops its channel.
+  *
+  * Discovery refuses to run once any temperature channel exists, so the shared
+  * temperature nodes go (their keys are discovered anyway), and so does
+@@ -600,13 +600,20 @@ &smc_hwmon {
+ 	/delete-node/ temperature-TCHP;
+ 	/delete-node/ temperature-TW0P;
+ 
+-	/* The T6050 SMC spells the fan mode keys F0md/F1md. The SMC drives the fans. */
++	/*
++	 * The T6050 SMC spells the fan mode keys F0md/F1md. The SMC drives the
++	 * fans (the M5 GPU governor sets them through macsmc_hwmon_fans_request()
++	 * as well); it also accepts a manual speed for both from userspace and
++	 * returns them to firmware control when the request is dropped.
++	 */
+ 	fan-F0Ac {
+ 		apple,fan-mode = "F0md";
++		apple,fan-manual-control;
+ 	};
+ 
+ 	fan-F1Ac {
+ 		apple,fan-mode = "F1md";
++		apple,fan-manual-control;
+ 	};
+ };
+ 
+-- 
+2.56.0
+
+From d085379655924278a4edfb716479b7c4c8883b2e Mon Sep 17 00:00:00 2001
+From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 13:23:08 -0700
+Subject: [PATCH 2/5] thunderbolt: apple: tell appledrm whether a DP tunnel is
+ still requested
+
+appledrm connects a DP tunnel's display from the DP IN adapter's ordered
+worker and waits for DCP to configure the link. A tunnel that is taken
+down meanwhile is detached only after that wait: the detach is queued
+behind it. The adapter knows at once, when the tunnel is deactivated,
+that the tunnel is no longer requested.
+
+Export apple_dp_tunnel_binding_live() so that appledrm can ask, for the
+binding it was handed, whether its tunnel is still requested. It takes
+the adapter's lock, as the binding's set_active callback does.
+
+Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+---
+ drivers/thunderbolt/apple.c         | 11 +++++++++++
+ include/linux/soc/apple/dp-tunnel.h |  8 ++++++++
+ 2 files changed, 19 insertions(+)
+
+diff --git a/drivers/thunderbolt/apple.c b/drivers/thunderbolt/apple.c
+index 3aa62de12e91..ab5fcec02a60 100644
+--- a/drivers/thunderbolt/apple.c
++++ b/drivers/thunderbolt/apple.c
+@@ -839,6 +839,17 @@ static int apple_dpin_dcp_set_active(void *data, bool active)
+ 	return ret;
+ }
+ 
++bool apple_dp_tunnel_binding_live(void *data)
++{
++	const struct apple_dpin_binding *binding = data;
++	struct apple_dpin_ctx *c = binding->ctx;
++
++	guard(mutex)(&c->lock);
++	return c->state.alive &&
++	       apple_dpin_token_access(&c->tokens, binding->generation);
++}
++EXPORT_SYMBOL_GPL(apple_dp_tunnel_binding_live);
++
+ static bool apple_dpin_provider_get(void *data)
+ {
+ 	struct apple_dpin_binding *binding = data;
+diff --git a/include/linux/soc/apple/dp-tunnel.h b/include/linux/soc/apple/dp-tunnel.h
+index 034a74b852eb..09afceeda700 100644
+--- a/include/linux/soc/apple/dp-tunnel.h
++++ b/include/linux/soc/apple/dp-tunnel.h
+@@ -38,6 +38,14 @@ int apple_dcp_tb_dp_tunnel(struct device_node *connector_np, unsigned int dpin,
+ 			   u64 generation, bool active,
+ 			   int (*set_active)(void *binding, bool active), void *binding);
+ 
++/*
++ * Thunderbolt glue: is the tunnel handed to appledrm with @binding still
++ * requested? It is not from the moment the tunnel is deactivated, before
++ * the detach that follows reaches appledrm. Takes the DP IN adapter's lock,
++ * as @set_active does; may sleep.
++ */
++bool apple_dp_tunnel_binding_live(void *binding);
++
+ /* The sink raised IRQ_HPD on the tunnel's DP IN adapter. */
+ #define APPLE_DP_TUNNEL_IRQ_HPD		BIT(0)
+ /* The HPD level of the tunnel's DP IN adapter changed to @hpd. */
+-- 
+2.56.0
+
+From 55c25aed764e477ddaa35a5e58582dbaf40a4412 Mon Sep 17 00:00:00 2001
+From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 13:23:08 -0700
+Subject: [PATCH 3/5] drm/apple: stop waiting for a link on a DP tunnel that
+ went
+
+A Thunderbolt 5 dock (Ugreen 10-in-1) on a J714s withdraws its first DP
+tunnel about 190 ms after it is requested, right after DCP starts on it,
+in about half of its first connects after boot or plug-in, and
+re-advertises it about 1.4 s later. The connect then waits the full 2 s
+for a link configuration that cannot come, while DCP retries the link
+about every 500 ms. The release that follows the timeout can land in the
+first milliseconds of such a retry, and then DCP never answers it:
+
+  apple-dcp 2b2e00000.dcp: dcp_dptx_connect: timed out waiting for port 0 link configuration
+  apple-dcp 2b2e00000.dcp: AFK[ep:2c]: AppleDCPDPTXRemotePort (chan:1) service call group 0 cmd 7 failed to complete: -110
+  thunderbolt-apple-acio 381ac0000.acio: dpin0: display teardown failed: -110
+  thunderbolt-apple-acio 381ac0000.acio: dpin0: DP tunnel setup failed: -110
+
+The display stays dark, its pipeline held, until the dock is plugged in
+again. Over 11 such connects, 4 of the 5 releases sent within 26 ms of a
+retry went unanswered, and none of the 6 sent 97 ms or more after one.
+
+Wait for the link in 50 ms slices, and ask the Thunderbolt glue between
+them whether the tunnel is still requested. Once it is not, release the
+display at once, well before DCP's first retry, so that the re-advertised
+tunnel finds the pipeline free.
+
+Tested on J714s with the dock on the right port: over 5 boots the dock
+withdrew the first tunnel each time, the wait ended 17 to 47 ms later,
+and all three displays came up on the re-advertised tunnels, with no
+timeout and no -110.
+
+Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
+---
+ drivers/gpu/drm/apple/dcp.c | 71 ++++++++++++++++++++++++++++++++++---
+ 1 file changed, 67 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
+index fa771f5d7d99..908ffdb5521e 100644
+--- a/drivers/gpu/drm/apple/dcp.c
++++ b/drivers/gpu/drm/apple/dcp.c
+@@ -2069,6 +2069,63 @@ static int dcp_t8132_wait_teardown_answers(struct apple_dcp *dcp, u32 port,
+  * With a @session, every step checks that it is still the live one, and a
+  * revoked session returns -ESTALE without touching the new one's state.
+  */
++/*
++ * Has the Thunderbolt DP tunnel this pipeline was handed been taken down?
++ * Its provider knows at once, while the detach that follows waits for the
++ * connect in progress on this pipeline.
++ */
++static bool dcp_tb_tunnel_withdrawn(struct apple_dcp *dcp)
++{
++	typeof(apple_dp_tunnel_binding_live) *live;
++	bool gone = false;
++
++	guard(mutex)(&dcp->tb_lock);
++	if (!dcp->tb_dpin_ctx)
++		return false;
++	live = symbol_get(apple_dp_tunnel_binding_live);
++	if (live) {
++		gone = !live(dcp->tb_dpin_ctx);
++		symbol_put(apple_dp_tunnel_binding_live);
++	}
++	return gone;
++}
++
++#define DCP_LINKCFG_POLL_MS	50
++
++/*
++ * Wait up to @timeout for DCP's link configuration of @port, returning what
++ * wait_for_completion_timeout() would. With @watch_tunnel, a Thunderbolt
++ * tunnel taken down meanwhile ends the wait at once and sets *@withdrawn:
++ * no link comes on it, and DCP keeps retrying it until released. A release
++ * that comes in the first milliseconds of such a retry can go unanswered
++ * for good, leaving the pipeline held, so release it as soon as it goes.
++ */
++static unsigned long dcp_dptx_wait_linkcfg(struct apple_dcp *dcp, u32 port,
++					   unsigned long timeout, bool watch_tunnel,
++					   bool *withdrawn)
++{
++	unsigned long deadline = jiffies + timeout;
++	long left;
++
++	*withdrawn = false;
++	if (!watch_tunnel)
++		return wait_for_completion_timeout(&dcp->dptxport[port].linkcfg_completion,
++						   timeout);
++	for (;;) {
++		left = (long)(deadline - jiffies);
++		if (left <= 0)
++			return 0;
++		if (wait_for_completion_timeout(&dcp->dptxport[port].linkcfg_completion,
++						min_t(unsigned long, left,
++						      msecs_to_jiffies(DCP_LINKCFG_POLL_MS))))
++			return max_t(long, (long)(deadline - jiffies), 1);
++		if (dcp_tb_tunnel_withdrawn(dcp)) {
++			*withdrawn = true;
++			return 0;
++		}
++	}
++}
++
+ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable,
+ 				const struct dcp_fabric_session *session, bool cable,
+ 				bool recovery)
+@@ -2076,7 +2133,7 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
+ 	/* T8122 dcpext: HPD only after the link wait, see dcp_ext_dptx_607() */
+ 	bool late_hpd = dcp_ext_dptx_607(dcp);
+ 	bool t8132 = dcp_is_t8132_ext(dcp);
+-	bool compact;
++	bool compact, withdrawn;
+ 	unsigned long timeout;
+ 	u64 generation;
+ 	u8 dfp_port;
+@@ -2224,12 +2281,18 @@ static int dcp_dptx_connect_raw(struct apple_dcp *dcp, u32 port, bool *retryable
+ 	}
+ 	timeout = dcp_uses_t6020_tunnel_flow(dcp) ?
+ 		  DPTX_TUNNEL_CONNECT_TIMEOUT : DPTX_CONNECT_TIMEOUT;
+-	ret = wait_for_completion_timeout(&dcp->dptxport[port].linkcfg_completion,
+-					  timeout);
++	ret = dcp_dptx_wait_linkcfg(dcp, port, timeout, !compact && !late_hpd,
++				    &withdrawn);
+ 	/* A revoked wait must not disconnect or publish readiness for a new session. */
+ 	if (!dcp_connect_session_valid(dcp, session, cable, recovery))
+ 		return -ESTALE;
+-	if (!ret && compact) {
++	if (!ret && withdrawn) {
++		dev_info(dcp->dev,
++			 "dcp_dptx_connect: port %u: the DP tunnel went before link configuration\n",
++			 port);
++		ret = -ENOLINK;
++		goto out_withdraw;
++	} else if (!ret && compact) {
+ 		/* Without a sink the link is configured once one arrives. */
+ 		dev_dbg(dcp->dev,
+ 			"dcp_dptx_connect: no link configuration on port %u yet\n", port);
+-- 
+2.56.0
+
+From 074dbf43478d5bf552e2990557162747b7514475 Mon Sep 17 00:00:00 2001
+From: DjDeveloperr <hey@djdev.me>
+Date: Thu, 12 Nov 2026 15:01:46 -0500
+Subject: [PATCH 4/5] usb: typec: tipd: sn201202x: Send no LDCM command to a
+ dry port
+
+On every probe, and again after a controller reset, the driver sends an
+SN201202x on a dry port an LDCM command that removes liquid-detection
+mitigation, since it cannot know whether the controller is mitigating.
+That command can start a new measurement, and the driver then waits up
+to 5 s for it.
+
+macOS doesn't do this. A trace of every SPMI access to the three
+SN201202x controllers on a J714s (both USB-C ports and MagSafe), from
+boot to the desktop, shows macOS reading the LDCM status register (0x74)
+of both USB-C controllers and sending no LDCM command to any of them.
+Its only commands are HChk, SSPS and, on the USB-C ports, USBw.
+
+Do the same. Track whether this driver requested a mitigation since the
+controller's last reset, and send the command that removes it only
+then. A reset clears the controller's mitigation, as the driver already
+assumes. The status register is still read as before, and a wet or
+indeterminate port is still mitigated.
+
+Tested on J714s (7.3.0-m5-intg6, whose tipd sources match this base),
+19 boots: on every boot the driver read both USB-C controllers' LDCM
+status register and sent them no LDCM command, both ports reported
+contaminant "none", all three controllers bound, and the dock on the
+right port came up.
+
+Signed-off-by: Diljit Singh <hey@djdev.me>
+---
+ drivers/usb/typec/tipd/spmi.c     | 16 ++++++++++++++++
+ drivers/usb/typec/tipd/tps6598x.h |  2 ++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/drivers/usb/typec/tipd/spmi.c b/drivers/usb/typec/tipd/spmi.c
+index ddd28b8d94e4..3a20ee2d5929 100644
+--- a/drivers/usb/typec/tipd/spmi.c
++++ b/drivers/usb/typec/tipd/spmi.c
+@@ -300,6 +300,19 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
+ 	if (sn->ldcm_mitigation_known && sn->ldcm_mitigated == enable)
+ 		return 0;
+ 
++	/*
++	 * As macOS, which reads a dry port's status but sends it no LDCM
++	 * command: only a mitigation this driver requested since the
++	 * controller's last reset needs removing.
++	 */
++	if (!enable && !sn->ldcm_requested) {
++		sn->ldcm_mitigation_known = true;
++		sn->ldcm_mitigated = false;
++		return 0;
++	}
++	if (enable)
++		sn->ldcm_requested = true;
++
+ 	/*
+ 	 * Successful task completion is the controller's mitigation ACK.
+ 	 * Startup commands can take more than a second on SN201202x. Wait for
+@@ -310,6 +323,8 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
+ 	sn->ldcm_mitigation_known = !ret;
+ 	if (!ret)
+ 		sn->ldcm_mitigated = enable;
++	if (!ret && !enable)
++		sn->ldcm_requested = false;
+ 	return ret;
+ }
+ 
+@@ -465,6 +480,7 @@ static void sn201202x_ldcm_invalidate(struct tps6598x *tps)
+ 	tps->contaminant = TYPEC_CONTAMINANT_UNKNOWN;
+ 	sn->ldcm_mitigated = false;
+ 	sn->ldcm_mitigation_known = false;
++	sn->ldcm_requested = false;
+ 	sn201202x_ldcm_event(tps);
+ }
+ 
+diff --git a/drivers/usb/typec/tipd/tps6598x.h b/drivers/usb/typec/tipd/tps6598x.h
+index 68d246b7397e..5b975a0267be 100644
+--- a/drivers/usb/typec/tipd/tps6598x.h
++++ b/drivers/usb/typec/tipd/tps6598x.h
+@@ -508,6 +508,8 @@ struct sn201202x {
+ 	bool ldcm_mitigated;
+ 	/* ldcm_mitigated matches the controller (unknown after a reset) */
+ 	bool ldcm_mitigation_known;
++	/* A mitigation was requested since the controller's last reset */
++	bool ldcm_requested;
+ };
+ 
+ extern const struct tipd_data *tipd_hw_variants[];
+-- 
+2.56.0
+
+From 873a954aad5e1128340f7789320e273152bce4ca Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Thu, 12 Nov 2026 12:19:50 -0700
+Subject: [PATCH 5/5] arm64: dts: apple: t6050: keep the PMP's power domains on
+
+The PMP's firmware runs from the moment its driver starts it, and in a
+suspend-to-idle the driver leaves it running: only a firmware-driven sleep
+stops it. Its three power states were ordinary genpd domains, though, so
+at the noirq phase of every s2idle genpd gated the PMP's core (pmp) and
+its SRAM (pms-sram) under the running firmware and then tried their parent
+(pms), which the PMGR refuses:
+
+  PS pms: Failed to reach power state 0x0 (requested 0xf0000f0, now: 0x1f0002ff)
+
+With power back at the wake the firmware usually takes a translation fault
+within the first moments (PC 0x10178b4, 0x1025498 or 0, every register
+zero) and reports a crash; it stays down until reboot, and prints its
+crash log again at each later wake. On the K116s that was 3 of the 4
+suspends that reached the noirq phase with a live PMP.
+
+Mark all three always-on, as the ADT's "critical" flag on PMP asks.
+Every other SoC description with a pms domain keeps it on, and those
+whose PMP Linux runs (T6030, T604x, T8122, T8132, T8140 and the T8142
+J813, which gained it for the same crash) keep pmp on. The PMP then
+keeps running through s2idle as it does under macOS, and the pms
+message goes away with the power-off request.
+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[thomas: name the SoCs that keep pms and pmp on]
+Signed-off-by: Thomas Glanzmann <thomas@glanzmann.de>
+---
+ arch/arm64/boot/dts/apple/t6050-peripherals.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
+index 4c803c77a130..5c4a029f5751 100644
+--- a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
++++ b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
+@@ -94,6 +94,12 @@ ps_pms: power-controller@100 {
+ 		#power-domain-cells = <0>;
+ 		#reset-cells = <0>;
+ 		label = "pms";
++		/*
++		 * The PMP's firmware runs from boot until a real sleep stops it, on its own
++		 * core (pmp, "critical" in the ADT) and out of its own SRAM (pms-sram): none
++		 * of the three may be gated under it, s2idle included.
++		 */
++		apple,always-on;
+ 		status = "disabled";
+ 	};
+ 	ps_pmp: power-controller@128 {
+@@ -103,6 +109,7 @@ ps_pmp: power-controller@128 {
+ 		#reset-cells = <0>;
+ 		label = "pmp";
+ 		power-domains = <&ps_pms>;
++		apple,always-on;
+ 		status = "disabled";
+ 	};
+ 	ps_pms_sram: power-controller@130 {
+@@ -112,6 +119,7 @@ ps_pms_sram: power-controller@130 {
+ 		#reset-cells = <0>;
+ 		label = "pms-sram";
+ 		power-domains = <&ps_pms>;
++		apple,always-on;
+ 		status = "disabled";
+ 	};
+ 	ps_fab0_piogw: power-controller@1d8 {
+-- 
+2.56.0
+
