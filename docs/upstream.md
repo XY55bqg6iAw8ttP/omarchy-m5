@@ -70,6 +70,7 @@ Each kernel builds on the one above it. v272-8 hung the logo install on its firs
 | v272-8 | the PMP's power domains stay on through s2idle | Jens Axboe, #1789 (open, sent by sithglan) | two clean s2idle cycles on a K116s |
 | v272-9 | `BT_RFCOMM`, `BT_RFCOMM_TTY`, `PKCS8_PRIVATE_KEY_PARSER` | chrisohearn, betizzel/omarchy-m5#9 | the bluetoothd and modules-load errors on his K114s |
 | v272-10 | three G17 fixes merged upstream after our pin | Diljit Singh, #1925, #1946, #1948 (merged) | merged into integration/aurora |
+| v272-11 | J714s clusters enforce the PMP's fast-die effort | DjDeveloperr, #1950 (open) | his J714s's default DT since 2026-11-14: sustained all-core 49-56 to 115-119 Gfma/s, CPU die 114 to 109 C |
 | hyprland-m5 0.57.2-3 | the latch members at the end of `CMonitor`, so stock-built plugins keep their offsets | chrisohearn's report betizzel/omarchy-m5#8 (fix 1 of 3) | built natively on the J714s; `offsetof(m_layerSurfaceLayers)` = 0x790, as in stock |
 
 ## Looked at and not taken (2026-11-15)

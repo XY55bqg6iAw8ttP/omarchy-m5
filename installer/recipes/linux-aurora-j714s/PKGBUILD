@@ -40,11 +40,13 @@
 #   0029-31  Diljit Singh's G17 fixes, merged upstream after the pin (#1925 b60e6ef1bc, #1946
 #            3ad9af366a, #1948 5c25150ed6): no lost-device report for a closed client's work, kept
 #            render graphs give back their pool pages, a refused render takes back idle pools
+#   0032     DjDeveloperr's #1950 (open): J714s clusters enforce the PMP's fast-die effort (his J714s:
+#            sustained all-core 49-56 -> 115-119 Gfma/s, CPU die 114 -> 109 C; his default DT since 11-14)
 # Same package name as the image's kernel (linux-aurora); the version sorts above up273.
 
 _auroraver=7.3.0
 _aurorarel=17.v272
-pkgrel=10
+pkgrel=11
 
 _commit=a5ebec5fd092327b16ff26366cb3840448285578
 
@@ -76,7 +78,7 @@ sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
             'e8d5c2a4877871cdc91e406e3547329996dc8bd2103b1cdb117fb8a88537f2a7'
-            '4a13b2f635584fb624e548d4aac7a21d433508a16ad9d5b47b8a86d835def255'
+            'cb2fdf7589df199b681d65cab26c6dfb5365acb04855101ca2274096eb6039c9'
             'a1d21c3c4803cfcc97edccc11b633f89367515e0f336dcacbdddc66782ff0157'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 
