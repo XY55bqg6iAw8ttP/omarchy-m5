@@ -1,0 +1,206 @@
+From b1692da738d76bb8d67adf747b185d47812049b5 Mon Sep 17 00:00:00 2001
+From: Diljit Singh <hey@djdev.me>
+Date: Sat, 14 Nov 2026 14:38:41 -0500
+Subject: [PATCH 1/3] drm/asahi: g17: do not report a closed client's
+ unfinished work as a lost device
+
+When a client closes its DRM file while one of its renders is still in
+the GPU, the queue teardown waits two seconds for that render and then
+fails it with ETIMEDOUT. The failure was logged as a render timeout and
+as a lost device of that client, although the client is gone and nothing
+can observe it. Killing a client whose render was queued behind another
+client's long ray-traversal pass could produce both lines.
+
+Treat the end of that wait like the other teardown errors of a closed
+client: a debug message, and no timeout report for the group unless
+verbose fault reporting is on. From then on the closed client's other
+ETIMEDOUT failures are treated the same way.
+
+The teardown cannot tell a render that was waiting its turn from one
+that was stuck, so a client killed while its own render hangs no longer
+leaves a warning. A hang that affects other clients is still reported
+through their watchdogs. A watchdog timeout of a client that is still
+there is reported as before, and so is the end of the wait for a client
+that only destroyed a queue.
+
+The host test that runs the status code on a host model follows the new
+field and function, and checks the rule: an open client still sees the
+end of its teardown wait, and a closed client's timeout is reported
+until such a wait has ended. One mutation covers the closed-client half.
+
+Signed-off-by: Diljit Singh <hey@djdev.me>
+(cherry picked from commit b60e6ef1bcc4ebbefae043a9ccc06ba015cd63da)
+---
+ .../drm/asahi/g17/runtime/render/settle.rs    |  8 +++-
+ drivers/gpu/drm/asahi/g17/status.rs           | 40 ++++++++++++++++---
+ tools/asahi/g15-input-error-tests.py          | 27 +++++++++++--
+ 3 files changed, 65 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/gpu/drm/asahi/g17/runtime/render/settle.rs b/drivers/gpu/drm/asahi/g17/runtime/render/settle.rs
+index 293d47bec11a..6bdc9e7c21e5 100644
+--- a/drivers/gpu/drm/asahi/g17/runtime/render/settle.rs
++++ b/drivers/gpu/drm/asahi/g17/runtime/render/settle.rs
+@@ -44,6 +44,8 @@ pub(in crate::g17) fn cancel_render(&self, packet: &Arc<Packet>) -> Result {
+             return Ok(());
+         }
+         if packet.is_published() {
++            // Not a watchdog's verdict: the queue went away before its work finished.
++            packet.completion.status().note_teardown_expired();
+             self.timeout_render(packet)
+         } else {
+             // The outer callback already completed a successful 0 -> 3
+@@ -90,7 +92,11 @@ pub(super) fn fail_render_packet(
+                     .as_mut()
+                     .and_then(|entry| entry.pair.as_mut())
+                 {
+-                    pair.report_timeout(stamps, state);
++                    if !packet.completion.status().unobserved_teardown(ETIMEDOUT)
++                        || crate::debug::debug_enabled(crate::debug::DebugFlags::VerboseFaults)
++                    {
++                        pair.report_timeout(stamps, state);
++                    }
+                     pair.expire_stamp_wait(packet, stamps, state)?;
+                 }
+             }
+diff --git a/drivers/gpu/drm/asahi/g17/status.rs b/drivers/gpu/drm/asahi/g17/status.rs
+index c0d905b83de0..54f5160f32f1 100644
+--- a/drivers/gpu/drm/asahi/g17/status.rs
++++ b/drivers/gpu/drm/asahi/g17/status.rs
+@@ -20,6 +20,9 @@ pub(crate) struct VmStatus {
+     reported_error: AtomicI32,
+     /// The client's VM handle is gone: no client can see a lost device any more.
+     client_closed: AtomicBool,
++    /// A queue of this VM went away while its work was still in the GPU, and the wait for that
++    /// work ended. Never cleared.
++    teardown_expired: AtomicBool,
+     /// A failure of this VM has been logged as a warning.
+     warned: AtomicBool,
+     /// A GPU recovery found this VM's work guilty.
+@@ -56,6 +59,7 @@ pub(crate) fn new() -> impl PinInit<Self> {
+             error: AtomicI32::new(0),
+             reported_error: AtomicI32::new(0),
+             client_closed: AtomicBool::new(false),
++            teardown_expired: AtomicBool::new(false),
+             warned: AtomicBool::new(false),
+             recovery_guilty: AtomicBool::new(false),
+             tgid,
+@@ -105,10 +109,11 @@ pub(crate) fn reported_error(&self) -> i32 {
+     ///
+     /// The first failure reported to a VM is logged once, with the reporting site: the client treats
+     /// any reported failure as a lost device, and nothing else in the kernel log names it.
+-    /// Teardown of a closed client fails its queued work with ENOENT (VM context gone) or
+-    /// ECANCELED (queue destroyed); nobody can see that, so it is only a debug message, and the
+-    /// first other failure of that VM, such as device loss (EIO, ETIMEDOUT, ENODEV), is still
+-    /// logged as a warning.
++    /// Teardown of a closed client fails its queued work with ENOENT (VM context gone),
++    /// ECANCELED (queue destroyed) or, when the wait for work still in the GPU ends
++    /// ([`Self::note_teardown_expired`]), ETIMEDOUT; nobody can see that, so it is only a debug
++    /// message, and the first other failure of that VM, such as device loss (EIO, ENODEV, or
++    /// ETIMEDOUT while no teardown wait of the VM has ended), is still logged as a warning.
+     #[track_caller]
+     pub(crate) fn report_failure(&self, error: Error) {
+         let first = self.reported_error.compare_exchange(
+@@ -152,8 +157,16 @@ pub(crate) fn report_failure(&self, error: Error) {
+     }
+ 
+     /// A teardown error of a client whose VM handle is already gone.
+-    fn unobserved_teardown(&self, error: Error) -> bool {
+-        (error == ENOENT || error == ECANCELED) && self.client_closed.load(Ordering::Acquire)
++    pub(crate) fn unobserved_teardown(&self, error: Error) -> bool {
++        self.client_closed.load(Ordering::Acquire)
++            && (error == ENOENT
++                || error == ECANCELED
++                || (error == ETIMEDOUT && self.teardown_expired.load(Ordering::Acquire)))
++    }
++
++    /// A queue teardown stopped waiting for this VM's work, which now fails with ETIMEDOUT.
++    pub(crate) fn note_teardown_expired(&self) {
++        self.teardown_expired.store(true, Ordering::Release);
+     }
+ 
+     /// Rejected submissions and contention leave the VM usable.
+@@ -229,6 +242,21 @@ fn only_a_closed_client_hides_teardown_errors() {
+         assert!(!status.unobserved_teardown(ENODEV));
+     }
+ 
++    #[test]
++    fn a_closed_client_hides_the_end_of_its_teardown_wait() {
++        let Ok(status) = KBox::pin_init(VmStatus::new(), GFP_KERNEL) else {
++            panic!("allocation failed");
++        };
++        // A client that only destroyed a queue still sees the failure.
++        status.note_teardown_expired();
++        assert!(!status.unobserved_teardown(ETIMEDOUT));
++        status.mark_client_closed();
++        assert!(status.unobserved_teardown(ETIMEDOUT));
++        assert!(!status.unobserved_teardown(EIO));
++        status.report_failure(ETIMEDOUT);
++        assert!(!status.warned.load(Ordering::Acquire));
++    }
++
+     #[test]
+     fn a_closing_file_hides_teardown_errors_before_its_vm_goes() {
+         let Ok(status) = KBox::pin_init(VmStatus::new(), GFP_KERNEL) else {
+diff --git a/tools/asahi/g15-input-error-tests.py b/tools/asahi/g15-input-error-tests.py
+index 9e56131381ae..0aa557e8dae8 100644
+--- a/tools/asahi/g15-input-error-tests.py
++++ b/tools/asahi/g15-input-error-tests.py
+@@ -43,9 +43,9 @@ struct Mirror{word:*mut i32}
+ struct BStr<'a>(&'a [u8]);
+ impl<'a> BStr<'a>{fn from_bytes(b:&'a [u8])->Self{Self(b)}}
+ impl std::fmt::Display for BStr<'_>{fn fmt(&self,f:&mut std::fmt::Formatter<'_>)->std::fmt::Result{write!(f,"{}",String::from_utf8_lossy(self.0))}}
+-struct VmStatus{error:AtomicI32,reported_error:AtomicI32,client_closed:AtomicBool,warned:AtomicBool,recovery_guilty:AtomicBool,tgid:i32,comm:[u8;16],mirror:Mutex<Option<Mirror>>}
++struct VmStatus{error:AtomicI32,reported_error:AtomicI32,client_closed:AtomicBool,teardown_expired:AtomicBool,warned:AtomicBool,recovery_guilty:AtomicBool,tgid:i32,comm:[u8;16],mirror:Mutex<Option<Mirror>>}
+ impl VmStatus {
+- fn new(word:*mut i32)->Self{Self{error:AtomicI32::new(0),reported_error:AtomicI32::new(0),client_closed:AtomicBool::new(false),warned:AtomicBool::new(false),recovery_guilty:AtomicBool::new(false),tgid:1,comm:*b"host-test\0\0\0\0\0\0\0",mirror:Mutex(StdMutex::new(Some(Mirror{word})))}}
++ fn new(word:*mut i32)->Self{Self{error:AtomicI32::new(0),reported_error:AtomicI32::new(0),client_closed:AtomicBool::new(false),teardown_expired:AtomicBool::new(false),warned:AtomicBool::new(false),recovery_guilty:AtomicBool::new(false),tgid:1,comm:*b"host-test\0\0\0\0\0\0\0",mirror:Mutex(StdMutex::new(Some(Mirror{word})))}}
+ __STATUS__
+ }
+ mod g17 {use super::*;__POLICY__}
+@@ -202,6 +202,26 @@ fn main(){
+   assert_eq!(fw.slots.releases,0);
+  }
+  assert_eq!(unrelated.vm.status.get(),0,"unrelated VM untouched");assert_eq!(unrelated.vm.status.reported_error(),0);assert_eq!(other_mirror.load(Ordering::SeqCst),0);assert_eq!(unrelated.fence.signals.load(Ordering::SeqCst),0);
++ {
++  // The end of a teardown wait is a failure nobody sees only once the client is closed; a
++  // closed client's other timeouts are still reported until such a wait has ended.
++  let mut word=0i32;let status=VmStatus::new(&mut word);
++  status.note_teardown_expired();
++  assert!(!status.unobserved_teardown(ETIMEDOUT),"an open client sees the end of its teardown wait");
++  status.report_failure(ETIMEDOUT);
++  assert!(status.warned.load(Ordering::SeqCst),"an open client's timeout is warned about");
++  let mut word=0i32;let status=VmStatus::new(&mut word);
++  status.client_closed.store(true,Ordering::SeqCst);
++  assert!(!status.unobserved_teardown(ETIMEDOUT),"a closed client's timeout is reported until a teardown wait ended");
++  assert!(status.unobserved_teardown(ECANCELED)&&status.unobserved_teardown(ENOENT));
++  status.note_teardown_expired();
++  assert!(status.unobserved_teardown(ETIMEDOUT)&&!status.unobserved_teardown(EIO));
++  status.report_failure(ETIMEDOUT);
++  assert!(!status.warned.load(Ordering::SeqCst),"a closed client's ended teardown wait is not warned about");
++  assert_eq!(status.reported_error(),ETIMEDOUT.to_errno(),"the failure is still recorded");
++  status.report_failure(EIO);
++  assert!(status.warned.load(Ordering::SeqCst),"a closed client's device loss is still warned about");
++ }
+  println!("PASS: production job/prefix/status bodies: input errors, binding reuse/release/retention, exhaustion retry, published-prefix lifetime and isolation");
+ }
+ '''
+@@ -236,7 +256,7 @@ def main():
+     code = PRELUDE.replace("__JOB__", bodies).replace("__STATUS__", "\n".join(
+         extract(status, marker) for marker in ["    pub(crate) fn get(", "    pub(crate) fn record(",
+         "    pub(crate) fn reported_error(", "    pub(crate) fn report_failure(",
+-        "    fn unobserved_teardown("])).replace(
++        "    pub(crate) fn unobserved_teardown(", "    pub(crate) fn note_teardown_expired("])).replace(
+         "__POLICY__", extract(policy, "pub(crate) fn inherited_error(")).replace(
+         "__PREFIX__", extract(engine, "    fn publish_prefix("))
+     variants = {"control": code}
+@@ -256,6 +276,7 @@ def main():
+             "binding-release-leaks": ("drop(self.binding.lock().take());", "let _ = self;", "release_binding must drop exactly once"),
+             "bound-job-rebinds": ("if slot.is_none() {", "if true {", "repeated bind must keep existing binding"),
+             "slot-exhaustion-not-retried": ("self.engine.slot_wait = true;", "self.engine.slot_wait = false;", "slot exhaustion must request retry"),
++            "closed-client-timeout-always-quiet": ("(error == ETIMEDOUT && self.teardown_expired.load(Ordering::Acquire))", "error == ETIMEDOUT", "a closed client's timeout is reported until a teardown wait ended"),
+             "published-prefix-releases-binding": ("if job.progress.next() == job.progress.sent() {", "if true {", "published prefix must retain binding on append failure"),
+         }
+         for name, (old, new, message) in changes.items():
+-- 
+2.56.0
+
