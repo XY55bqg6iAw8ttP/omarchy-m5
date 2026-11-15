@@ -18,7 +18,7 @@ Rules for sending:
 | T6050 PCIe: let the auto-PM storage domain gate itself | [aurora-silicon/aura#203](https://github.com/aurora-silicon/aura/pull/203) | merged 2026-11-13 |
 | drm/apple: soft-depend on the T6050 combo PHY module | [aurora-silicon/linux#1745](https://github.com/aurora-silicon/linux/pull/1745) | merged 2026-11-13 |
 | AVE: T6050 encoder on the 27.3 firmware | [aurora-silicon/linux#1747](https://github.com/aurora-silicon/linux/pull/1747) | merged 2026-11-13 |
-| ANE: T6050 on the 27.3 firmware | [aurora-silicon/linux#1746](https://github.com/aurora-silicon/linux/pull/1746) | open |
+| ANE: T6050 on the 27.3 firmware | [aurora-silicon/linux#1746](https://github.com/aurora-silicon/linux/pull/1746) | closed 2026-11-15 (27.3 beta; the 27.2 pin follows after the upstream 27.2 retarget) |
 | R1: two Omarchy installs on one disk share the boot filesystem IDs (issue, generator offered as one possible fix) | [omacom/omarchy-mac-installer#219](https://github.com/omacom/omarchy-mac-installer/issues/219) | issue opened 2026-11-14 |
 | J714s in the installer: the installer changes offered, with what they depend on (issue, not a PR: upstream's engine has no T6050 entry and its pinned kernel no T6050 device tree; plan in [upstream-installer-plan.md](upstream-installer-plan.md)) | [omacom/omarchy-mac-installer#221](https://github.com/omacom/omarchy-mac-installer/issues/221) | issue opened 2026-11-15 |
 | T1 + T2: J714s on 27.2 results, with FatBoy721's HDMI v2 and Jens Axboe's #1645 | [omacom/linux-aurora#293 comment](https://github.com/omacom/linux-aurora/issues/293#issuecomment-6886977253) | posted 2026-11-14 |
