@@ -8,6 +8,11 @@ with one installer**, test it on a real J714s, and say who made each part.
 
 **The image: [omarchy-j714s 5](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-5)** (prerelease).
 
+**Send your M5 work here.** If you have something working on an M5 Mac, open a pull request
+under your own name ([how](CONTRIBUTING.md)); keep your upstream pull request, and we drop our
+copy when it merges there. Every release is an edge prerelease: it works on the hardware listed
+as tested, and the known gaps are listed, not hidden.
+
 ---
 
 ## What works
