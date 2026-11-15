@@ -60,7 +60,7 @@ Nothing left here. Checked 2026-11-14:
 
 ## Gathered from others, built, waiting on a boot (2026-11-15)
 
-Each kernel builds on the one above it. v272-8 hung the logo install on its first boot (Omarchy logo, no disk prompt). On 2026-11-15 v272-8 (its own kernel and device tree) booted from RAM on the dev path (27.3 stub, older Aura) in about a minute, Wi-Fi up, so neither of its device-tree changes hangs a boot by itself; the logo install's hang is still to be explained (27.2 stub and its Stage 2). The logo ESP now has v272-7's device tree with v272-8's kernel, so the next boot shows which part hangs. Until then v272-9 and v272-10 are not installed.
+Each kernel builds on the one above it. v272-8 hung the logo install on its first boot (Omarchy logo, no disk prompt). On 2026-11-15 v272-8 (its own kernel and device tree) booted from RAM on the dev path (27.3 stub, older Aura) in about a minute, Wi-Fi up, so neither of its device-tree changes hangs a boot by itself; v272-11 booted the same way (about a minute, Wi-Fi up); the logo install's hang is still to be explained (27.2 stub and its Stage 2). The logo ESP now has v272-7's device tree with v272-8's kernel, so the next boot shows which part hangs. Until then v272-9 and v272-10 are not installed.
 
 | Kernel | Adds | Source | Their hardware evidence |
 | --- | --- | --- | --- |
@@ -68,9 +68,9 @@ Each kernel builds on the one above it. v272-8 hung the logo install on its firs
 | v272-8 | appledrm stops waiting on a DP tunnel the dock withdrew | Isaac-Duarte, #1930 (open) | his J714s with a Thunderbolt 5 dock |
 | v272-8 | no LDCM command to a dry SN201202x port | DjDeveloperr, #1721 (open) | 19 boots on a J714s |
 | v272-8 | the PMP's power domains stay on through s2idle | Jens Axboe, #1789 (open, sent by sithglan) | two clean s2idle cycles on a K116s |
-| v272-9 | `BT_RFCOMM`, `BT_RFCOMM_TTY`, `PKCS8_PRIVATE_KEY_PARSER` | chrisohearn, betizzel/omarchy-m5#9 | the bluetoothd and modules-load errors on his K114s |
+| v272-9 | `BT_RFCOMM`, `BT_RFCOMM_TTY`, `PKCS8_PRIVATE_KEY_PARSER` | chrisohearn, betizzel/omarchy-m5#9 | the bluetoothd and modules-load errors on his K114s. **Ours:** `rfcomm` and `pkcs8_key_parser` load on v272-11 |
 | v272-10 | three G17 fixes merged upstream after our pin | Diljit Singh, #1925, #1946, #1948 (merged) | merged into integration/aurora |
-| v272-11 | J714s clusters enforce the PMP's fast-die effort | DjDeveloperr, #1950 (open) | his J714s's default DT since 2026-11-14: sustained all-core 49-56 to 115-119 Gfma/s, CPU die 114 to 109 C |
+| v272-11 | J714s clusters enforce the PMP's fast-die effort | DjDeveloperr, #1950 (open) | his J714s's default DT since 2026-11-14: sustained all-core 49-56 to 115-119 Gfma/s, CPU die 114 to 109 C **Ours, 2026-11-15 (v272-11 from RAM, dev path):** the property is on all three performance controllers; with 15 busy cores for 90 s the clusters' `scaling_max_freq` follows the effort (P 4608 to 3648 to 3180 MHz) and TCMb holds 107-109 C |
 | hyprland-m5 0.57.2-3 | the latch members at the end of `CMonitor`, so stock-built plugins keep their offsets | chrisohearn's report betizzel/omarchy-m5#8 (fix 1 of 3) | **tested on the J714s** (dev Linux, nested): `offsetof(m_layerSurfaceLayers)` = 0x790 as in stock; with Omarchy's `omarchy-hyprland-titlebars 0.4.0-1` (edge, sha256 30683a99) and a background-layer surface, the plugin's `tools/verify.py` crashes 0.57.2-2 on the first titlebar press (SIGSEGV, `layerSurfaceAt` from `inputIsValid()+0x414`, as in #8) and passes all 10 checks on 0.57.2-3 with no crash report. Package sha256 531fc814 |
 
 ## Looked at and not taken (2026-11-15)
