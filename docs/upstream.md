@@ -57,3 +57,30 @@ Nothing left here. Checked 2026-11-14:
 | P2 | The left DFU port shows no plug event and no display in Linux | the port is device-only in our build; check upstream's device tree |
 | P3 | A DisplayPort cable plugged in at boot was not detected once (replug fixed it) | seen once on v272-7 |
 | P4 | Every installer image writes the same filesystem IDs | R1 works around it for the boot partitions; the root ID is still shared. Reported upstream in [omacom/omarchy-mac-installer#219](https://github.com/omacom/omarchy-mac-installer/issues/219) |
+
+## Gathered from others, built, waiting on a boot (2026-11-15)
+
+Each kernel builds on the one above it. v272-8 hung the logo install on its first boot (Omarchy logo, no disk prompt). The logo ESP now has v272-7's device tree with v272-8's kernel, so the next boot shows which part hangs. Until then v272-9 and v272-10 are not installed.
+
+| Kernel | Adds | Source | Their hardware evidence |
+| --- | --- | --- | --- |
+| v272-8 | J714s fans take a userspace target | Isaac-Duarte, aurora-silicon/linux #1944 (open) | his J714s: hotspot 114 C with the firmware curve, builds back to 47-57 s |
+| v272-8 | appledrm stops waiting on a DP tunnel the dock withdrew | Isaac-Duarte, #1930 (open) | his J714s with a Thunderbolt 5 dock |
+| v272-8 | no LDCM command to a dry SN201202x port | DjDeveloperr, #1721 (open) | 19 boots on a J714s |
+| v272-8 | the PMP's power domains stay on through s2idle | Jens Axboe, #1789 (open, sent by sithglan) | two clean s2idle cycles on a K116s |
+| v272-9 | `BT_RFCOMM`, `BT_RFCOMM_TTY`, `PKCS8_PRIVATE_KEY_PARSER` | chrisohearn, betizzel/omarchy-m5#9 | the bluetoothd and modules-load errors on his K114s |
+| v272-10 | three G17 fixes merged upstream after our pin | Diljit Singh, #1925, #1946, #1948 (merged) | merged into integration/aurora |
+| hyprland-m5 0.57.2-3 | the latch members at the end of `CMonitor`, so stock-built plugins keep their offsets | chrisohearn's report betizzel/omarchy-m5#8 (fix 1 of 3) | built natively on the J714s; `offsetof(m_layerSurfaceLayers)` = 0x790, as in stock |
+
+## Looked at and not taken (2026-11-15)
+
+| Item | Why not |
+| --- | --- |
+| DjDeveloperr's J714s deep-sleep series, up to #1785 | closed as a draft; its J714s validation was still in progress, and the loader data it needs is not in Aura |
+| #1947 dwc3: stop a host for deep sleep outside the PM notifier chain | only matters once deep sleep is the default (the series above); the standalone commit is compile-tested only |
+| #1618 PCI: mask Clock PM on adopted T6050 endpoints | evidence is from a J775c bisection; the rebased head was not booted, and no J714/J716 result |
+| #1873 drm/apple: alpha-only formats on the T6050 internal primary plane | its boot check on the M5 is listed as not verified yet |
+| #1698 nvme: post-M4 ANS keep-live across s2idle, opt-in | draft; its default-off rework was not rebuilt or booted |
+| aura #214 T6050 SIO tables and sleep wake sources | no J714s test given; feeds deep sleep, which is not in our tree |
+| aura #230 GPU firmware-version hint (merged) | only removes harmless log lines on 27.2; goes in with the next Aura bump |
+| satchlj `t6050-smc-key-inventory` | read-only SMC key dump for research, no user-facing change |
