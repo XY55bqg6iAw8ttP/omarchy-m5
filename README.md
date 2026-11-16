@@ -43,10 +43,10 @@ heard on release 5's kernel (v272-7, 2026-11-14) and have not been re-checked by
 | DisplayPort over USB-C, right port | ❌ the link does not come up (640x480 fallback only) | open |
 | DisplayPort over USB-C, left DFU port | ❌ nothing shows in Linux; no charging or USB there either | open (Isaac-Duarte's aurora-silicon/linux #2017 describes the port) |
 | Thunderbolt dock, three displays | untested (release 6 adds Isaac-Duarte's dark-display fix, #1930) | Isaac-Duarte |
-| Front camera | 🟡 device up, tuning files collected from macOS at boot; no picture checked yet | edimoldovan, Jens Axboe, sithglan, Erik Bourget, DjDeveloperr |
+| Front camera | ✅ 1920x1080 at 30 fps, a sharp picture (checked 2026-11-16, kernel v272-12); colours have a slight cast in dim light | edimoldovan, Jens Axboe, sithglan, Erik Bourget, DjDeveloperr |
 | Neural Engine | 🟡 device up; no workload run | DjDeveloperr, Joshua Warren, Nick, this repo |
 | Hardware video encode | ❌ probe only on 27.2 | DjDeveloperr, this repo |
-| Hardware video decode | untested on 27.2 | DjDeveloperr |
+| Hardware video decode | ✅ H.264 and HEVC through the AVD decoder, 60 of 60 test frames bit-identical to software (2026-11-16); until firmware j714s14 ships, VA-API apps need `LIBVA_DRIVER_NAME=asahi` | DjDeveloperr |
 | Touch ID | untested on 27.2 (worked on the earlier 27.3 build; writes the Secure Enclave store macOS shares, read [the warning](installer/recipes/aurora-sep-upstream/README.md)) | DjDeveloperr, aurora-silicon |
 | Variable refresh on the panel | 🟡 offered to the compositor; not checked by eye | rolotrealanis98 |
 | Firewall (`ufw`) | ✅ | this repo, chrisohearn (report) |
