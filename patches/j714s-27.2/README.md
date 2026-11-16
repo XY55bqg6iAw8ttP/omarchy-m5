@@ -15,7 +15,8 @@ Status (2026-11-16, latest): v272-15: re-pinned to aurora-silicon/linux `integra
 0025-0027 renumbered 0024-0026 (#1930, #1721). One context conflict: 0026 (#1721) in `tps6598x.h`, where #2039
 (the J714s MagSafe port registered again) removed `sleep_only`; only `ldcm_requested` is added now. New upstream:
 DjDeveloperr's J714s deep-sleep completion (#2027-#2030: display coprocessor restart during the wake, its DART and
-power words, the J714s deep-sleep SoC data; all gated on `pm_suspend_via_firmware()`, so idle in s2idle), dwc3
+power words, the J714s deep-sleep SoC data; the DCP wake code is built only with `CONFIG_APPLE_SOC_SLEEP`, so it is
+compiled out here, and its entry points are gated on `pm_suspend_via_firmware()`), dwc3
 teardown out of the PM notifier chain (#1947), the rtkit crash log, the merged-mode platform limit (#2035; it
 withdraws pair-only modes only with three external displays), the DP tunnel clock (#2036), DPTX DP IN naming
 (#2037), the host DP IN bandwidth allocation (#2038), the ATC tunnel PHY (#2033) and the MagSafe port (#2039).
