@@ -52,6 +52,11 @@ Open: the J714s boot test (install with `pacman -U` of the v272-4 package; the h
 `m1n1/boot.bin` and copy it to `m1n1/boot-ctxr.bin`), then the next image. chrisohearn will report
 his K114s Stage 2 trial on #18.
 
+**Through a reboot and shipped (2026-11-16).** m1n1-aurora v272-4 has been boot-tested on
+TripleU613's J714s since 2026-11-16 with kernel v272-17, firmware j714s14 and hyprland-m5 0.57.2-4.
+It went into [release 9](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-9)
+(`installer/patches-j714s-r2/0012`). In image 9, `m1n1/boot-ctxr.bin` is 10,242,983 bytes (`26ac14e2…`, with v272-17's device trees). The image's Stage 1 files differ from image 8's and have not been enrolled on a Mac yet (package updates never enroll Stage 1).
+
 ## 2026-11-15: #16, one boot guard for every M5 board (chrisohearn)
 
 [#16](https://github.com/betizzel/omarchy-m5/pull/16) from chrisohearn generalises the #11 guard:

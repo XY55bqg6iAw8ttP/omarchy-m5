@@ -6,9 +6,10 @@ We don't reinvent anything. A lot of people are getting Linux running on the M5 
 in their own repo. We collect the parts that already work, put them together in **one image
 with one installer**, test it on a real J714s, and say who made each part.
 
-**The image: [omarchy-j714s 8](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-8)** (prerelease): lid sleep (light
-sleep, s2idle) on kernel v272-12, and chrisohearn's boot guard for every M5 board (it refuses to let
-pacman replace the kernel, m1n1, U-Boot or firmware package with builds that don't boot this Mac).
+**The image: [omarchy-j714s 9](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-9)** (prerelease): kernel v272-17
+on a newer aurora-silicon/linux (DisplayPort audio on docks), hardware video decode without settings
+(firmware j714s14), chrisohearn's Hyprland EDID guard (#24) and Aura 0008 (#18). Lid sleep (s2idle)
+and the boot guard for every M5 board are kept from release 8.
 
 **Send your M5 work here.** If you have something working on an M5 Mac, open a pull request
 under your own name ([how](CONTRIBUTING.md)); keep your upstream pull request, and we drop our
@@ -21,13 +22,13 @@ as tested, and the known gaps are listed, not hidden.
 
 Checked on one J714s (TripleU613's) on Apple's 27.2 firmware. On 2026-11-15 release 6 was
 installed **from scratch** there: the installer shrank macOS, installed, Finish setup in Recovery
-worked and the first boot came up on kernel v272-11. Release 8's kernel (v272-12) and firmware
-(j714s13) were then installed by package on that install and booted; lid sleep works there.
-"Seen" and "heard" mean its owner looked or listened; the display and speaker rows were seen and
-heard on release 5's kernel (v272-7, 2026-11-14) and have not been re-checked by eye or ear since
-(no monitor was attached on v272-12).
+worked and the first boot came up on kernel v272-11. Release 8's kernel (v272-12) and then
+release 9's four packages (kernel v272-17, firmware j714s14, hyprland-m5 0.57.2-4, m1n1-aurora
+v272-4) were installed by package on that install and booted (2026-11-16). "Seen" and "heard" mean
+its owner looked or listened; HDMI was seen again on v272-16, the speakers were heard on release 5's
+kernel (v272-7) and USB-C DisplayPort was last seen there too.
 
-| Thing | Release 6 to 8 | Whose work |
+| Thing | Release 6 to 9 | Whose work |
 | --- | --- | --- |
 | Boots from the Mac's own disk, all 15 CPU cores at EL2 | ✅ | aurora-silicon, DjDeveloperr, rolotrealanis98, betizzel, RyanTheTide |
 | Keyboard, backlight, trackpad | ✅ | rolotrealanis98, edimoldovan |
@@ -38,19 +39,21 @@ heard on release 5's kernel (v272-7, 2026-11-14) and have not been re-checked by
 | Speakers, with speaker protection | ✅ heard at the first-start 30% (release 5's kernel); on release 6's fresh install the switch-over to speakerguardd v2 ran too early at first boot and passed when run by hand (fixed in 7: it waits for the speaker card; not yet seen through a first boot); nobody has played loud yet | DjDeveloperr (speakerguardd v2), Jens Axboe (27.2 AOP fix) |
 | Microphones | 🟡 very faint | edimoldovan, kazuhidet |
 | Headphone jack | untested on 27.2 | rolotrealanis98, edimoldovan |
-| HDMI | ✅ seen on a Samsung Odyssey G9: 5120x1440 at 60/120/144 Hz, 3840x2160 at 60 Hz (release 5's kernel; not re-checked on 6 to 8 yet) | FatBoy721 |
-| DisplayPort over USB-C, the left port that is not the DFU port | ✅ seen: 5120x1440 at 144 Hz, 10-bit (release 5's kernel; not re-checked on 6 to 8 yet) | DjDeveloperr, erikwb, this repo |
+| HDMI | ✅ seen on a Samsung Odyssey G9: 5120x1440 at 60/120/144 Hz, 3840x2160 at 60 Hz (release 5's kernel); 5120x1440 at 60 Hz again on v272-16 (2026-11-16). After a lid sleep HDMI stays dark until a reboot ([#22](https://github.com/betizzel/omarchy-m5/issues/22), FatBoy721 is working on it) | FatBoy721 |
+| DisplayPort over USB-C, the left port that is not the DFU port | ✅ seen: 5120x1440 at 144 Hz, 10-bit (release 5's kernel; not re-checked on 6 to 9 yet) | DjDeveloperr, erikwb, this repo |
 | DisplayPort over USB-C, right port | ❌ the link does not come up (640x480 fallback only) | open |
 | DisplayPort over USB-C, left DFU port | ❌ nothing shows in Linux; no charging or USB there either | open (Isaac-Duarte's aurora-silicon/linux #2017 describes the port) |
-| Thunderbolt dock, three displays | untested (release 6 adds Isaac-Duarte's dark-display fix, #1930) | Isaac-Duarte |
+| Thunderbolt dock, three displays | untested (Isaac-Duarte's dock route #1921 and dark-display fix #1930 are upstream now) | Isaac-Duarte |
+| DisplayPort audio | 🟡 three DP audio cards on v272-17 (release 9); nothing played through them yet | DjDeveloperr (#2079) |
 | Front camera | ✅ 1920x1080 at 30 fps, a sharp picture (checked 2026-11-16, kernel v272-12); colours have a slight cast in dim light | edimoldovan, Jens Axboe, sithglan, Erik Bourget, DjDeveloperr |
 | Neural Engine | 🟡 device up; no workload run | DjDeveloperr, Joshua Warren, Nick, this repo |
 | Hardware video encode | ❌ probe only on 27.2 | DjDeveloperr, this repo |
-| Hardware video decode | ✅ H.264 and HEVC through the AVD decoder, 60 of 60 test frames bit-identical to software (2026-11-16); until firmware j714s14 ships, VA-API apps need `LIBVA_DRIVER_NAME=asahi` | DjDeveloperr |
+| Hardware video decode | ✅ H.264 and HEVC through the AVD decoder, 60 of 60 test frames bit-identical to software (2026-11-16); by default since release 9 (firmware j714s14): VA-API lists 8 profiles with no environment variable | DjDeveloperr |
 | Touch ID | ✅ enrol and match on 27.2 (2026-11-16, kernel v272-15; owner opt-in, writes the Secure Enclave store macOS shares, read [the warning](installer/recipes/aurora-sep-upstream/README.md)); match after a reboot not yet checked | DjDeveloperr, aurora-silicon |
 | Variable refresh on the panel | 🟡 offered to the compositor; not checked by eye | rolotrealanis98 |
+| Hyprland colour management on displays with degenerate EDID colour data | ✅ the primaries are treated as missing, so the panel isn't blanked (hyprland-m5 0.57.2-4, release 9; [#21](https://github.com/betizzel/omarchy-m5/issues/21) was seen on a K114s OLED) | chrisohearn (#24) |
 | Firewall (`ufw`) | ✅ | this repo, chrisohearn (report) |
-| Sleep | 🟡 lid sleep works (s2idle, release 8: two sleeps, 3 s and 3 min 37 s; after the wake the panel, Wi-Fi, Bluetooth, sound and both working USB-C ports came back). Deep sleep is off in this build: upstream, the panel stays dark after a deep-sleep wake | Isaac-Duarte (#2012, #2018), Jens Axboe and sithglan (#1647), DjDeveloperr (#1963) |
+| Sleep | 🟡 lid sleep works (s2idle, release 8: two sleeps, 3 s and 3 min 37 s; after the wake the panel, Wi-Fi, Bluetooth, sound and both working USB-C ports came back). Deep sleep is off in this build: upstream, the panel stays dark after a deep-sleep wake. With an external display plugged in, closing the lid does not sleep (logind treats it as docked) | Isaac-Duarte (#2012, #2018), Jens Axboe and sithglan (#1647), DjDeveloperr (#1963) |
 | Fans | ✅ Linux can set fan targets (tested: target 3000 gave 2989 rpm) | Isaac-Duarte (#1944) |
 | Sustained CPU load | ✅ the clusters follow the fast-die limit; the die held 107–109 C with 15 busy cores | DjDeveloperr (#1950) |
 | Updates (`omarchy update`) | ✅ checked in CI ([`update-check`](.github/workflows/update-check.yml)) | this repo |
@@ -71,7 +74,7 @@ It runs on a Mac, not from a Linux PC. You need:
 - **macOS 27.2 or newer** on it, FileVault on, an administrator account.
 - About **35 GB free** on the Mac's disk, the charger, and about an hour.
 
-Steps (the [release page](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-8) has every detail):
+Steps (the [release page](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-9) has every detail):
 
 1. **Download** the installer package from the release (online: small; offline: the `.partN`
    files joined) and check it against `SHA256SUMS`.

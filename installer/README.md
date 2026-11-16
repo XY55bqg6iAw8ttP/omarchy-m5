@@ -145,6 +145,7 @@ and light-sensor calibration).
 | 0009 | experimental, tested on one machine: the K114s (14-inch OLED, M5 Pro, `apple,k114s`) as a developer board: engine `k114sap` (27.2, board 0x14, the 26B8125 stub row, `stage1-k114s` Mach-O members, K-board trackpad firmware collection), `supported-models.json` and tests; engine `v0.9.2-omarchy.20261115.c979ebe82723`; TREE `fdd3eb0e`. Admission alone gives a keyboard-only system and there is no K114s image here: see [`docs/boards/k114s.md`](../docs/boards/k114s.md). The matching `make-release-inputs.py --board apple,k114s` and `CHECK_APP_BOARD=apple,k114s` (for `check-app.sh`) are in [`app/`](app); the default stays the J714s |
 | 0010 | the engine's firmware rebuild path (`action_rebuild_vendorfw`) picks the 27.2 row for this device class, not the first 27.2 row: a K114s gets 26B8125, a J714s still 26B123 (`omarchy_firmware.installed_ipsw`); engine `v0.9.2-omarchy.20261115.d33f2cef00c4`; TREE `764b1ee1`. Built and unit-tested only: not run on a Mac |
 | 0011 | release 8: `linux-aurora 7.3.0.aurora17.v272-12` (`integration/aurora` c0a2a752 + kernel 0001–0032: v272-11 rebased plus the J714s s2idle stack, Jens Axboe's #1647 and Isaac-Duarte's #2012 and #2018; four patches now upstream dropped; `CONFIG_APPLE_SOC_SLEEP` off), `d2dcbe31…`, 44289449 bytes, from 9b74652; `omarchy-aurora-firmware 20261014.j714s13` (chrisohearn's shared M5 boot guard, #16), `af8a8d00…`, 55533 bytes, from 82d914e; set `j714s-dev-runtime-fd29d86c50ef`; qualification pins `7.3.0-17.v272-12-ARCH`; TREE `b52db128` |
+| 0012 | release 9: `linux-aurora 7.3.0.aurora17.v272-17` (`integration/aurora` 677be395 + kernel 0001–0020; twelve patches now upstream dropped since v272-12; chrisohearn's network options, #19; `CONFIG_APPLE_SOC_SLEEP` off), `6d7adebd…`, 44463376 bytes, from d89b688; `omarchy-aurora-firmware 20261014.j714s14` (VA-API decoder link), `d50de8e7…`, 55694 bytes, from eb98945; `hyprland-m5 0.57.2-4` (chrisohearn's EDID guard, #24), from 6e48e58, the J714s-built `.pkg.tar.xz` (`ec014c6a…`) recompressed to zstd with the same tar inside (`396e77cb…`), `38e8bbfd…`, 51121267 bytes; `m1n1-aurora 1.6.1.aurora24.v272-4` (Aura 0008, chrisohearn's #18), `4436dcd1…`, 2427423 bytes, from 7306169; set `j714s-dev-runtime-7bb16931891c`; qualification pins `7.3.0-17.v272-17-ARCH`; TREE `521b4e53` |
 
 Built (2026-11-13):
 - Engine: release `engine-v0.9.2-omarchy.20261113.774d9abc59d3`.
@@ -263,3 +264,21 @@ v272-12 (no monitor attached). The j714s13 guard tests are in
 [`docs/maintenance.md`](../docs/maintenance.md#2026-11-15-16-one-boot-guard-for-every-m5-board-chrisohearn).
 Release 8's image has not been installed from scratch, and the new engine has not run an install
 on a Mac.
+
+## omarchy-j714s 9 (built 2026-11-16)
+
+Release 8 plus `patches-j714s-r2` 0012 (above): kernel v272-17, firmware j714s14, hyprland-m5
+0.57.2-4 and m1n1-aurora v272-4 (Aura 0008). Same U-Boot, engine (`v0.9.2-omarchy.20261115.d33f2cef00c4`)
+and Recovery app (run 43477703681; `Recovery/` tree still `2f10aee7`) as release 8; the other 16
+packages in the signed set are byte-identical to release 8's. Outside the signed set, three packages resolved newer than in release 8's image: alsa-ucm-conf 1.2.16.1.r45.gd260eed-6 (was -5), omasnap 1.26.2-4 (was -2) and signed 0.3.2-3 (was -2).
+
+- Inputs: release `installer-build-inputs-j714s-1d1d022ac1f9` (finish-inputs on the tree `rebuild-installer-tree.sh DEST upstream-27.3 j714s j714s-r2` makes, HEAD 3469845); the four changed packages are also attached there on their own for `pacman -U` on releases 2 to 8.
+- Image: `installer-image.yml` run 43946506201 (headSha 4787622, `image-version` 9) → release `j714s-developer-image-omarchy-j714s-9`, `omarchy-j714s-9-aarch64-apple-silicon-mac-os-package.zip` sha256 `4cf22e853218bf36a830ed4661822c3a2cfaca53bcbdb6c183d22965bbd64b1a`. Inspection and provenance checks passed; `m1n1/boot-ctxr.bin` is 10242983 bytes, sha256 `26ac14e26c4466f2cdb6f61b387215e618ff0ac623c7d857a744526fe8617acc` (Aura v272-4 with v272-17's device trees; the size predicted in the v272-17 build record for all DTBs carried), under the 11 MB Stage 1 loader limit; not compared with the file on TripleU613's J714s for this release. `esp/aurora/stage1-j714s.{bin,macho}` differ from release 8's (Aura 0008; same sizes) and have not been enrolled on a Mac. The boot guard did not run during the build.
+- update-check: run 43949971465. `pacman -Syu` kept every J714s package and upgraded one other, `limine-mkinitcpio-hook` 1.40.0-3 → 1.41.0-1 (as in releases 7 and 8). The guard was not triggered; the ESP hook ran and did nothing.
+- App: `installer-app.yml` run 43949976600 (app 2.3.16 build 2611162029) → prerelease `omarchy-j714s-9`. `check-app.sh` passed for both variants. The sealed catalogs (run evidence) list only `apple,j714s`, with engine `v0.9.2-omarchy.20261115.d33f2cef00c4` (`eac6cf71…`), `payloadDigest` `4cf22e85…` and `metadataDigest` `252db0e4…`; a local `make-release-inputs.py` run (throwaway key) on the same tree, engine and image gave the same.
+
+The four packages were installed by package on TripleU613's J714s and booted (2026-11-16): GPU
+initialised, speakerguardd v2 owns the speakers, VA-API decode (8 profiles) with no environment
+variable, Wi-Fi, no failed units, `mem_sleep` `[s2idle]`, three DisplayPort audio cards (#2079).
+HDMI to a Samsung Odyssey G9 at 5120x1440 at 60 Hz was seen on v272-16. Known: HDMI stays dark
+after an s2idle wake until a reboot (#22). Release 9's image has not been installed from scratch.
