@@ -1,4 +1,4 @@
-From 03137aa4f2578b7aaf93956f28e306ac737ccfc2 Mon Sep 17 00:00:00 2001
+From 9f324623fb3a57f7826bc980ff0045b0ec0ea639 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 10:56:02 -0500
 Subject: [PATCH 01/20] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
@@ -66,7 +66,7 @@ index c7d2e84797cf..c043a8bd97a9 100644
          for image in builds.iter().flat_map(|build| build.images) {
              // Both roles' records, inside TEXT.
 diff --git a/drivers/gpu/drm/asahi/g17/fw/m5/initdata.rs b/drivers/gpu/drm/asahi/g17/fw/m5/initdata.rs
-index e4de37f63957..007f34df0cc3 100644
+index b5e8ce3cebc2..79a541290112 100644
 --- a/drivers/gpu/drm/asahi/g17/fw/m5/initdata.rs
 +++ b/drivers/gpu/drm/asahi/g17/fw/m5/initdata.rs
 @@ -10,6 +10,7 @@
@@ -669,7 +669,7 @@ index e4de37f63957..007f34df0cc3 100644
  impl Graph {
      pub(crate) fn is_common26(&self) -> bool {
          self.profile == RootProfile::J873G18G26A428
-@@ -2320,16 +2709,24 @@ pub(crate) struct Board {
+@@ -2313,16 +2702,24 @@ pub(crate) struct Board {
  
  /// Populate the enabled-USC count from the device's sampled core masks.
  /// This count covers the whole device, not one cluster.
@@ -699,7 +699,7 @@ index e4de37f63957..007f34df0cc3 100644
      Ok(())
  }
  
-@@ -2337,6 +2734,218 @@ pub(crate) fn set_m5_enabled_cores(board: &Board, out: &mut [u8], enabled: u32)
+@@ -2330,6 +2727,218 @@ pub(crate) fn set_m5_enabled_cores(board: &Board, out: &mut [u8], enabled: u32)
  
  pub(crate) const M5_POLICY_AON_PTD_PTR: usize = 0x11a1c;
  
@@ -918,7 +918,7 @@ index e4de37f63957..007f34df0cc3 100644
  pub(crate) const J714_GPU_POWER_SAMPLE_PERIOD_AIC_CLOCKS: u32 = 200_000;
  
  pub(crate) const J714_GPU_PERF_BASE_PSTATE: u32 = 1;
-@@ -2765,13 +3374,14 @@ pub(crate) fn encode_m5_register_map(
+@@ -2758,13 +3367,14 @@ pub(crate) fn encode_m5_register_map(
  }
  
  pub(crate) fn encode_m5_hw_data(
@@ -934,7 +934,7 @@ index e4de37f63957..007f34df0cc3 100644
          return Err(InitdataError::BufferSize);
      }
      required_address(qos_high)?;
-@@ -2869,6 +3479,49 @@ pub(crate) fn encode_m5_hw_data(
+@@ -2862,6 +3472,49 @@ pub(crate) fn encode_m5_hw_data(
      }
      // The inherited J813 minimum parameter-buffer size is replaced per board.
      put_u32(out, hw_offset(board, 0x26b0), board.min_parameter_buffer);
@@ -984,7 +984,7 @@ index e4de37f63957..007f34df0cc3 100644
      Ok(())
  }
  
-@@ -2921,41 +3574,93 @@ pub(crate) fn encode_m5_region_c(out: &mut [u8]) -> Result<(), InitdataError> {
+@@ -2914,41 +3567,93 @@ pub(crate) fn encode_m5_region_c(out: &mut [u8]) -> Result<(), InitdataError> {
      Ok(())
  }
  
@@ -1089,7 +1089,7 @@ index e4de37f63957..007f34df0cc3 100644
      if out.len() != layout.total {
          return Err(InitdataError::BufferSize);
      }
-@@ -2975,8 +3680,14 @@ pub(crate) fn encode_m5_private_cluster(
+@@ -2968,8 +3673,14 @@ pub(crate) fn encode_m5_private_cluster(
      out.fill(0);
      let status_b = layout.status_b;
      let status_a = layout.roles[0].status_a;
@@ -1106,7 +1106,7 @@ index e4de37f63957..007f34df0cc3 100644
      for role in layout.roles {
          encode_status_block(&mut out[role.status_a..role.status_a + STATUS_BLOCK_SIZE])?;
      }
-@@ -2992,23 +3703,25 @@ pub(crate) fn encode_m5_private_cluster(
+@@ -2985,23 +3696,25 @@ pub(crate) fn encode_m5_private_cluster(
  }
  
  pub(crate) fn encode_m5_bundle_policy(
@@ -1136,7 +1136,7 @@ index e4de37f63957..007f34df0cc3 100644
      put_u32(policy, 0x04, J714_GPU_POWER_SAMPLE_PERIOD_AIC_CLOCKS);
      put_u32(policy, 0x08, J714_GPU_POWER_SAMPLE_PERIOD_AIC_CLOCKS);
  
-@@ -3047,6 +3760,14 @@ pub(crate) fn encode_m5_bundle_policy(
+@@ -3040,6 +3753,14 @@ pub(crate) fn encode_m5_bundle_policy(
      Ok(())
  }
  
@@ -1148,10 +1148,10 @@ index e4de37f63957..007f34df0cc3 100644
 +        .ok_or(InitdataError::BufferSize)
 +}
 +
- /// Initial controller inputs for J714 with the matched calibration.
- pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(), InitdataError> {
-     if out.len() < M5_SHARED_PREFIX_SIZE { return Err(InitdataError::BufferSize); }
-@@ -3065,7 +3786,7 @@ pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(),
+ /// Initial controller inputs for J714, applied on every part. The leakage inputs are those of the
+ /// part they were read from (calibration words 0xd2035701 0xac3a1280 0x0a281d81). The firmware
+ /// holds its power estimate, not the draw, to the maximum: a part that leaks more draws more than
+@@ -3061,7 +3782,7 @@ pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(),
          0x42b6ec22, 0x42c80000, 0x00000000, 0x00000000,
      ];
      for (index, &value) in RELATIVE_POWER_AUX.iter().enumerate() { put_u32(out, 0x1a64 + index * 4, value); }
@@ -1160,7 +1160,7 @@ index e4de37f63957..007f34df0cc3 100644
      const INITIAL: &[(usize, u32)] = &[
          (0xd4, 0x3f828f5c),
          (0xd8, 0x3f828f5c),
-@@ -3316,7 +4037,7 @@ pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(),
+@@ -3312,7 +4033,7 @@ pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(),
  /// tags.
  pub(crate) fn encode_m5_policy_controller_defaults_j716c(out: &mut [u8]) -> Result<(), InitdataError> {
      encode_m5_policy_controller_defaults(out)?;
@@ -1169,7 +1169,7 @@ index e4de37f63957..007f34df0cc3 100644
      const MAXIMUM_POWER: u32 = 196_098;
      const MAXIMUM_POWER_F32: u32 = 0x483f_8080;
      for offset in [M5_POLICY_MAXIMUM_POWER, 0xad0, 0x44a4, 0x44a8, 0x44ac, 0x45e4] {
-@@ -3355,7 +4076,7 @@ pub(crate) fn encode_m5_policy_controller_defaults_j775d(out: &mut [u8]) -> Resu
+@@ -3351,7 +4072,7 @@ pub(crate) fn encode_m5_policy_controller_defaults_j775d(out: &mut [u8]) -> Resu
          0x421c_12dd, 0x4230_6915, 0x4250_6a36, 0x427d_e40c, 0x4294_0cc0, 0x42bd_bd8e, 0x42c8_0000,
      ];
      for (index, &value) in RELATIVE_POWER_AUX.iter().enumerate() { put_u32(out, 0x1a64 + index * 4, value); }
@@ -1179,7 +1179,7 @@ index e4de37f63957..007f34df0cc3 100644
      const MAXIMUM_POWER_F32: u32 = 0x48a8_95c0;
      for offset in [M5_POLICY_MAXIMUM_POWER, 0xad0, 0x44a4, 0x44a8, 0x44ac, 0x45e4] {
 diff --git a/drivers/gpu/drm/asahi/g17/fw/variant.rs b/drivers/gpu/drm/asahi/g17/fw/variant.rs
-index 2a068faa2728..53f7713b4e09 100644
+index 7c3ee790dc94..a2636a9f99e6 100644
 --- a/drivers/gpu/drm/asahi/g17/fw/variant.rs
 +++ b/drivers/gpu/drm/asahi/g17/fw/variant.rs
 @@ -36,6 +36,22 @@ pub(crate) enum InitGraph {
@@ -1205,35 +1205,35 @@ index 2a068faa2728..53f7713b4e09 100644
  #[derive(Copy, Clone, Debug, PartialEq, Eq)]
  pub(crate) enum QueueRegistration {
      Firmware,
-@@ -100,6 +116,8 @@ pub(crate) struct Variant {
-     /// Pro only: the M4 Pro and Max keep the first-render claim until the claim at creation has
-     /// been tested on that hardware.
-     pub(crate) render_id_at_create: bool,
+@@ -107,6 +123,8 @@ pub(crate) struct Variant {
+     /// an M4 Pro crash on a recycled work state; extending this needs a create/destroy-heavy
+     /// queue test on that hardware.
+     pub(crate) objects_after_release: bool,
 +    /// The InitData layouts the M5 graph must build for this firmware; `None` off M5.
 +    pub(crate) m5_layouts: Option<M5Layouts>,
  }
  
  /// A firmware build a SoC supports, identified by its loaded TEXT.
-@@ -153,6 +171,7 @@ pub(crate) enum Firmware {
-     m5_commands: false,
+@@ -161,6 +179,7 @@ pub(crate) enum Firmware {
      registration_power_hold: true,
      render_id_at_create: true,
+     objects_after_release: true,
 +    m5_layouts: None,
  };
  
  /// The M4 Pro firmware (25G83, `mBoot-18000.161.10`).
-@@ -192,6 +211,7 @@ pub(crate) enum Firmware {
-     m5_commands: false,
+@@ -201,6 +220,7 @@ pub(crate) enum Firmware {
      registration_power_hold: true,
      render_id_at_create: false,
+     objects_after_release: false,
 +    m5_layouts: None,
  };
  
  /// The 26A428 firmware of the M5 GPUs, which runs the M5 protocol (the M5 graph, queues and
-@@ -203,9 +223,23 @@ pub(crate) enum Firmware {
-     render_ray_query: false,
+@@ -213,9 +233,23 @@ pub(crate) enum Firmware {
      registration_power_hold: false,
      render_id_at_create: false,
+     objects_after_release: false,
 +    m5_layouts: Some(M5Layouts::V26A428),
      ..V26A428
  };
@@ -1282,7 +1282,7 @@ index c505bbd5b3b4..1f678929e2c3 100644
              _single_publisher: core::marker::PhantomData,
              aliases: KVec::new(),
 diff --git a/drivers/gpu/drm/asahi/g17/initdata/m5.rs b/drivers/gpu/drm/asahi/g17/initdata/m5.rs
-index 5c3200fefce1..d1e26e0b44e6 100644
+index cf6f8e3f8650..76db53bc1184 100644
 --- a/drivers/gpu/drm/asahi/g17/initdata/m5.rs
 +++ b/drivers/gpu/drm/asahi/g17/initdata/m5.rs
 @@ -52,7 +52,16 @@ pub(in crate::g17) fn m5_lower_links(canonical: core::ops::Range<u64>, graph: &m
@@ -1426,21 +1426,15 @@ index 5c3200fefce1..d1e26e0b44e6 100644
              .map_err(|_| EINVAL)?;
          let bindings = m::M5PolicyBindings {
              state: PRIVATE + private.policy_state as u64, aon_ptd: aon_va, boot_timestamp: 0,
-@@ -253,7 +292,7 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
+@@ -253,15 +292,30 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
          if common26 {
              m::encode_common26_bundle_policy(board, bindings, self.object_mut(self.bundle)?.bytes_mut())
          } else {
 -            m::encode_m5_bundle_policy(bindings, self.object_mut(self.bundle)?.bytes_mut())
 +            m::encode_m5_bundle_policy(layout, bindings, self.object_mut(self.bundle)?.bytes_mut())
          }.map_err(|_| EINVAL)?;
-         // The controller configuration applies where the part's leakage calibration matches the
-         // one it was made for, or on a board whose configuration holds for every part.
-@@ -266,13 +305,28 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
-                 calibration.as_ref().is_ok_and(|words| words.as_slice() == expected)
-             }
-         };
--        if let Some(defaults) = board.controller_defaults.filter(|_| calibrated) {
-+        let controller_defaults = board.controller_defaults.filter(|_| calibrated);
+-        if let Some(defaults) = board.controller_defaults {
++        let controller_defaults = board.controller_defaults;
 +        if let Some(defaults) = controller_defaults {
              defaults(self.object_mut(self.bundle)?.bytes_mut()).map_err(|_| EINVAL)?;
              let maximum = self.object(self.bundle)?.word(shared.policy + m::M5_POLICY_MAXIMUM_POWER)?
@@ -1465,7 +1459,7 @@ index 5c3200fefce1..d1e26e0b44e6 100644
          if let Some(microseconds) = board.idle_standby_us {
              m::set_m5_region_idle_standby(self.object_mut(self.region_c)?.bytes_mut(), microseconds)
                  .map_err(|_| EINVAL)?;
-@@ -287,9 +341,8 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
+@@ -276,9 +330,8 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
                      [PRIVATE + private.status_config as u64, PRIVATE + private.secondary_extra_1 as u64]
                  },
              };
@@ -1477,7 +1471,7 @@ index 5c3200fefce1..d1e26e0b44e6 100644
              let offset = shared.main_config[index];
              m::encode_main_config_for_profile(profile, role, &addresses, &instance,
 diff --git a/drivers/gpu/drm/asahi/g17/mod.rs b/drivers/gpu/drm/asahi/g17/mod.rs
-index ddbc46092ce7..2e5c8a5427bf 100644
+index b2c0aa5e0c4b..155c2fecd5e1 100644
 --- a/drivers/gpu/drm/asahi/g17/mod.rs
 +++ b/drivers/gpu/drm/asahi/g17/mod.rs
 @@ -1641,6 +1641,16 @@ pub(crate) fn new(
@@ -1507,7 +1501,7 @@ index ddbc46092ce7..2e5c8a5427bf 100644
          session
              .init
 diff --git a/drivers/gpu/drm/asahi/hw/t6050.rs b/drivers/gpu/drm/asahi/hw/t6050.rs
-index 949bd81d00ed..9e8b1392d94f 100644
+index 4ea3862efd4c..ab1fcb7a9c21 100644
 --- a/drivers/gpu/drm/asahi/hw/t6050.rs
 +++ b/drivers/gpu/drm/asahi/hw/t6050.rs
 @@ -43,33 +43,90 @@
@@ -1625,7 +1619,7 @@ index 949bd81d00ed..9e8b1392d94f 100644
 -- 
 2.56.0
 
-From 2c2d71961edc867b605ae62332ba25ea344c1208 Mon Sep 17 00:00:00 2001
+From b021fdd23284df4d1276e178ec90aa76b5c67453 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 15:41:37 -0500
 Subject: [PATCH 02/20] drm/apple: Name the firmware 27 adaptive sync parameter
@@ -1695,7 +1689,7 @@ index 2ae38159ab06..f184ffabfaeb 100644
 -- 
 2.56.0
 
-From 04f5aff7c9507b2a1dbdd2df7ea086c1e71e4e0f Mon Sep 17 00:00:00 2001
+From 283a117511147c45028ffe80281fcdd707b35be9 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 18:21:40 -0500
 Subject: [PATCH 03/20] drm/apple: Refuse panel brightness once the display
@@ -1744,7 +1738,7 @@ index 7432513a7ba2..c25fb11a0ed6 100644
 -- 
 2.56.0
 
-From 5775da9c64289cb3e5a14502d93a4c58edfe6a0a Mon Sep 17 00:00:00 2001
+From 602c934e1977f899d0f75df76f278745eded0e2e Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 08:13:48 -0500
 Subject: [PATCH 04/20] drm/apple: firmware 27.3: the full IOMFB method table
@@ -2057,7 +2051,7 @@ index 915de53c68bf..be4576e03f01 100644
 -- 
 2.56.0
 
-From 10053dbce5b124927af83d8a7617613e8eb5bc38 Mon Sep 17 00:00:00 2001
+From 28f565f56e6610ba809e9505d4f8f7712bef4b82 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Wed, 11 Nov 2026 12:00:39 -0700
 Subject: [PATCH 05/20] drm/asahi: t6050: identify the 27.2 (26B8125) G17S
@@ -2095,7 +2089,7 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 31 insertions(+)
 
 diff --git a/drivers/gpu/drm/asahi/hw/t6050.rs b/drivers/gpu/drm/asahi/hw/t6050.rs
-index 9e8b1392d94f..6b7ebe1852da 100644
+index ab1fcb7a9c21..df70226a1f1b 100644
 --- a/drivers/gpu/drm/asahi/hw/t6050.rs
 +++ b/drivers/gpu/drm/asahi/hw/t6050.rs
 @@ -76,6 +76,37 @@
@@ -2139,7 +2133,7 @@ index 9e8b1392d94f..6b7ebe1852da 100644
 -- 
 2.56.0
 
-From 70e176285f21b2f2688f433352e93277f7e5c34d Mon Sep 17 00:00:00 2001
+From aa77698613b8b3489ae0ca4a2ad3c5404d68272a Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 23:52:29 -0500
 Subject: [PATCH 06/20] accel/ane, media: apple: ave: T6050 Neural Engine on
@@ -2704,7 +2698,7 @@ index d8075a8d38bc..05dd6fa2fe0c 100644
 -- 
 2.56.0
 
-From 7be1f6e246c9f50d7c8dbc2411c6cd6a74f30365 Mon Sep 17 00:00:00 2001
+From e52b2e0a5a12b9ae000096c3885751b2c4af7581 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
 Subject: [PATCH 07/20] media: apple: isp: Tune the J714c IMX958 with setfile
@@ -2799,7 +2793,7 @@ index 3551018baf17..79a4445d1c4f 100644
 -- 
 2.56.0
 
-From 8a9e9068509dc13bd3b799445e112f81a315c9c7 Mon Sep 17 00:00:00 2001
+From 45af00794bee1c00fcfadda45f26be887b8c6326 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:11:59 +0100
 Subject: [PATCH 08/20] media: apple: isp: Compute the T6050 setfile's noise
@@ -2982,7 +2976,7 @@ index 79a4445d1c4f..6b7e6b5f9a70 100644
 -- 
 2.56.0
 
-From c4d761992e268eae34c8ba5c39544ae8feff41cf Mon Sep 17 00:00:00 2001
+From 9a4750412a4001c7d3fe28c532528916d8b5feb0 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:13:01 +0100
 Subject: [PATCH 09/20] media: apple: isp: Set the J714c lens shading target
@@ -3125,7 +3119,7 @@ index 6b7e6b5f9a70..c13914ef62e9 100644
 -- 
 2.56.0
 
-From 81466ba51187d4ae4037774d6d8fa7f399af4a34 Mon Sep 17 00:00:00 2001
+From 7a949ab8b3bb5fc82d0860eec4b8588f6df245f8 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 11:16:29 -0500
 Subject: [PATCH 10/20] arm64: dts: apple: t6050-j714s: Also offer 2560x1440
@@ -3176,7 +3170,7 @@ index 383ec08bedbe..5f4765eb6526 100644
 -- 
 2.56.0
 
-From 31e4f2aa4870f04f8e222d1c383919fd169e455f Mon Sep 17 00:00:00 2001
+From d6a6d97f0ce09a7ebd46b38a34a83b8a287eab7d Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:35 +0100
 Subject: [PATCH 11/20] media: apple: isp: Drive the J714c camera light from
@@ -3405,7 +3399,7 @@ index 09b691228650..3c39a1d5fc9d 100644
 -- 
 2.56.0
 
-From e65bf9064ac9bd771d2cc5e15f7074dc8dd6587d Mon Sep 17 00:00:00 2001
+From 4673ca2939dfb1ec816e98df123508dae3f4d1ef Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
 Subject: [PATCH 12/20] media: apple: isp: Turn the J714c camera light off
@@ -3515,7 +3509,7 @@ index 3c39a1d5fc9d..a35961de0f15 100644
 -- 
 2.56.0
 
-From b6c7030e383bfa32e5a86a78fba7a0d210419458 Mon Sep 17 00:00:00 2001
+From 9a12638c78ae5919ac4e1a0ccfee9940e0c2b7b6 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 05:03:13 -0500
 Subject: [PATCH 13/20] arm64: dts: apple: t6050-j714s: Describe the camera
@@ -3569,7 +3563,7 @@ index 5f4765eb6526..5e16259450fb 100644
 -- 
 2.56.0
 
-From 0bcb794a3fd74d8ebfd1a946c7f8d6c4e3aea286 Mon Sep 17 00:00:00 2001
+From 9664b4f487b9acf62f79dca6fb8c3d84078d76db Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 12:29:34 -0500
 Subject: [PATCH 14/20] drm/apple: Offer VRR on the firmware 27 panel and apply
@@ -3643,7 +3637,7 @@ index 50afd0dd5760..35d72dddfff0 100644
   * Does @dcp's firmware speak the 14.7 AFK, DPTX and DPAV endpoint protocol,
   * whichever IOMFB path drives it? DCP_FIRMWARE_V_14_7 is the native DCPLink
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index 57ebc6df61ee..17c34ca5d5b8 100644
+index d9c175998978..8802bccbfcb7 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
 @@ -1613,6 +1613,12 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
@@ -3829,7 +3823,7 @@ index c34e27a12ad2..82445bb4e199 100644
 -- 
 2.56.0
 
-From eee7fe2c3f040ae5b61aabf7839d75b177992d0d Mon Sep 17 00:00:00 2001
+From 62ce67bb92fa940cee20cd4353cac4742413e50b Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 23:54:15 -0500
 Subject: [PATCH 15/20] accel/ane, media: apple: ave: T6050 Neural Engine and
@@ -4006,7 +4000,7 @@ index 05dd6fa2fe0c..ad9c7b28956e 100644
 -- 
 2.56.0
 
-From 489a0d385420e27e28dc37e51c9633c65bfdd7cf Mon Sep 17 00:00:00 2001
+From 6941b2f096d7bbd185da993f301e8007f131845f Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:06:46 -0500
 Subject: [PATCH 16/20] accel/ane: T6050: pin the macOS 27.2 (26B123) ANE TEXT
@@ -4049,7 +4043,7 @@ index 2ad203340e31..6079ea9a3999 100644
 -- 
 2.56.0
 
-From 9f20947e0481e1978eef761d16ce328a3eadd52c Mon Sep 17 00:00:00 2001
+From dceb61dfcef9be6cc974b29eb0b211ca034462f7 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:30:00 -0500
 Subject: [PATCH 17/20] arm64: dts: apple: t6050-j714s: Describe the HDMI port
@@ -4206,7 +4200,7 @@ index 5e16259450fb..60e9b16b07da 100644
 -- 
 2.56.0
 
-From 6022261a0418f3ec27949b912c9ebf25514f0bfc Mon Sep 17 00:00:00 2001
+From b4bbb3dafab517bada3835c8bd8f5826b4129008 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
 Subject: [PATCH 18/20] drm/apple: T6050 HDMI: complete flips locally while the
@@ -4247,10 +4241,10 @@ Signed-off-by: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
  5 files changed, 56 insertions(+)
 
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
-index 38f227096148..cc2a66076c1a 100644
+index 824df5f34102..bd161d0ebd9e 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric.c
-@@ -5423,6 +5423,7 @@ irqreturn_t dcp_dp2hdmi_hpd(int irq, void *data)
+@@ -5496,6 +5496,7 @@ irqreturn_t dcp_dp2hdmi_hpd(int irq, void *data)
  	if (dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP)
  		return dcp_desktop_dp2hdmi_hpd(dcp);
  
@@ -4281,10 +4275,10 @@ index 35d72dddfff0..bc288c78a405 100644
  void dcp_announce_work(struct work_struct *work);
  void dcp_external_crtc_released(struct apple_dcp *dcp);
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index 17c34ca5d5b8..717218a9402a 100644
+index 8802bccbfcb7..e7b6844b14e2 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -4620,6 +4620,8 @@ static int dcp_enable_dp2hdmi_hpd(struct apple_dcp *dcp)
+@@ -4633,6 +4633,8 @@ static int dcp_enable_dp2hdmi_hpd(struct apple_dcp *dcp)
  		bool connected = gpiod_get_value_cansleep(dcp->hdmi_hpd);
  		dev_info(dcp->dev, "%s: DP2HDMI HPD connected:%d\n", __func__, connected);
  
@@ -4293,7 +4287,7 @@ index 17c34ca5d5b8..717218a9402a 100644
  		if (connected && !READ_ONCE(dcp->hdmi_yielded))
  			dcp_dptx_connect(dcp, 0);
  		else if (!connected)
-@@ -6908,6 +6910,9 @@ static int dcp_platform_probe_pipe(struct platform_device *pdev)
+@@ -6921,6 +6923,9 @@ static int dcp_platform_probe_pipe(struct platform_device *pdev)
  		ret = dcp_hdmi_init(dcp);
  		if (ret)
  			return ret;
@@ -4381,7 +4375,7 @@ index 82445bb4e199..7ce5d0d7137f 100644
 -- 
 2.56.0
 
-From 75ee74157bb2f9dde38249756a00d6833d44eb95 Mon Sep 17 00:00:00 2001
+From 9b9c9ec662b0545a2f4841b09916eb31b65377fb Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
 Subject: [PATCH 19/20] drm/apple: forward HDMI converter service requests on
@@ -4433,7 +4427,7 @@ index 0603de2a0e22..3ac28f24a7af 100644
 -- 
 2.56.0
 
-From 43f89877a9ce0e4e8153c31f27f44123c4530e5e Mon Sep 17 00:00:00 2001
+From 8dcc47c4f8dcb78f85e5bd9d690c4acf72e326e1 Mon Sep 17 00:00:00 2001
 From: DjDeveloperr <hey@djdev.me>
 Date: Thu, 12 Nov 2026 15:01:46 -0500
 Subject: [PATCH 20/20] usb: typec: tipd: sn201202x: Send no LDCM command to a

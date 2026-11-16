@@ -1,4 +1,4 @@
-From 81466ba51187d4ae4037774d6d8fa7f399af4a34 Mon Sep 17 00:00:00 2001
+From 7a949ab8b3bb5fc82d0860eec4b8588f6df245f8 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 11:16:29 -0500
 Subject: [PATCH 10/20] arm64: dts: apple: t6050-j714s: Also offer 2560x1440

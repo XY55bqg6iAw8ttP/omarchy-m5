@@ -1,4 +1,4 @@
-From 03137aa4f2578b7aaf93956f28e306ac737ccfc2 Mon Sep 17 00:00:00 2001
+From 9f324623fb3a57f7826bc980ff0045b0ec0ea639 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 10:56:02 -0500
 Subject: [PATCH 01/20] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
@@ -66,7 +66,7 @@ index c7d2e84797cf..c043a8bd97a9 100644
          for image in builds.iter().flat_map(|build| build.images) {
              // Both roles' records, inside TEXT.
 diff --git a/drivers/gpu/drm/asahi/g17/fw/m5/initdata.rs b/drivers/gpu/drm/asahi/g17/fw/m5/initdata.rs
-index e4de37f63957..007f34df0cc3 100644
+index b5e8ce3cebc2..79a541290112 100644
 --- a/drivers/gpu/drm/asahi/g17/fw/m5/initdata.rs
 +++ b/drivers/gpu/drm/asahi/g17/fw/m5/initdata.rs
 @@ -10,6 +10,7 @@
@@ -669,7 +669,7 @@ index e4de37f63957..007f34df0cc3 100644
  impl Graph {
      pub(crate) fn is_common26(&self) -> bool {
          self.profile == RootProfile::J873G18G26A428
-@@ -2320,16 +2709,24 @@ pub(crate) struct Board {
+@@ -2313,16 +2702,24 @@ pub(crate) struct Board {
  
  /// Populate the enabled-USC count from the device's sampled core masks.
  /// This count covers the whole device, not one cluster.
@@ -699,7 +699,7 @@ index e4de37f63957..007f34df0cc3 100644
      Ok(())
  }
  
-@@ -2337,6 +2734,218 @@ pub(crate) fn set_m5_enabled_cores(board: &Board, out: &mut [u8], enabled: u32)
+@@ -2330,6 +2727,218 @@ pub(crate) fn set_m5_enabled_cores(board: &Board, out: &mut [u8], enabled: u32)
  
  pub(crate) const M5_POLICY_AON_PTD_PTR: usize = 0x11a1c;
  
@@ -918,7 +918,7 @@ index e4de37f63957..007f34df0cc3 100644
  pub(crate) const J714_GPU_POWER_SAMPLE_PERIOD_AIC_CLOCKS: u32 = 200_000;
  
  pub(crate) const J714_GPU_PERF_BASE_PSTATE: u32 = 1;
-@@ -2765,13 +3374,14 @@ pub(crate) fn encode_m5_register_map(
+@@ -2758,13 +3367,14 @@ pub(crate) fn encode_m5_register_map(
  }
  
  pub(crate) fn encode_m5_hw_data(
@@ -934,7 +934,7 @@ index e4de37f63957..007f34df0cc3 100644
          return Err(InitdataError::BufferSize);
      }
      required_address(qos_high)?;
-@@ -2869,6 +3479,49 @@ pub(crate) fn encode_m5_hw_data(
+@@ -2862,6 +3472,49 @@ pub(crate) fn encode_m5_hw_data(
      }
      // The inherited J813 minimum parameter-buffer size is replaced per board.
      put_u32(out, hw_offset(board, 0x26b0), board.min_parameter_buffer);
@@ -984,7 +984,7 @@ index e4de37f63957..007f34df0cc3 100644
      Ok(())
  }
  
-@@ -2921,41 +3574,93 @@ pub(crate) fn encode_m5_region_c(out: &mut [u8]) -> Result<(), InitdataError> {
+@@ -2914,41 +3567,93 @@ pub(crate) fn encode_m5_region_c(out: &mut [u8]) -> Result<(), InitdataError> {
      Ok(())
  }
  
@@ -1089,7 +1089,7 @@ index e4de37f63957..007f34df0cc3 100644
      if out.len() != layout.total {
          return Err(InitdataError::BufferSize);
      }
-@@ -2975,8 +3680,14 @@ pub(crate) fn encode_m5_private_cluster(
+@@ -2968,8 +3673,14 @@ pub(crate) fn encode_m5_private_cluster(
      out.fill(0);
      let status_b = layout.status_b;
      let status_a = layout.roles[0].status_a;
@@ -1106,7 +1106,7 @@ index e4de37f63957..007f34df0cc3 100644
      for role in layout.roles {
          encode_status_block(&mut out[role.status_a..role.status_a + STATUS_BLOCK_SIZE])?;
      }
-@@ -2992,23 +3703,25 @@ pub(crate) fn encode_m5_private_cluster(
+@@ -2985,23 +3696,25 @@ pub(crate) fn encode_m5_private_cluster(
  }
  
  pub(crate) fn encode_m5_bundle_policy(
@@ -1136,7 +1136,7 @@ index e4de37f63957..007f34df0cc3 100644
      put_u32(policy, 0x04, J714_GPU_POWER_SAMPLE_PERIOD_AIC_CLOCKS);
      put_u32(policy, 0x08, J714_GPU_POWER_SAMPLE_PERIOD_AIC_CLOCKS);
  
-@@ -3047,6 +3760,14 @@ pub(crate) fn encode_m5_bundle_policy(
+@@ -3040,6 +3753,14 @@ pub(crate) fn encode_m5_bundle_policy(
      Ok(())
  }
  
@@ -1148,10 +1148,10 @@ index e4de37f63957..007f34df0cc3 100644
 +        .ok_or(InitdataError::BufferSize)
 +}
 +
- /// Initial controller inputs for J714 with the matched calibration.
- pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(), InitdataError> {
-     if out.len() < M5_SHARED_PREFIX_SIZE { return Err(InitdataError::BufferSize); }
-@@ -3065,7 +3786,7 @@ pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(),
+ /// Initial controller inputs for J714, applied on every part. The leakage inputs are those of the
+ /// part they were read from (calibration words 0xd2035701 0xac3a1280 0x0a281d81). The firmware
+ /// holds its power estimate, not the draw, to the maximum: a part that leaks more draws more than
+@@ -3061,7 +3782,7 @@ pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(),
          0x42b6ec22, 0x42c80000, 0x00000000, 0x00000000,
      ];
      for (index, &value) in RELATIVE_POWER_AUX.iter().enumerate() { put_u32(out, 0x1a64 + index * 4, value); }
@@ -1160,7 +1160,7 @@ index e4de37f63957..007f34df0cc3 100644
      const INITIAL: &[(usize, u32)] = &[
          (0xd4, 0x3f828f5c),
          (0xd8, 0x3f828f5c),
-@@ -3316,7 +4037,7 @@ pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(),
+@@ -3312,7 +4033,7 @@ pub(crate) fn encode_m5_policy_controller_defaults(out: &mut [u8]) -> Result<(),
  /// tags.
  pub(crate) fn encode_m5_policy_controller_defaults_j716c(out: &mut [u8]) -> Result<(), InitdataError> {
      encode_m5_policy_controller_defaults(out)?;
@@ -1169,7 +1169,7 @@ index e4de37f63957..007f34df0cc3 100644
      const MAXIMUM_POWER: u32 = 196_098;
      const MAXIMUM_POWER_F32: u32 = 0x483f_8080;
      for offset in [M5_POLICY_MAXIMUM_POWER, 0xad0, 0x44a4, 0x44a8, 0x44ac, 0x45e4] {
-@@ -3355,7 +4076,7 @@ pub(crate) fn encode_m5_policy_controller_defaults_j775d(out: &mut [u8]) -> Resu
+@@ -3351,7 +4072,7 @@ pub(crate) fn encode_m5_policy_controller_defaults_j775d(out: &mut [u8]) -> Resu
          0x421c_12dd, 0x4230_6915, 0x4250_6a36, 0x427d_e40c, 0x4294_0cc0, 0x42bd_bd8e, 0x42c8_0000,
      ];
      for (index, &value) in RELATIVE_POWER_AUX.iter().enumerate() { put_u32(out, 0x1a64 + index * 4, value); }
@@ -1179,7 +1179,7 @@ index e4de37f63957..007f34df0cc3 100644
      const MAXIMUM_POWER_F32: u32 = 0x48a8_95c0;
      for offset in [M5_POLICY_MAXIMUM_POWER, 0xad0, 0x44a4, 0x44a8, 0x44ac, 0x45e4] {
 diff --git a/drivers/gpu/drm/asahi/g17/fw/variant.rs b/drivers/gpu/drm/asahi/g17/fw/variant.rs
-index 2a068faa2728..53f7713b4e09 100644
+index 7c3ee790dc94..a2636a9f99e6 100644
 --- a/drivers/gpu/drm/asahi/g17/fw/variant.rs
 +++ b/drivers/gpu/drm/asahi/g17/fw/variant.rs
 @@ -36,6 +36,22 @@ pub(crate) enum InitGraph {
@@ -1205,35 +1205,35 @@ index 2a068faa2728..53f7713b4e09 100644
  #[derive(Copy, Clone, Debug, PartialEq, Eq)]
  pub(crate) enum QueueRegistration {
      Firmware,
-@@ -100,6 +116,8 @@ pub(crate) struct Variant {
-     /// Pro only: the M4 Pro and Max keep the first-render claim until the claim at creation has
-     /// been tested on that hardware.
-     pub(crate) render_id_at_create: bool,
+@@ -107,6 +123,8 @@ pub(crate) struct Variant {
+     /// an M4 Pro crash on a recycled work state; extending this needs a create/destroy-heavy
+     /// queue test on that hardware.
+     pub(crate) objects_after_release: bool,
 +    /// The InitData layouts the M5 graph must build for this firmware; `None` off M5.
 +    pub(crate) m5_layouts: Option<M5Layouts>,
  }
  
  /// A firmware build a SoC supports, identified by its loaded TEXT.
-@@ -153,6 +171,7 @@ pub(crate) enum Firmware {
-     m5_commands: false,
+@@ -161,6 +179,7 @@ pub(crate) enum Firmware {
      registration_power_hold: true,
      render_id_at_create: true,
+     objects_after_release: true,
 +    m5_layouts: None,
  };
  
  /// The M4 Pro firmware (25G83, `mBoot-18000.161.10`).
-@@ -192,6 +211,7 @@ pub(crate) enum Firmware {
-     m5_commands: false,
+@@ -201,6 +220,7 @@ pub(crate) enum Firmware {
      registration_power_hold: true,
      render_id_at_create: false,
+     objects_after_release: false,
 +    m5_layouts: None,
  };
  
  /// The 26A428 firmware of the M5 GPUs, which runs the M5 protocol (the M5 graph, queues and
-@@ -203,9 +223,23 @@ pub(crate) enum Firmware {
-     render_ray_query: false,
+@@ -213,9 +233,23 @@ pub(crate) enum Firmware {
      registration_power_hold: false,
      render_id_at_create: false,
+     objects_after_release: false,
 +    m5_layouts: Some(M5Layouts::V26A428),
      ..V26A428
  };
@@ -1282,7 +1282,7 @@ index c505bbd5b3b4..1f678929e2c3 100644
              _single_publisher: core::marker::PhantomData,
              aliases: KVec::new(),
 diff --git a/drivers/gpu/drm/asahi/g17/initdata/m5.rs b/drivers/gpu/drm/asahi/g17/initdata/m5.rs
-index 5c3200fefce1..d1e26e0b44e6 100644
+index cf6f8e3f8650..76db53bc1184 100644
 --- a/drivers/gpu/drm/asahi/g17/initdata/m5.rs
 +++ b/drivers/gpu/drm/asahi/g17/initdata/m5.rs
 @@ -52,7 +52,16 @@ pub(in crate::g17) fn m5_lower_links(canonical: core::ops::Range<u64>, graph: &m
@@ -1426,21 +1426,15 @@ index 5c3200fefce1..d1e26e0b44e6 100644
              .map_err(|_| EINVAL)?;
          let bindings = m::M5PolicyBindings {
              state: PRIVATE + private.policy_state as u64, aon_ptd: aon_va, boot_timestamp: 0,
-@@ -253,7 +292,7 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
+@@ -253,15 +292,30 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
          if common26 {
              m::encode_common26_bundle_policy(board, bindings, self.object_mut(self.bundle)?.bytes_mut())
          } else {
 -            m::encode_m5_bundle_policy(bindings, self.object_mut(self.bundle)?.bytes_mut())
 +            m::encode_m5_bundle_policy(layout, bindings, self.object_mut(self.bundle)?.bytes_mut())
          }.map_err(|_| EINVAL)?;
-         // The controller configuration applies where the part's leakage calibration matches the
-         // one it was made for, or on a board whose configuration holds for every part.
-@@ -266,13 +305,28 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
-                 calibration.as_ref().is_ok_and(|words| words.as_slice() == expected)
-             }
-         };
--        if let Some(defaults) = board.controller_defaults.filter(|_| calibrated) {
-+        let controller_defaults = board.controller_defaults.filter(|_| calibrated);
+-        if let Some(defaults) = board.controller_defaults {
++        let controller_defaults = board.controller_defaults;
 +        if let Some(defaults) = controller_defaults {
              defaults(self.object_mut(self.bundle)?.bytes_mut()).map_err(|_| EINVAL)?;
              let maximum = self.object(self.bundle)?.word(shared.policy + m::M5_POLICY_MAXIMUM_POWER)?
@@ -1465,7 +1459,7 @@ index 5c3200fefce1..d1e26e0b44e6 100644
          if let Some(microseconds) = board.idle_standby_us {
              m::set_m5_region_idle_standby(self.object_mut(self.region_c)?.bytes_mut(), microseconds)
                  .map_err(|_| EINVAL)?;
-@@ -287,9 +341,8 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
+@@ -276,9 +330,8 @@ pub(crate) fn build_m5(&mut self, dev: &AsahiDrmDevice, uat: &mmu::Uat,
                      [PRIVATE + private.status_config as u64, PRIVATE + private.secondary_extra_1 as u64]
                  },
              };
@@ -1477,7 +1471,7 @@ index 5c3200fefce1..d1e26e0b44e6 100644
              let offset = shared.main_config[index];
              m::encode_main_config_for_profile(profile, role, &addresses, &instance,
 diff --git a/drivers/gpu/drm/asahi/g17/mod.rs b/drivers/gpu/drm/asahi/g17/mod.rs
-index ddbc46092ce7..2e5c8a5427bf 100644
+index b2c0aa5e0c4b..155c2fecd5e1 100644
 --- a/drivers/gpu/drm/asahi/g17/mod.rs
 +++ b/drivers/gpu/drm/asahi/g17/mod.rs
 @@ -1641,6 +1641,16 @@ pub(crate) fn new(
@@ -1507,7 +1501,7 @@ index ddbc46092ce7..2e5c8a5427bf 100644
          session
              .init
 diff --git a/drivers/gpu/drm/asahi/hw/t6050.rs b/drivers/gpu/drm/asahi/hw/t6050.rs
-index 949bd81d00ed..9e8b1392d94f 100644
+index 4ea3862efd4c..ab1fcb7a9c21 100644
 --- a/drivers/gpu/drm/asahi/hw/t6050.rs
 +++ b/drivers/gpu/drm/asahi/hw/t6050.rs
 @@ -43,33 +43,90 @@

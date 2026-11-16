@@ -1,4 +1,4 @@
-From 31e4f2aa4870f04f8e222d1c383919fd169e455f Mon Sep 17 00:00:00 2001
+From d6a6d97f0ce09a7ebd46b38a34a83b8a287eab7d Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:35 +0100
 Subject: [PATCH 11/20] media: apple: isp: Drive the J714c camera light from

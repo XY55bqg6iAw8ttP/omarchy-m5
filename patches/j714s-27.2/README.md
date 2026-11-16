@@ -7,7 +7,23 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 `kmutil configure-boot --compress` after `bputil -nc`; Linux runs at EL2 on every CPU inside the
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
-Status (2026-11-16, latest): v272-16: re-pinned to aurora-silicon/linux `integration/aurora` `6e2043af8c5e`
+Status (2026-11-16, latest): v272-17: re-pinned to aurora-silicon/linux `integration/aurora` `677be395b9d2`
+(53 commits past `6e2043af8c5e`: #2046 #2084 #2053 #2057 #2073 #2079 #2080 #2056 #2055 #2067, G17 #1978 #1979 #2052
+#2066 #2076, #2064 #2005). No patch dropped (`git cherry` all "+"); series 0001-0020 unchanged, range-diff "=" for 0002-0020.
+One both-sides edit in 0001 (#1173), composed: #2080 removed `Board::calibration` and the calibration gate in
+`g17/initdata/m5.rs`, #1173 binds the same value to `controller_defaults` for its `relayout_m5_policy`; the composition is
+`let controller_defaults = board.controller_defaults;`, so #1173's 26B123 controller words now follow #2080 onto every J714
+part (owner's call to keep). Context-only: `variant.rs` (#1978's `objects_after_release` beside `m5_layouts`, M5 variants
+inherit `false`) and `fw/m5/initdata.rs` (#2080's doc comment after #1173's `m5_policy_source`). Deep sleep driver still off
+(`CONFIG_APPLE_SOC_SLEEP` not set, `[s2idle]` only), diffconfig empty: #2046/#2084's router sleep in place, #2073's GPU floor
+raise, #2066's wake queue restore and #2053's teardown are deep-sleep only (idle or compiled out). Live in s2idle: #2046's DT
+binds the right port's PCIe tunnel DART at probe, so a right-port tunnel whose link is not kept now refuses s2idle (-EBUSY).
+J714s DTB: #2079 (DP audio on dcpext1/dcpext2), #2073 `apple,sleep-ps-min`, #2046 PS_PROT/`apple,cio-phy`/clock protection;
+HDMI on dcpext3 untouched (no audio port, as before). Built, not booted. Package
+`linux-aurora-7.3.0.aurora17.v272-17-aarch64.pkg.tar.zst`, sha256
+`6d7adebd0b3602af99e7b6bca2b3f130d60b11b6067f09e30a4b5b51522f52ed` (44463376 bytes).
+
+Previous: v272-16: re-pinned to aurora-silicon/linux `integration/aurora` `6e2043af8c5e`
 (48 commits past `6612865ee100`); #1921 and #1930 merged upstream, so the old 0020-0024 are dropped (patch-identical per
 `git cherry`) and the old 0025 is replaced by #1930's merged `56793eff52dc`, which differs from ours (it also watches a tiled
 split's second tunnel and runs only on T6050). The series is now 0001-0020: 0001-0019 as before, old 0026 (#1721) is 0020.
@@ -21,7 +37,7 @@ only); no Kconfig changes upstream, diffconfig empty. J714s DTB: only #2006 chan
 booted. Package `linux-aurora-7.3.0.aurora17.v272-16-aarch64.pkg.tar.zst`, sha256
 `d8eda4d5f891c98a2e9b6d80fe7fab5a2c7239727a9a5abdd936a81ae02a5119` (44405999 bytes).
 
-Previous: v272-15: re-pinned to aurora-silicon/linux `integration/aurora` `6612865ee100`
+Before that: v272-15: re-pinned to aurora-silicon/linux `integration/aurora` `6612865ee100`
 (37 commits past `c0a2a7522b4e`); 6 patches dropped as upstream (patch-identical per `git cherry`): old 0024 #1944
 (`7a479d4a41c9`), 0028 #1789 (`f61eb4550a95`), 0029-0030 #1647 (`aa16d423cf8a`, `70bf8ed1867b`), 0031 #2012
 (`56b02059cfc8`), 0032 #2018 (`64d473f5321d`). Deep sleep driver still off (`CONFIG_APPLE_SOC_SLEEP` not set,
@@ -172,7 +188,7 @@ Release 1 was built on linux `572eb88e8642` and Aura `2232ae7a` (git history of 
 
 | # | What | Whose |
 | --- | --- | --- |
-| 0001 | GPU InitData and firmware identity for 27.2 (26B123) and 27.3 (26C5035r), aurora-silicon/linux #1173 (open), resolved against the Graph refactor. The 26B123 fwid digest `2b4613c6...913f0fd9` was re-derived from the IPSW (below) | Rolando Trevino (rolotrealanis98) |
+| 0001 | GPU InitData and firmware identity for 27.2 (26B123) and 27.3 (26C5035r), aurora-silicon/linux #1173 (open), resolved against the Graph refactor; v272-17: `initdata/m5.rs` composed with #2080 (no calibration gate, `controller_defaults` applies on every part). The 26B123 fwid digest `2b4613c6...913f0fd9` was re-derived from the IPSW (below) | Rolando Trevino (rolotrealanis98) |
 | 0002-0004 | Firmware 27 adaptive-sync parameter name; no panel brightness after a DCP crash; the full 27.3 IOMFB method table and swap record (only used on a 27.3 stub; 27.2 uses upstream's `dcp_methods_27_2`) | Rolando Trevino |
 | 0005 | The K114/K116 27.2 (26B8125) G17S identity, #1650 (open) | Jens Axboe (via sithglan) |
 | 0006 | ANE on 27.3; AVE builds selected by TEXT CRC on top of #1747 (27.2 and 27.3 share segment sizes) | this repo |
@@ -411,5 +427,5 @@ this file's git history and on ush in `~/m5-build/pkg272/out/`.
 
 ## Queued for the next kernel
 
-Nothing queued. #1921 and #1930 merged and were dropped in v272-16. Still open upstream and carried here: #1173 (0001),
+Nothing queued. #1921 and #1930 merged and were dropped in v272-16; v272-17 dropped nothing. Still open upstream and carried here: #1173 (0001),
 #1650 (0005), #1721 (0020); the HDMI patches 0017-0019 and the 27.2 ANE pin 0016 are not upstream.

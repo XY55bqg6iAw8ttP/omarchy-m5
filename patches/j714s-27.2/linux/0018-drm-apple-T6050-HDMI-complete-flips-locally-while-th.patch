@@ -1,4 +1,4 @@
-From 6022261a0418f3ec27949b912c9ebf25514f0bfc Mon Sep 17 00:00:00 2001
+From b4bbb3dafab517bada3835c8bd8f5826b4129008 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
 Subject: [PATCH 18/20] drm/apple: T6050 HDMI: complete flips locally while the
@@ -39,10 +39,10 @@ Signed-off-by: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
  5 files changed, 56 insertions(+)
 
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
-index 38f227096148..cc2a66076c1a 100644
+index 824df5f34102..bd161d0ebd9e 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric.c
-@@ -5423,6 +5423,7 @@ irqreturn_t dcp_dp2hdmi_hpd(int irq, void *data)
+@@ -5496,6 +5496,7 @@ irqreturn_t dcp_dp2hdmi_hpd(int irq, void *data)
  	if (dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP)
  		return dcp_desktop_dp2hdmi_hpd(dcp);
  
@@ -73,10 +73,10 @@ index 35d72dddfff0..bc288c78a405 100644
  void dcp_announce_work(struct work_struct *work);
  void dcp_external_crtc_released(struct apple_dcp *dcp);
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index 17c34ca5d5b8..717218a9402a 100644
+index 8802bccbfcb7..e7b6844b14e2 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -4620,6 +4620,8 @@ static int dcp_enable_dp2hdmi_hpd(struct apple_dcp *dcp)
+@@ -4633,6 +4633,8 @@ static int dcp_enable_dp2hdmi_hpd(struct apple_dcp *dcp)
  		bool connected = gpiod_get_value_cansleep(dcp->hdmi_hpd);
  		dev_info(dcp->dev, "%s: DP2HDMI HPD connected:%d\n", __func__, connected);
  
@@ -85,7 +85,7 @@ index 17c34ca5d5b8..717218a9402a 100644
  		if (connected && !READ_ONCE(dcp->hdmi_yielded))
  			dcp_dptx_connect(dcp, 0);
  		else if (!connected)
-@@ -6908,6 +6910,9 @@ static int dcp_platform_probe_pipe(struct platform_device *pdev)
+@@ -6921,6 +6923,9 @@ static int dcp_platform_probe_pipe(struct platform_device *pdev)
  		ret = dcp_hdmi_init(dcp);
  		if (ret)
  			return ret;

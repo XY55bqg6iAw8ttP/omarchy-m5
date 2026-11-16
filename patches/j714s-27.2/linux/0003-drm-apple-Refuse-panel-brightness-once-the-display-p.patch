@@ -1,4 +1,4 @@
-From 04f5aff7c9507b2a1dbdd2df7ea086c1e71e4e0f Mon Sep 17 00:00:00 2001
+From 283a117511147c45028ffe80281fcdd707b35be9 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 18:21:40 -0500
 Subject: [PATCH 03/20] drm/apple: Refuse panel brightness once the display

@@ -1,4 +1,4 @@
-From 10053dbce5b124927af83d8a7617613e8eb5bc38 Mon Sep 17 00:00:00 2001
+From 28f565f56e6610ba809e9505d4f8f7712bef4b82 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Wed, 11 Nov 2026 12:00:39 -0700
 Subject: [PATCH 05/20] drm/asahi: t6050: identify the 27.2 (26B8125) G17S
@@ -36,7 +36,7 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 31 insertions(+)
 
 diff --git a/drivers/gpu/drm/asahi/hw/t6050.rs b/drivers/gpu/drm/asahi/hw/t6050.rs
-index 9e8b1392d94f..6b7ebe1852da 100644
+index ab1fcb7a9c21..df70226a1f1b 100644
 --- a/drivers/gpu/drm/asahi/hw/t6050.rs
 +++ b/drivers/gpu/drm/asahi/hw/t6050.rs
 @@ -76,6 +76,37 @@

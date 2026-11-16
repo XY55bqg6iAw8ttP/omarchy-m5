@@ -2,8 +2,15 @@
 # macOS 27.2 stub (UniversalMac_27.2_26B123, mBoot-20457.41.3), booted from a padded Aura Mach-O
 # Stage 1 with SPTM off: Linux at EL2 on every CPU inside the CTXR execute window.
 #
-# The one J714s image line. aurora-silicon/linux integration/aurora at 6e2043af8c5e (v272-16
-# re-pin, 2026-11-16; adds the merged #1921 (a third dock display through dcpext1), #1930 (stop
+# The one J714s image line. aurora-silicon/linux integration/aurora at 677be395b9d2 (v272-17
+# re-pin, 2026-11-16; adds the merged #2046 (a dock's USB4 router sleeps in place across a deep
+# sleep) and #2084 (J714s LSTX held high during that sleep), #2053 (T6050 paired-display sleep
+# teardown), #2057 (a returning DP tunnel goes back to its last pipeline), #2073 (GPU domain floor
+# after a sleep, apple,sleep-ps-min), #2079 (DP audio on dcpext1 and dcpext2), #2080 (M5 GPU
+# controller defaults on every part), #2056 (CLPC High Power mode to the SMC), #2055 (T6050 ProRes
+# built-in rows), #2067 (DART stalled display invalidates), the G17 changes #1978, #1979, #2052,
+# #2066, #2076, #2064 (AWDL off in asahi.config) and #2005 (T8112 boost); on top of 6e2043af8c5e's
+# #1921 (a third dock display through dcpext1), #1930 (stop
 # waiting for a link on a withdrawn DP tunnel), #2006 (dcpext1 also routed to the left-front port's
 # DP tunnels, the left-front router's DP IN interrupts), #2034 (tunnel-only routes first), #2032
 # (external EDID defaults), #2031 (J714s resume tail: N1 link watch, SD reader port after the resume,
@@ -15,6 +22,7 @@
 # displays, #1645, #1835, #1891) plus
 # linux-j714s-27.2.patch, betizzel/omarchy-m5 patches/j714s-27.2/linux:
 #   0001     #1173, GPU InitData for 27.2 (26B123) and 27.3 (Rolando Trevino)
+#            (v272-17: initdata/m5.rs composed with #2080, which removed the calibration gate)
 #   0002-04  rolotrealanis98's firmware 27 DCP fixes and the 27.3 IOMFB table (27.3 rollback stub)
 #   0005     #1650, the K114/K116 27.2 (26B8125) G17S identity (Jens Axboe)
 #   0006     ANE on 27.3; AVE builds selected by TEXT CRC (this repo)
@@ -45,9 +53,9 @@
 
 _auroraver=7.3.0
 _aurorarel=17.v272
-pkgrel=16
+pkgrel=17
 
-_commit=6e2043af8c5e522dda8f8876be87411921c26a31
+_commit=677be395b9d2e15d98696107ebf88191f08efbf9
 
 # Any m1n1 1.6.1 loads these device trees. The Neo's own Stage 2 comes from the
 # image, so the floor stays where M1 and M2 users' m1n1-aurora already meets it.
@@ -73,11 +81,11 @@ source=(validate-config.py configure.sh "linux-${_commit}.tar.gz::https://github
         speakersafetyd-hold.conf)
 sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             'b95c0f0ddf106f3861e0e62a746af6a881fb8e0f356a892961f9e86062877400'
-            'e82ca9aa86756c5416f1bdbe14c052fbcd25b5c60c148986950e07722722e550'
+            '0b6877a3288761c741600e25520a9fa901dc02eb3256955c6d35fc2e3fbe499f'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
             'c784712b49e495ee40a2aaaddacd4ffaf3beb62654f571cead7673eb17eae11d'
-            '5248348443296bc6c2d1a57633501d388c36a1636f913bc9c1098dccb590ab01'
+            '3736df9ae8d2715ebc38105cc54f2b165b91862663f7d7887eaa004bb4d589ce'
             '7175fecb20dc8e8801ce7b5a7aeb02fb4c4cb259104465b2361b92ab1c3f5468'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 

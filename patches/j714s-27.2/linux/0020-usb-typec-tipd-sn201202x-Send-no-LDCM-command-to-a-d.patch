@@ -1,4 +1,4 @@
-From 43f89877a9ce0e4e8153c31f27f44123c4530e5e Mon Sep 17 00:00:00 2001
+From 8dcc47c4f8dcb78f85e5bd9d690c4acf72e326e1 Mon Sep 17 00:00:00 2001
 From: DjDeveloperr <hey@djdev.me>
 Date: Thu, 12 Nov 2026 15:01:46 -0500
 Subject: [PATCH 20/20] usb: typec: tipd: sn201202x: Send no LDCM command to a

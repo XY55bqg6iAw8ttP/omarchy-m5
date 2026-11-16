@@ -1,4 +1,4 @@
-From c4d761992e268eae34c8ba5c39544ae8feff41cf Mon Sep 17 00:00:00 2001
+From 9a4750412a4001c7d3fe28c532528916d8b5feb0 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:13:01 +0100
 Subject: [PATCH 09/20] media: apple: isp: Set the J714c lens shading target

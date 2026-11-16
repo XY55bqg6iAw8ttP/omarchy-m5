@@ -1,4 +1,4 @@
-From 489a0d385420e27e28dc37e51c9633c65bfdd7cf Mon Sep 17 00:00:00 2001
+From 6941b2f096d7bbd185da993f301e8007f131845f Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:06:46 -0500
 Subject: [PATCH 16/20] accel/ane: T6050: pin the macOS 27.2 (26B123) ANE TEXT

@@ -1,4 +1,4 @@
-From 0bcb794a3fd74d8ebfd1a946c7f8d6c4e3aea286 Mon Sep 17 00:00:00 2001
+From 9664b4f487b9acf62f79dca6fb8c3d84078d76db Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 12:29:34 -0500
 Subject: [PATCH 14/20] drm/apple: Offer VRR on the firmware 27 panel and apply
@@ -72,7 +72,7 @@ index 50afd0dd5760..35d72dddfff0 100644
   * Does @dcp's firmware speak the 14.7 AFK, DPTX and DPAV endpoint protocol,
   * whichever IOMFB path drives it? DCP_FIRMWARE_V_14_7 is the native DCPLink
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index 57ebc6df61ee..17c34ca5d5b8 100644
+index d9c175998978..8802bccbfcb7 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
 @@ -1613,6 +1613,12 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)

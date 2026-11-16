@@ -1,4 +1,4 @@
-From 5775da9c64289cb3e5a14502d93a4c58edfe6a0a Mon Sep 17 00:00:00 2001
+From 602c934e1977f899d0f75df76f278745eded0e2e Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 08:13:48 -0500
 Subject: [PATCH 04/20] drm/apple: firmware 27.3: the full IOMFB method table
