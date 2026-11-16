@@ -224,6 +224,7 @@ v272-2 to v272-4: `patch -Np1` of that release's `linux-j714s-27.2.patch` on the
 | 0005 | **Internal display on 27.2:** admit `V27_2`, publish compat `<27 2 0>` (the kernel's `dcp_methods_27_2` key), pin the 27.2 DCP image `C51FB0C8-C45D-39B0-85BC-520E600FC950` | this repo |
 | 0006 | **J714s camera on 27.2:** sensor 0x74, the IPSW's ISP segments | this repo |
 | 0007 | ATC tunables for a fixed DP PHY (`apple,t6050-dp-phy`, the J714s ATC3 behind HDMI), needed by kernel 0017. Tested on 27.3 with 0017 | FatBoy721 (060831d4f8), ported unchanged |
+| 0008 | **K114s and K116s internal panel on 27.2:** aura #226's pin table, with the 26B8125 DCP image `3D6C8857-E6F1-3D2E-9DFF-587028AE0C6E` (the K116s's, and the K114s's on `dcp` and all four `dcpext`) admitted for the internal panel only; the external engines stay with iBoot. The 27.0 and J714s `C51FB0C8-...` rows, 0005's gate and its log lines are unchanged. Not booted in this form | Jens Axboe (aura #226, 023eb3a01a), adapted onto 0005 by chrisohearn |
 
 The recipe also packages the Stage 1 tooling: `aura-j714s-stage1 --esp-partuuid UUID OUT` fills
 the raw Stage 1 in place (Aura's `fill_stage1_config.py`, Stage 2 `m1n1/boot-ctxr.bin` by default)
