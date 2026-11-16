@@ -1,5 +1,5 @@
 pkgname=omarchy-aurora-firmware
-pkgver=20261014.j714s14
+pkgver=20261014.j714s15
 pkgrel=1
 pkgdesc='Order Apple peripheral admission after device firmware extraction'
 arch=('aarch64')
@@ -23,8 +23,9 @@ source=(aurora-firmware-order.conf aurora-peripheral-firmware.sh
         aurora-m5-display-env start-hyprland-m5 60-aurora-m5-display.conf
         # J714 UCM: aurora-silicon/alsa-ucm-conf-asahi #10 (edimoldovan, merged, 401a49d4f7ee); busy-card discovery: kazuhidet
         ucm-macaudio-j714.conf ucm-macaudio-hifi-j714.conf ucm-aop-j714.conf wireplumber-81-aurora-busy-discovery.conf
-        # J714s: speakerguardd v2 at boot once it qualifies, the panel's VRR range, the camera's tuning
-        70-aurora-speaker-upgrade-auto.conf aurora-m5-vrr.conf aurora-j714s-camera-setfile aurora-j714s-camera-setfile.service
+        # J714s: speakerguardd v2 at boot once it qualifies, the camera's tuning. The panel VRR switch
+        # (aurora-m5-vrr.conf) is gone from j714s15: VRR crashed the K114s DCP on 27.2 (#25), unproven on 27.2 elsewhere
+        70-aurora-speaker-upgrade-auto.conf aurora-j714s-camera-setfile aurora-j714s-camera-setfile.service
         # /boot and /boot/efi from the partitions this system booted from (docs/duplicate-boot-ids.md)
         aurora-boot-mounts-generator
         # The boot packages stay M5 builds when pacman.conf loses its IgnorePkg pin (#11), one guard
@@ -57,7 +58,6 @@ sha256sums=('e2d6d6008bfde44ba871da2fcaae22b409d52ea8695fcf672bc3b06d786f823e'
             '66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483'
             'c9e54f1e1d5938e47ad047599b4306c767c800a92fe52c0b35985f0f4d7647f1'
             '5c1c020ca387fb1338f495354e06c28e20c01ea96336588ef37bb4e180d41f5f'
-            '340e0ed3b664ae7e5845169826b1f54188a4252bfacfdae55a20c3f45b24134b'
             '52ed437db809ed363b03da071d959b59c53d30688b64187adf3f66f7c9dcbbd9'
             '3d91c4be5f110df0b6703effdf82d637a93928b51467c45f775fd9ac68c59492'
             '18eb3cf71c3a0614080263833fc020a6e2aa6af3bfa393bf5461b6c9ed4290d1'
@@ -139,7 +139,6 @@ package() {
     "$pkgdir/usr/lib/systemd/system/multi-user.target.wants/aurora-speaker-upgrade.service"
 
   # The firmware 27 panel's VRR range offered to the compositor (kernel patch 0014's opt-in, on).
-  install -Dm644 aurora-m5-vrr.conf "$pkgdir/usr/lib/modprobe.d/aurora-m5-vrr.conf"
 
   # The front camera's IMX958 tuning, read once from this Mac's macOS System volume (read only).
   install -Dm755 aurora-j714s-camera-setfile "$pkgdir/usr/lib/omarchy-aurora/aurora-j714s-camera-setfile"

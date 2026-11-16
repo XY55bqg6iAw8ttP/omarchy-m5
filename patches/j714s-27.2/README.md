@@ -195,7 +195,7 @@ Release 1 was built on linux `572eb88e8642` and Aura `2232ae7a` (git history of 
 | 0007-0009 | Front camera: IMX958 setfile 2226_02, noise reduction gains, lens shading target and metering (omacom/linux-aurora #422) | Eduard Moldovan (edimoldovan) |
 | 0010 | 2560x1440 added to #1835's J714s presets (config 6, the centre 1:1) | this repo, from edimoldovan's J714c preset |
 | 0011-0013 | The camera light and its J714s pin (#422; J714s DT by this repo) | Eduard Moldovan; this repo |
-| 0014 | VRR on the firmware 27 panel, `appledrm.fw27_panel_vrr` (j716s-next 8ab10100a4); the image turns it on (omarchy-aurora-firmware `aurora-m5-vrr.conf`) | Rolando Trevino |
+| 0014 | VRR on the firmware 27 panel, `appledrm.fw27_panel_vrr` (j716s-next 8ab10100a4); off by default since omarchy-aurora-firmware j714s15 (it crashed the K114s DCP on 27.2, #25), and not proven on 27.2 elsewhere | Rolando Trevino |
 | 0015 | ANE and AVE on 27.2 (26B123): layouts from the IPSW. ANE: 27.2 layout recognised, refused until its TEXT pin is known, and the refusal prints the digest. AVE: 26B123 admitted, probe only unless `apple_ave.ave_t6050_27_2_layout=1` | this repo |
 | 0016 | The 27.2 ANE TEXT pin `b15dd8fb...c40e`, read from the first J714s 27.2 boot's refusal | this repo |
 | 0017 | **J714s HDMI port** (DT): dcpext3 → the atc3 display crossbar → ATC3 as a fixed four-lane DP PHY → the on-board DP-to-HDMI converter; frees AOP pin 14 (HPD) from `t6050-max-atc2.dtsi`'s reserved range, atc3_dpxbar power domains. Tested on his J714s on 27.3 (HP E240c, 1920x1080@60: cold plug, hotplug, replug); not tried on 27.2. His `0010-linux-t6050-j714s-hdmi-dt.patch` at 267c7ea3cb gives a tree identical to this one | FatBoy721 (FatBoy721/omarchy-m5 898d8ad6cb), ported unchanged |
