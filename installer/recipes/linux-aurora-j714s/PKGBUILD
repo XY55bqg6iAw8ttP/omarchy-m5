@@ -41,11 +41,13 @@
 #            (#1963's t6050-j714s-sleep.dtsi) and in 0032 (t6050-die0.dtsi).
 # Dropped at the v272-12 re-pin (upstream carries them): #1925, #1946, #1948 (G17), #1950 (fast-die).
 # Config (v272-9): BT_RFCOMM, BT_RFCOMM_TTY, PKCS8_PRIVATE_KEY_PARSER (chrisohearn, betizzel/omarchy-m5#9)
+# Config (#14): BBR and fq, policy routing, connmark and masquerade (tailscaled), BNEP, the other ufw IPv6
+#   header matches (chrisohearn, betizzel/omarchy-m5#14)
 # Same package name as the image's kernel (linux-aurora); the version sorts above up273.
 
 _auroraver=7.3.0
 _aurorarel=17.v272
-pkgrel=13
+pkgrel=14
 
 _commit=c0a2a7522b4eb123f3f1fcf1c9b842b773ae480f
 
@@ -76,9 +78,9 @@ sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             '228565c674c3d550d7813f631f293cfcd22ef09db97793dbc200c7040ccfa596'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
-            'e8d5c2a4877871cdc91e406e3547329996dc8bd2103b1cdb117fb8a88537f2a7'
+            'c784712b49e495ee40a2aaaddacd4ffaf3beb62654f571cead7673eb17eae11d'
             'f2055a005206f5d301689ec74df0dbb33d56b83a2d9202cbd99ced5718c65d93'
-            'a1d21c3c4803cfcc97edccc11b633f89367515e0f336dcacbdddc66782ff0157'
+            '7175fecb20dc8e8801ce7b5a7aeb02fb4c4cb259104465b2361b92ab1c3f5468'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 
 # Kbuild takes ARCH literally and knows arm64, not aarch64.
