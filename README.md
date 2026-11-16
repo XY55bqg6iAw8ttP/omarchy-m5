@@ -47,7 +47,7 @@ heard on release 5's kernel (v272-7, 2026-11-14) and have not been re-checked by
 | Neural Engine | 🟡 device up; no workload run | DjDeveloperr, Joshua Warren, Nick, this repo |
 | Hardware video encode | ❌ probe only on 27.2 | DjDeveloperr, this repo |
 | Hardware video decode | ✅ H.264 and HEVC through the AVD decoder, 60 of 60 test frames bit-identical to software (2026-11-16); until firmware j714s14 ships, VA-API apps need `LIBVA_DRIVER_NAME=asahi` | DjDeveloperr |
-| Touch ID | untested on 27.2 (worked on the earlier 27.3 build; writes the Secure Enclave store macOS shares, read [the warning](installer/recipes/aurora-sep-upstream/README.md)) | DjDeveloperr, aurora-silicon |
+| Touch ID | ✅ enrol and match on 27.2 (2026-11-16, kernel v272-15; owner opt-in, writes the Secure Enclave store macOS shares, read [the warning](installer/recipes/aurora-sep-upstream/README.md)); match after a reboot not yet checked | DjDeveloperr, aurora-silicon |
 | Variable refresh on the panel | 🟡 offered to the compositor; not checked by eye | rolotrealanis98 |
 | Firewall (`ufw`) | ✅ | this repo, chrisohearn (report) |
 | Sleep | 🟡 lid sleep works (s2idle, release 8: two sleeps, 3 s and 3 min 37 s; after the wake the panel, Wi-Fi, Bluetooth, sound and both working USB-C ports came back). Deep sleep is off in this build: upstream, the panel stays dark after a deep-sleep wake | Isaac-Duarte (#2012, #2018), Jens Axboe and sithglan (#1647), DjDeveloperr (#1963) |
