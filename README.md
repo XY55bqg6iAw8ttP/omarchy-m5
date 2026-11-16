@@ -99,6 +99,8 @@ being sent upstream, and what waits on a test first, is in [`docs/upstream.md`](
 
 - **K114s** (14-inch OLED, M5 Pro, `apple,k114s`): admitted in developer builds, experimental, tested on one machine by chrisohearn; no image here, and admission alone gives a keyboard-only system.
   Notes: [`docs/boards/k114s.md`](docs/boards/k114s.md) and [chrisohearn/omarchy-m5p-oled](https://github.com/chrisohearn/omarchy-m5p-oled).
+- **J716s** (16-inch, M5 Pro): not admitted here and no image; runs on rolotrealanis98's own kernel and aura Stage 2 ([aurora-silicon/aura#274](https://github.com/aurora-silicon/aura/pull/274)).
+  Report: [#23](https://github.com/betizzel/omarchy-m5/issues/23) (firmware 27.3: CPUs, panel, GPU, Wi-Fi, USB4 dock, s2idle work; speakers, Bluetooth pairing and deep sleep open).
 
 ---
 
