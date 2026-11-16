@@ -1,7 +1,7 @@
-From cf7a3ecc5cd925499dced49bde12c7d55b21e146 Mon Sep 17 00:00:00 2001
+From 99d8e973d522233fb06d4e9351eac2cdd6f1e702 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:56:38 -0700
-Subject: [PATCH 21/32] dt-bindings: display: apple: allow tunnel-only Type-C
+Subject: [PATCH 21/26] dt-bindings: display: apple: allow tunnel-only Type-C
  routes
 
 A DCP route that carries USB4 DP tunnels only is not a Type-C mode-switch:

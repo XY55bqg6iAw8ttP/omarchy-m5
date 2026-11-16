@@ -1,7 +1,7 @@
-From 2f55d656faae1afac448c761e62a8d8e732323c4 Mon Sep 17 00:00:00 2001
+From b8fa7097dbdafe314ccce3df37c1a6927d7dc744 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 08:13:48 -0500
-Subject: [PATCH 04/32] drm/apple: firmware 27.3: the full IOMFB method table
+Subject: [PATCH 04/26] drm/apple: firmware 27.3: the full IOMFB method table
  and the 27.3 swap record (J716s daily)
 
 Private to the J716s daily: the IDs beyond the 20 traced ones and the 27.3 swap layout were
@@ -20,10 +20,10 @@ Claude-Session: https://claude.ai/code/session_01BV6NpkesyT31Ta49VjQELY
  5 files changed, 154 insertions(+), 42 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index fd4f4c5746c3..78859c8e29df 100644
+index 2eb5eb53fb8c..89f287e47bad 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -586,6 +586,8 @@ struct apple_dcp {
+@@ -592,6 +592,8 @@ struct apple_dcp {
  	bool v27_a407;
  	struct dcp_swap_submit_req_v27_a407 present_v27_a407;
  	struct dcp_swap_submit_req_v27_a407 peer_present_v27_a407;

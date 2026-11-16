@@ -1,7 +1,7 @@
-From 7b1a9c326f7a093b327fb1dd8bc7f9e3eb5486be Mon Sep 17 00:00:00 2001
+From dd755b8df3f0f6947f35affd97c95feb2e525fcb Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:40:33 -0700
-Subject: [PATCH 20/32] drm/apple: dcp-fabric: give T6050 DP IN 2 and 3 their
+Subject: [PATCH 20/26] drm/apple: dcp-fabric: give T6050 DP IN 2 and 3 their
  own tunnel slots
 
 A port's Thunderbolt DP tunnels are kept in two owner slots, primary and
@@ -48,7 +48,7 @@ Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
  4 files changed, 179 insertions(+), 58 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-core.c b/drivers/gpu/drm/apple/dcp-fabric-core.c
-index 6a7fab89c190..8b87a129eae9 100644
+index 84e115134357..3f60206acf66 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-core.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric-core.c
 @@ -288,11 +288,18 @@ void dcp_fabric_plan(struct dcp_fabric_pipeline *pipelines,
@@ -74,7 +74,7 @@ index 6a7fab89c190..8b87a129eae9 100644
  	if (slot)
  		return slot->tunnel && slot->dpin == dpin ? 1 : -EADDRINUSE;
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-core.h b/drivers/gpu/drm/apple/dcp-fabric-core.h
-index 602e7b2efb7f..a775649ff934 100644
+index af2be00cb6a2..e7b4bc41b6e8 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-core.h
 +++ b/drivers/gpu/drm/apple/dcp-fabric-core.h
 @@ -8,8 +8,10 @@
@@ -132,7 +132,7 @@ index 602e7b2efb7f..a775649ff934 100644
  dcp_fabric_tunnel_candidate(const struct dcp_fabric_port *port,
  			    const struct dcp_fabric_policy *policy,
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-test.c b/drivers/gpu/drm/apple/dcp-fabric-test.c
-index ef6381b15907..fed2534f6584 100644
+index ae193fca4835..ad58f1f927d3 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-test.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric-test.c
 @@ -69,7 +69,7 @@ static int fabric_tunnel(struct fabric_fixture *f, unsigned int p,
@@ -214,7 +214,7 @@ index ef6381b15907..fed2534f6584 100644
  static void fabric_t6030_follow_test(struct kunit *test)
  {
  	struct fabric_fixture f;
-@@ -2387,6 +2432,7 @@ static struct kunit_case fabric_tests[] = {
+@@ -2452,6 +2497,7 @@ static struct kunit_case fabric_tests[] = {
  	KUNIT_CASE(fabric_t6030_clock_header_parity_test),
  	KUNIT_CASE(fabric_t6030_plan_test),
  	KUNIT_CASE(fabric_t6030_follow_test),

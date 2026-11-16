@@ -1,7 +1,7 @@
-From 57406b881258b6a4e741b87f9ce3c273f1b8d077 Mon Sep 17 00:00:00 2001
+From 73696b6702fbc430bba9cb2091eb10bc2661bba3 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 13:23:08 -0700
-Subject: [PATCH 25/32] thunderbolt: apple: tell appledrm whether a DP tunnel
+Subject: [PATCH 24/26] thunderbolt: apple: tell appledrm whether a DP tunnel
  is still requested
 
 appledrm connects a DP tunnel's display from the DP IN adapter's ordered

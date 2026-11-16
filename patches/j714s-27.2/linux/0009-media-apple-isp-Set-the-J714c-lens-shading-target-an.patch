@@ -1,7 +1,7 @@
-From 12fcaeac8da2a9830ba9f2a80ad8c7e74390968d Mon Sep 17 00:00:00 2001
+From ff1746caff3bdf8996d4b39c598ec45935aba22f Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:13:01 +0100
-Subject: [PATCH 09/32] media: apple: isp: Set the J714c lens shading target
+Subject: [PATCH 09/26] media: apple: isp: Set the J714c lens shading target
  and scene metering
 
 macOS's appleh16camerad sets the IMX958's lens shading ideal percent to

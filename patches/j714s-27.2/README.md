@@ -7,14 +7,31 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 `kmutil configure-boot --compress` after `bputil -nc`; Linux runs at EL2 on every CPU inside the
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
-Status (2026-11-15, latest): v272-14: v272-13 plus chrisohearn's 38 network options (#19); built, not booted.
+Status (2026-11-16, latest): v272-15: re-pinned to aurora-silicon/linux `integration/aurora` `6612865ee100`
+(37 commits past `c0a2a7522b4e`); 6 patches dropped as upstream (patch-identical per `git cherry`): old 0024 #1944
+(`7a479d4a41c9`), 0028 #1789 (`f61eb4550a95`), 0029-0030 #1647 (`aa16d423cf8a`, `70bf8ed1867b`), 0031 #2012
+(`56b02059cfc8`), 0032 #2018 (`64d473f5321d`). Deep sleep driver still off (`CONFIG_APPLE_SOC_SLEEP` not set,
+`mem_sleep` offers `[s2idle]` only); built, not booted. The series is now 0001-0026: 0001-0023 unchanged, old
+0025-0027 renumbered 0024-0026 (#1930, #1721). One context conflict: 0026 (#1721) in `tps6598x.h`, where #2039
+(the J714s MagSafe port registered again) removed `sleep_only`; only `ldcm_requested` is added now. New upstream:
+DjDeveloperr's J714s deep-sleep completion (#2027-#2030: display coprocessor restart during the wake, its DART and
+power words, the J714s deep-sleep SoC data; all gated on `pm_suspend_via_firmware()`, so idle in s2idle), dwc3
+teardown out of the PM notifier chain (#1947), the rtkit crash log, the merged-mode platform limit (#2035; it
+withdraws pair-only modes only with three external displays), the DP tunnel clock (#2036), DPTX DP IN naming
+(#2037), the host DP IN bandwidth allocation (#2038), the ATC tunnel PHY (#2033) and the MagSafe port (#2039).
+No Kconfig changes upstream: the resolved config equals v272-14's (diffconfig empty). J714s DTB vs v272-14: 89
+lines added, none removed, all #2030's sleep data; fan-manual-control, PMP and ATC usb-aon (atc1/2/3) always-on,
+the HDMI nodes and the tunnel-only route as before. Package `linux-aurora-7.3.0.aurora17.v272-15-aarch64.pkg.tar.zst`,
+sha256 `67863904c81ca6befdec60939b24c5b386307b33c5f226389cfece44e4521611` (44392032 bytes).
+
+Previous: v272-14: v272-13 plus chrisohearn's 38 network options (#19); built, not booted.
 Same pin and series as v272-13 (patch byte-identical); only `config` and `j714s-required.config` change (BBR, fq,
 fq_codel, cake, policy routing, connmark, MARK, MASQUERADE/NAT/REDIRECT/TCPMSS, BNEP, the ufw IPv4/IPv6 matches).
 The resolved config differs from v272-13's in exactly #19's 57 symbols; 21 modules added, none removed; all DTBs
 byte-identical to v272-13. Package `linux-aurora-7.3.0.aurora17.v272-14-aarch64.pkg.tar.zst`, sha256
 `a19d0bc3a5d8312565860f33f8e4bef1f73a2ab2aaa5d222585eabff54d1543e` (44369616 bytes).
 
-Previous: v272-13: #2018 reworked as Isaac-Duarte's DT change, #2012 updated,
+Before that: v272-13: #2018 reworked as Isaac-Duarte's DT change, #2012 updated,
 #17 as a DT always-on for the HDMI PHY (already in the tree, so no new patch); built, not booted. Same pin as v272-12 (`c0a2a7522b4e`);
 0001-0030 unchanged. 0031 is #2012's current last commit `56b02059cfc8` (`af590f044ca2` with
 only its commit message changed: it now points at the DT change instead of the PHY hold; the code

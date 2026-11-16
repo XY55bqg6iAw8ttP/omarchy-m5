@@ -1,7 +1,7 @@
-From 775a5b55f70502a9d62f19b089f35715dc1ca455 Mon Sep 17 00:00:00 2001
+From 272a6b5685ef4d6f341e1eed82a010c596786bda Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:40:33 -0700
-Subject: [PATCH 23/32] arm64: dts: apple: t6050-j714s: route dcpext1 to the
+Subject: [PATCH 23/26] arm64: dts: apple: t6050-j714s: route dcpext1 to the
  right port's DP tunnels
 
 The J714s describes routes for dcpext0 and dcpext2 only, keeping dcpext1

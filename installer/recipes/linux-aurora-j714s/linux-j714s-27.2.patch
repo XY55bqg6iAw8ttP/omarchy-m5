@@ -1,7 +1,7 @@
-From 4c571e0d27daa7795e880a828c7cbd243300940a Mon Sep 17 00:00:00 2001
+From 81ff8a5b2c76984c3143d7fb4c01264a95d52f10 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 10:56:02 -0500
-Subject: [PATCH 01/32] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
+Subject: [PATCH 01/26] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
  firmware (#1173)
 
 aurora-silicon/linux #1173 (Rolando Trevino, rolotrealanis98; head
@@ -1625,10 +1625,10 @@ index 949bd81d00ed..9e8b1392d94f 100644
 -- 
 2.56.0
 
-From 94105c6b59ffd51105a28a385c1e7891c1aaa9c4 Mon Sep 17 00:00:00 2001
+From f3592fe23e0575a350f459611d9384e334422794 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 15:41:37 -0500
-Subject: [PATCH 02/32] drm/apple: Name the firmware 27 adaptive sync parameter
+Subject: [PATCH 02/26] drm/apple: Name the firmware 27 adaptive sync parameter
 
 The firmware 27 template instance sends adaptive sync as a bare 15,
 where every other instance sends IOMFBPARAM_ADAPTIVE_SYNC (14). The DCP
@@ -1653,7 +1653,7 @@ Signed-off-by: Rolando Trevino <rolotrealanis@gmail.com>
  2 files changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/iomfb.h b/drivers/gpu/drm/apple/iomfb.h
-index e5a22ca45c4b..2570bc8d788e 100644
+index 2b08c20cfa69..aa5ab333d110 100644
 --- a/drivers/gpu/drm/apple/iomfb.h
 +++ b/drivers/gpu/drm/apple/iomfb.h
 @@ -57,6 +57,13 @@ enum dcpep_type {
@@ -1695,10 +1695,10 @@ index 2ae38159ab06..f184ffabfaeb 100644
 -- 
 2.56.0
 
-From 653fce1081ee5b7948ffb0e4aa0ce502ebe664db Mon Sep 17 00:00:00 2001
+From 7b2c203688ffb4b4453f7ba99688cda17e73afac Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 18:21:40 -0500
-Subject: [PATCH 03/32] drm/apple: Refuse panel brightness once the display
+Subject: [PATCH 03/26] drm/apple: Refuse panel brightness once the display
  processor crashed
 
 A panel that presents its level in the swap gets a new level only with
@@ -1718,10 +1718,10 @@ Signed-off-by: Rolando Trevino <rolotrealanis@gmail.com>
  1 file changed, 6 insertions(+)
 
 diff --git a/drivers/gpu/drm/apple/dcp_backlight.c b/drivers/gpu/drm/apple/dcp_backlight.c
-index 0f332de569d1..a4e7270e64ae 100644
+index 7432513a7ba2..c25fb11a0ed6 100644
 --- a/drivers/gpu/drm/apple/dcp_backlight.c
 +++ b/drivers/gpu/drm/apple/dcp_backlight.c
-@@ -246,6 +246,9 @@ static int dcp_get_brightness(struct backlight_device *bd)
+@@ -252,6 +252,9 @@ static int dcp_get_brightness(struct backlight_device *bd)
  
  	if (READ_ONCE(dcp->quiescing))
  		return -ENODEV;
@@ -1731,7 +1731,7 @@ index 0f332de569d1..a4e7270e64ae 100644
  
  	if (dcp_backlight_active(dcp) || dcp_backlight_desktop(dcp)) {
  		/*
-@@ -816,6 +819,9 @@ static int dcp_set_brightness(struct backlight_device *bd)
+@@ -822,6 +825,9 @@ static int dcp_set_brightness(struct backlight_device *bd)
  
  	if (READ_ONCE(dcp->quiescing))
  		return -ENODEV;
@@ -1744,10 +1744,10 @@ index 0f332de569d1..a4e7270e64ae 100644
 -- 
 2.56.0
 
-From 2f55d656faae1afac448c761e62a8d8e732323c4 Mon Sep 17 00:00:00 2001
+From b8fa7097dbdafe314ccce3df37c1a6927d7dc744 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 08:13:48 -0500
-Subject: [PATCH 04/32] drm/apple: firmware 27.3: the full IOMFB method table
+Subject: [PATCH 04/26] drm/apple: firmware 27.3: the full IOMFB method table
  and the 27.3 swap record (J716s daily)
 
 Private to the J716s daily: the IDs beyond the 20 traced ones and the 27.3 swap layout were
@@ -1766,10 +1766,10 @@ Claude-Session: https://claude.ai/code/session_01BV6NpkesyT31Ta49VjQELY
  5 files changed, 154 insertions(+), 42 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index fd4f4c5746c3..78859c8e29df 100644
+index 2eb5eb53fb8c..89f287e47bad 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -586,6 +586,8 @@ struct apple_dcp {
+@@ -592,6 +592,8 @@ struct apple_dcp {
  	bool v27_a407;
  	struct dcp_swap_submit_req_v27_a407 present_v27_a407;
  	struct dcp_swap_submit_req_v27_a407 peer_present_v27_a407;
@@ -2057,10 +2057,10 @@ index 915de53c68bf..be4576e03f01 100644
 -- 
 2.56.0
 
-From e9db0075c06c391c3e9246fe177a361988dd5cc9 Mon Sep 17 00:00:00 2001
+From b627e46ac4da86c82a09388899324072bc6c49b8 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Wed, 11 Nov 2026 12:00:39 -0700
-Subject: [PATCH 05/32] drm/asahi: t6050: identify the 27.2 (26B8125) G17S
+Subject: [PATCH 05/26] drm/asahi: t6050: identify the 27.2 (26B8125) G17S
  firmware of the K114/K116
 
 Applies on top of aurora-silicon/linux PR #1173.
@@ -2139,10 +2139,10 @@ index 9e8b1392d94f..6b7ebe1852da 100644
 -- 
 2.56.0
 
-From 16d5d29a2db7b96c715969c571781cae0366c01d Mon Sep 17 00:00:00 2001
+From 877ffdf0358550f1fdf0f2899afbbb36fc987948 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 23:52:29 -0500
-Subject: [PATCH 06/32] accel/ane, media: apple: ave: T6050 Neural Engine on
+Subject: [PATCH 06/26] accel/ane, media: apple: ave: T6050 Neural Engine on
  macOS 27.3; AVE builds by TEXT CRC
 
 The T6050 ANE driver admits one preloaded firmware build, the macOS 27.0
@@ -2704,10 +2704,10 @@ index d8075a8d38bc..05dd6fa2fe0c 100644
 -- 
 2.56.0
 
-From 27d36571b505a00bd6c99a5b0d4ff44e7eef5ba8 Mon Sep 17 00:00:00 2001
+From 9ea78941ad14966265caef20e2824cabd67bfb0d Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
-Subject: [PATCH 07/32] media: apple: isp: Tune the J714c IMX958 with setfile
+Subject: [PATCH 07/26] media: apple: isp: Tune the J714c IMX958 with setfile
  2226_02
 
 macOS's appleh16camerad carries three setfiles naming sensor 0x958:
@@ -2799,10 +2799,10 @@ index 3551018baf17..79a4445d1c4f 100644
 -- 
 2.56.0
 
-From 27a68ed12a93e715a224179985fdddd49192718b Mon Sep 17 00:00:00 2001
+From ac21889ae509dc81798a7f6366bde782057121f4 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:11:59 +0100
-Subject: [PATCH 08/32] media: apple: isp: Compute the T6050 setfile's noise
+Subject: [PATCH 08/26] media: apple: isp: Compute the T6050 setfile's noise
  reduction radial gains
 
 The IMX958 setfile 2226_02 carries its noise reduction radial gains
@@ -2982,10 +2982,10 @@ index 79a4445d1c4f..6b7e6b5f9a70 100644
 -- 
 2.56.0
 
-From 12fcaeac8da2a9830ba9f2a80ad8c7e74390968d Mon Sep 17 00:00:00 2001
+From ff1746caff3bdf8996d4b39c598ec45935aba22f Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:13:01 +0100
-Subject: [PATCH 09/32] media: apple: isp: Set the J714c lens shading target
+Subject: [PATCH 09/26] media: apple: isp: Set the J714c lens shading target
  and scene metering
 
 macOS's appleh16camerad sets the IMX958's lens shading ideal percent to
@@ -3125,10 +3125,10 @@ index 6b7e6b5f9a70..c13914ef62e9 100644
 -- 
 2.56.0
 
-From 10cdc1c1b409ec1e5664207b9c85f8a6bcc5f031 Mon Sep 17 00:00:00 2001
+From 21ac6384f9022b508284584e1a182591042b40fe Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 11:16:29 -0500
-Subject: [PATCH 10/32] arm64: dts: apple: t6050-j714s: Also offer 2560x1440
+Subject: [PATCH 10/26] arm64: dts: apple: t6050-j714s: Also offer 2560x1440
  from sensor config 6
 
 DjDeveloperr's J714s presets (#1835) crop and scale sensor config 6 to
@@ -3146,10 +3146,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 10 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index cffcd7f74359..4c83017c57bd 100644
+index 383ec08bedbe..5f4765eb6526 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -638,6 +638,9 @@ fan-F1Ac {
+@@ -645,6 +645,9 @@ fan-F1Ac {
   * the first) cropped and scaled by the ISP per size. Each crop is centred on that frame;
   * the landscape sizes take two-thirds of its width, the portrait sizes the same length of
   * its height and the square that side.
@@ -3159,7 +3159,7 @@ index cffcd7f74359..4c83017c57bd 100644
   */
  &isp0 {
  	/delete-node/ sensor-presets;
-@@ -692,6 +695,13 @@ preset6 {
+@@ -699,6 +702,13 @@ preset6 {
  			apple,output-size = <1080 1920>;
  			apple,crop = <950 426 1140 2026>;
  		};
@@ -3176,10 +3176,10 @@ index cffcd7f74359..4c83017c57bd 100644
 -- 
 2.56.0
 
-From 40ec8af14692967d29ec90cc306ba61787460812 Mon Sep 17 00:00:00 2001
+From 1d18fda01898e265d97f1eb49e175da6ded85112 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:35 +0100
-Subject: [PATCH 11/32] media: apple: isp: Drive the J714c camera light from
+Subject: [PATCH 11/26] media: apple: isp: Drive the J714c camera light from
  the driver
 
 On the J714c the camera light belongs to the exclave indicator
@@ -3405,10 +3405,10 @@ index 09b691228650..3c39a1d5fc9d 100644
 -- 
 2.56.0
 
-From 527c6f4b750838f68225a8be6cdd6d2aa3c26d0b Mon Sep 17 00:00:00 2001
+From eab8fc66501af432e2db7770d1bffe7bb5ad452e Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
-Subject: [PATCH 12/32] media: apple: isp: Turn the J714c camera light off
+Subject: [PATCH 12/26] media: apple: isp: Turn the J714c camera light off
  after a firmware halt
 
 A firmware that dies mid-start can leave the sensor powered, and a
@@ -3515,10 +3515,10 @@ index 3c39a1d5fc9d..a35961de0f15 100644
 -- 
 2.56.0
 
-From 54e1a8f4755b1a0dab7eb41e54050a13fe7397c0 Mon Sep 17 00:00:00 2001
+From 52318ecf60338ae9ef945626520197ad9e00fa7a Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 05:03:13 -0500
-Subject: [PATCH 13/32] arm64: dts: apple: t6050-j714s: Describe the camera
+Subject: [PATCH 13/26] arm64: dts: apple: t6050-j714s: Describe the camera
  light
 
 edimoldovan's camera light driver (omacom/linux-aurora #422, 5a3e9d8a5f0b
@@ -3538,10 +3538,10 @@ Claude-Session: https://claude.ai/code/session_01H3rUWsmTuAiei3A7JojjHG
  1 file changed, 18 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index 4c83017c57bd..e7447a37c614 100644
+index 5f4765eb6526..5e16259450fb 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -643,6 +643,24 @@ fan-F1Ac {
+@@ -650,6 +650,24 @@ fan-F1Ac {
   * same frame 1:1, unscaled.
   */
  &isp0 {
@@ -3569,10 +3569,10 @@ index 4c83017c57bd..e7447a37c614 100644
 -- 
 2.56.0
 
-From c1a5de77cd6837c8b878a0e73398799bb8665016 Mon Sep 17 00:00:00 2001
+From 310c3e7d9d1486c417ae0b653937d8842a578527 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 12:29:34 -0500
-Subject: [PATCH 14/32] drm/apple: Offer VRR on the firmware 27 panel and apply
+Subject: [PATCH 14/26] drm/apple: Offer VRR on the firmware 27 panel and apply
  VRR_ENABLED (J716s daily)
 
 The T6050 ProMotion panel reports its 120 Hz timing with both
@@ -3615,10 +3615,10 @@ Claude-Session: https://claude.ai/code/session_01BV6NpmcwB5iJuY9huL52C5
  4 files changed, 91 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index 78859c8e29df..98c21ee2a24e 100644
+index 89f287e47bad..8ff58e2d140f 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -680,6 +680,8 @@ struct apple_dcp {
+@@ -686,6 +686,8 @@ struct apple_dcp {
  	bool typec_hpd_held;
  	bool use_timestamps;
  	bool vrr_enabled;
@@ -3627,7 +3627,7 @@ index 78859c8e29df..98c21ee2a24e 100644
  	/*
  	 * The mode set asks for a PQ signal; output_pq: the one set carries it;
  	 * output_edr: a panel shows the PQ content as EDR, edr_sent: swaps
-@@ -1202,6 +1204,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
+@@ -1208,6 +1210,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
  	       dcp_has_panel(dcp);
  }
  
@@ -3670,7 +3670,7 @@ index 21a0c8a82229..5a8ced923d7a 100644
  			msecs_to_jiffies(DCP_SWAP_WATCHDOG_MS);
  		mod_delayed_work(system_dfl_wq, &dcp->swap_watchdog_wq,
 diff --git a/drivers/gpu/drm/apple/iomfb.c b/drivers/gpu/drm/apple/iomfb.c
-index 336f6f46fdea..5bdcddaef12d 100644
+index 8714adf0b7e1..da95b9fd7c11 100644
 --- a/drivers/gpu/drm/apple/iomfb.c
 +++ b/drivers/gpu/drm/apple/iomfb.c
 @@ -45,6 +45,23 @@
@@ -3697,7 +3697,7 @@ index 336f6f46fdea..5bdcddaef12d 100644
  struct dcp_identity_trace {
  	struct apple_dcp *dcp;
  	atomic_t *count;
-@@ -2361,7 +2378,12 @@ int dcp_modes_replace(struct apple_dcp *dcp, struct dcp_parse_ctx *ctx,
+@@ -2404,7 +2421,12 @@ int dcp_modes_replace(struct apple_dcp *dcp, struct dcp_parse_ctx *ctx,
  				       !dcp_has_panel(dcp);
  		ctx->pq_dsc = dcp->fw_compat == DCP_FIRMWARE_V_27_0;
  	}
@@ -3711,7 +3711,7 @@ index 336f6f46fdea..5bdcddaef12d 100644
  	ctx->internal_present_deadline = dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP;
  	if (dcp->fixed_connector_type != DRM_MODE_CONNECTOR_eDP &&
  	    smp_load_acquire(&dcp->dptxport[0].tile_hint)) {
-@@ -2804,6 +2826,8 @@ int dcp_get_modes(struct drm_connector *connector)
+@@ -2847,6 +2869,8 @@ int dcp_get_modes(struct drm_connector *connector)
  		}
  		vrr_capable |= modes[i].vrr;
  	}
@@ -3720,7 +3720,7 @@ index 336f6f46fdea..5bdcddaef12d 100644
  	drm_connector_set_vrr_capable_property(connector, vrr_capable);
  modes_done:
  	mutex_unlock(&dcp->dcpavserv.lock);
-@@ -4064,6 +4088,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
+@@ -4114,6 +4138,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
  	schedule_work(&dcp->vblank_wq);
  }
  
@@ -3765,7 +3765,7 @@ index 336f6f46fdea..5bdcddaef12d 100644
  void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  {
  	struct platform_device *pdev = to_apple_crtc(crtc)->dcp;
-@@ -4130,6 +4192,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
+@@ -4180,6 +4242,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  			dcp_hdr_metadata_sync(dcp, crtc, commit);
  	}
  
@@ -3829,10 +3829,10 @@ index c34e27a12ad2..82445bb4e199 100644
 -- 
 2.56.0
 
-From 6af6d2b34f2d46bc235cb2632efdbce402ecf70b Mon Sep 17 00:00:00 2001
+From 3b375921e070864d2ceb5b284d44dca1977cd417 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 23:54:15 -0500
-Subject: [PATCH 15/32] accel/ane, media: apple: ave: T6050 Neural Engine and
+Subject: [PATCH 15/26] accel/ane, media: apple: ave: T6050 Neural Engine and
  encoder on macOS 27.2
 
 The J714s 27.2 stub (UniversalMac_27.2_26B123, J714s identity) preloads
@@ -4006,10 +4006,10 @@ index 05dd6fa2fe0c..ad9c7b28956e 100644
 -- 
 2.56.0
 
-From 8a4a36e4ea97b01b25efaceb7f64f530ab12c109 Mon Sep 17 00:00:00 2001
+From 473c9c27c1c9ada76f0527eef0a684035781b744 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:06:46 -0500
-Subject: [PATCH 16/32] accel/ane: T6050: pin the macOS 27.2 (26B123) ANE TEXT
+Subject: [PATCH 16/26] accel/ane: T6050: pin the macOS 27.2 (26B123) ANE TEXT
 
 Read from the first J714s 27.2 boot: H17 ANE: preloaded TEXT sha256 b15dd8fb3367a6d5a77935a62b4c6c9d6a6e166cd11c1b2a886c65f114d7c40e.
 
@@ -4049,10 +4049,10 @@ index 2ad203340e31..6079ea9a3999 100644
 -- 
 2.56.0
 
-From 230742322dd284e04baea316b57f2ce78d0fb4c9 Mon Sep 17 00:00:00 2001
+From 98a8d1eba14559bab3de63308ad064ef6ee47415 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:30:00 -0500
-Subject: [PATCH 17/32] arm64: dts: apple: t6050-j714s: Describe the HDMI port
+Subject: [PATCH 17/26] arm64: dts: apple: t6050-j714s: Describe the HDMI port
 
 The J714s HDMI port: dcpext3 -> the atc3 display crossbar -> ATC3 as a fixed
 four-lane DP PHY (the J714sAP ADT has no usb-drd3) -> the on-board DP-to-HDMI
@@ -4193,10 +4193,10 @@ index 000000000000..7677e05b0d6f
 +	/delete-property/ resets;
 +};
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index e7447a37c614..b1dcc1d9d98f 100644
+index 5e16259450fb..60e9b16b07da 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -1032,3 +1032,6 @@ &ave0_dart1 {
+@@ -1041,3 +1041,6 @@ &ave0_dart1 {
  &ave0 {
  	status = "okay";
  };
@@ -4206,10 +4206,10 @@ index e7447a37c614..b1dcc1d9d98f 100644
 -- 
 2.56.0
 
-From d8405432270d0920d3330eb81dd06e6e4ac07b28 Mon Sep 17 00:00:00 2001
+From 79b61d8ad0c7ec30707e9a16511a20aa6b6215ae Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 18/32] drm/apple: T6050 HDMI: complete flips locally while the
+Subject: [PATCH 18/26] drm/apple: T6050 HDMI: complete flips locally while the
  output connects
 
 A monitor that wakes from standby when the HDMI link comes up drops HPD about
@@ -4259,10 +4259,10 @@ index 666053f3f948..318a1604aa1f 100644
  	dcp_hdmi_update_locked(dcp);
  	/* The GPIO edge detector is off throughout an oneshot handler. */
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index 98c21ee2a24e..f1b9701fc856 100644
+index 8ff58e2d140f..8d9f26ff6c6c 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -1049,6 +1049,9 @@ struct apple_dcp {
+@@ -1055,6 +1055,9 @@ struct apple_dcp {
  	struct delayed_work hdmi_recheck_wq;
  	/* T6030 HDMI converter service requests, see dcp-hdmi.c */
  	struct dcp_hdmi *hdmi;
@@ -4272,7 +4272,7 @@ index 98c21ee2a24e..f1b9701fc856 100644
  
  	/*
  	 * Interrupts of a Thunderbolt DP tunnel's DP IN adapter, to pass to
-@@ -1138,6 +1141,7 @@ void iomfb_queue_crc_h17p(struct apple_dcp *dcp, u32 swap_id);
+@@ -1144,6 +1147,7 @@ void iomfb_queue_crc_h17p(struct apple_dcp *dcp, u32 swap_id);
  void dcp_drm_crtc_page_flip(struct apple_dcp *dcp, ktime_t now);
  void dcp_handle_hotplug_actions(struct apple_dcp *dcp, unsigned int action);
  bool dcp_external_hotplug(struct apple_dcp *dcp, bool connected);
@@ -4304,10 +4304,10 @@ index 5a8ced923d7a..e96f1694af5e 100644
  			int irq = gpiod_to_irq(dcp->hdmi_hpd);
  			if (irq < 0 && dcp->external_native) {
 diff --git a/drivers/gpu/drm/apple/iomfb.c b/drivers/gpu/drm/apple/iomfb.c
-index 5bdcddaef12d..25452d2e18ab 100644
+index da95b9fd7c11..63c7e913c5e6 100644
 --- a/drivers/gpu/drm/apple/iomfb.c
 +++ b/drivers/gpu/drm/apple/iomfb.c
-@@ -4126,6 +4126,46 @@ static bool dcp_fw27_vrr_switch(struct apple_dcp *dcp, struct drm_crtc *crtc,
+@@ -4176,6 +4176,46 @@ static bool dcp_fw27_vrr_switch(struct apple_dcp *dcp, struct drm_crtc *crtc,
  	return false;
  }
  
@@ -4354,7 +4354,7 @@ index 5bdcddaef12d..25452d2e18ab 100644
  void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  {
  	struct platform_device *pdev = to_apple_crtc(crtc)->dcp;
-@@ -4154,6 +4194,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
+@@ -4204,6 +4244,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  		return;
  	}
  
@@ -4381,10 +4381,10 @@ index 82445bb4e199..7ce5d0d7137f 100644
 -- 
 2.56.0
 
-From 93d3b310dd88ca70c095e2ebe3980849038f98d8 Mon Sep 17 00:00:00 2001
+From 9a510315bedcde9a64c4ada634a194f7a510bcd6 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 19/32] drm/apple: forward HDMI converter service requests on
+Subject: [PATCH 19/26] drm/apple: forward HDMI converter service requests on
  T6050
 
 The J714s HDMI port is the same design as the T6030 one: dcpext drives an
@@ -4433,10 +4433,10 @@ index 0603de2a0e22..3ac28f24a7af 100644
 -- 
 2.56.0
 
-From 7b1a9c326f7a093b327fb1dd8bc7f9e3eb5486be Mon Sep 17 00:00:00 2001
+From dd755b8df3f0f6947f35affd97c95feb2e525fcb Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:40:33 -0700
-Subject: [PATCH 20/32] drm/apple: dcp-fabric: give T6050 DP IN 2 and 3 their
+Subject: [PATCH 20/26] drm/apple: dcp-fabric: give T6050 DP IN 2 and 3 their
  own tunnel slots
 
 A port's Thunderbolt DP tunnels are kept in two owner slots, primary and
@@ -4483,7 +4483,7 @@ Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
  4 files changed, 179 insertions(+), 58 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-core.c b/drivers/gpu/drm/apple/dcp-fabric-core.c
-index 6a7fab89c190..8b87a129eae9 100644
+index 84e115134357..3f60206acf66 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-core.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric-core.c
 @@ -288,11 +288,18 @@ void dcp_fabric_plan(struct dcp_fabric_pipeline *pipelines,
@@ -4509,7 +4509,7 @@ index 6a7fab89c190..8b87a129eae9 100644
  	if (slot)
  		return slot->tunnel && slot->dpin == dpin ? 1 : -EADDRINUSE;
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-core.h b/drivers/gpu/drm/apple/dcp-fabric-core.h
-index 602e7b2efb7f..a775649ff934 100644
+index af2be00cb6a2..e7b4bc41b6e8 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-core.h
 +++ b/drivers/gpu/drm/apple/dcp-fabric-core.h
 @@ -8,8 +8,10 @@
@@ -4567,7 +4567,7 @@ index 602e7b2efb7f..a775649ff934 100644
  dcp_fabric_tunnel_candidate(const struct dcp_fabric_port *port,
  			    const struct dcp_fabric_policy *policy,
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-test.c b/drivers/gpu/drm/apple/dcp-fabric-test.c
-index ef6381b15907..fed2534f6584 100644
+index ae193fca4835..ad58f1f927d3 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-test.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric-test.c
 @@ -69,7 +69,7 @@ static int fabric_tunnel(struct fabric_fixture *f, unsigned int p,
@@ -4649,7 +4649,7 @@ index ef6381b15907..fed2534f6584 100644
  static void fabric_t6030_follow_test(struct kunit *test)
  {
  	struct fabric_fixture f;
-@@ -2387,6 +2432,7 @@ static struct kunit_case fabric_tests[] = {
+@@ -2452,6 +2497,7 @@ static struct kunit_case fabric_tests[] = {
  	KUNIT_CASE(fabric_t6030_clock_header_parity_test),
  	KUNIT_CASE(fabric_t6030_plan_test),
  	KUNIT_CASE(fabric_t6030_follow_test),
@@ -4917,10 +4917,10 @@ index 318a1604aa1f..a3ead157dcc5 100644
 -- 
 2.56.0
 
-From cf7a3ecc5cd925499dced49bde12c7d55b21e146 Mon Sep 17 00:00:00 2001
+From 99d8e973d522233fb06d4e9351eac2cdd6f1e702 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:56:38 -0700
-Subject: [PATCH 21/32] dt-bindings: display: apple: allow tunnel-only Type-C
+Subject: [PATCH 21/26] dt-bindings: display: apple: allow tunnel-only Type-C
  routes
 
 A DCP route that carries USB4 DP tunnels only is not a Type-C mode-switch:
@@ -5051,10 +5051,10 @@ index e6c04ae9e697..680fc93ef2e5 100644
 -- 
 2.56.0
 
-From f26ef461b13c44523a83d719264de30b77ddbfea Mon Sep 17 00:00:00 2001
+From e4fb194f5c31bbdd092d58fe80e9ce4724532f1a Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:56:38 -0700
-Subject: [PATCH 22/32] drm/apple: dcp-fabric: support tunnel-only Type-C
+Subject: [PATCH 22/26] drm/apple: dcp-fabric: support tunnel-only Type-C
  routes
 
 A route marked apple,tunnel-only exists to give USB4 DP tunnels another
@@ -5146,7 +5146,7 @@ index 9959f24170e9..bd57a279537c 100644
  			if (!mask)
  				continue;
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-core.c b/drivers/gpu/drm/apple/dcp-fabric-core.c
-index 8b87a129eae9..74328af75a7b 100644
+index 3f60206acf66..8fd211427396 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-core.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric-core.c
 @@ -186,7 +186,8 @@ dcp_fabric_free_route(const struct dcp_fabric_port *port,
@@ -5213,7 +5213,7 @@ index 8b87a129eae9..74328af75a7b 100644
  	if (!pipeline->bound || pipeline->fixed_busy || pipeline->terminal ||
  	    !pipeline->services_ready)
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-core.h b/drivers/gpu/drm/apple/dcp-fabric-core.h
-index a775649ff934..8ee2f535dfe6 100644
+index e7b4bc41b6e8..f1fd83c56985 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-core.h
 +++ b/drivers/gpu/drm/apple/dcp-fabric-core.h
 @@ -65,6 +65,8 @@ struct dcp_fabric_route {
@@ -5226,7 +5226,7 @@ index a775649ff934..8ee2f535dfe6 100644
  
  struct dcp_fabric_plan {
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-test.c b/drivers/gpu/drm/apple/dcp-fabric-test.c
-index fed2534f6584..542852e4409c 100644
+index ad58f1f927d3..b6864283f3ba 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-test.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric-test.c
 @@ -2108,6 +2108,77 @@ static void fabric_per_dpin_slot_test(struct kunit *test)
@@ -5307,7 +5307,7 @@ index fed2534f6584..542852e4409c 100644
  static void fabric_t6030_follow_test(struct kunit *test)
  {
  	struct fabric_fixture f;
-@@ -2433,6 +2504,7 @@ static struct kunit_case fabric_tests[] = {
+@@ -2498,6 +2569,7 @@ static struct kunit_case fabric_tests[] = {
  	KUNIT_CASE(fabric_t6030_plan_test),
  	KUNIT_CASE(fabric_t6030_follow_test),
  	KUNIT_CASE(fabric_per_dpin_slot_test),
@@ -5395,10 +5395,10 @@ index ca3ddcd6700f..c1ee7b6c6e1d 100644
 -- 
 2.56.0
 
-From 775a5b55f70502a9d62f19b089f35715dc1ca455 Mon Sep 17 00:00:00 2001
+From 272a6b5685ef4d6f341e1eed82a010c596786bda Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:40:33 -0700
-Subject: [PATCH 23/32] arm64: dts: apple: t6050-j714s: route dcpext1 to the
+Subject: [PATCH 23/26] arm64: dts: apple: t6050-j714s: route dcpext1 to the
  right port's DP tunnels
 
 The J714s describes routes for dcpext0 and dcpext2 only, keeping dcpext1
@@ -5506,91 +5506,10 @@ index f14c7ab163e3..003b229e2640 100644
 -- 
 2.56.0
 
-From 7d9e29863c69a2dd37d6766412d0c8181a705ca3 Mon Sep 17 00:00:00 2001
-From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
-Date: Sat, 14 Nov 2026 16:22:02 -0700
-Subject: [PATCH 24/32] arm64: dts: apple: t6050-j714s: let userspace set the
- fan speeds
-
-Mark both J714s fans apple,fan-manual-control, as the M4 Pro/Max
-MacBook Pros and the J704 already are, so fanX_target is writable
-without the unsafe fan_control module parameter. The SMC still drives
-the fans until userspace writes a target, and writing 0 hands a fan
-back to the firmware. The M5 GPU governor already sets these fans
-through the same manual mode; a userspace target takes a fan over from
-it until 0 is written.
-
-Under bursty CPU load the firmware's curve leaves both fans at their
-idle speed (targets about 2320/2500 rpm) while the SoC hotspot (TCMb)
-reaches 105-111 C and the firmware lowers the CPU clocks. Faster fans
-set from userspace recover much of it: a clean Rust release build
-drops from 60 s to 47 s with the fans at their maximum. With the
-fan_control parameter on this machine, both fans took a manual speed
-and returned to the firmware's curve after 0 was written; that is the
-same driver path this property enables.
-
-J716s and J775D are left as they are until their fans are tested the
-same way.
-
-Tested on J714s (7.3.0-36.n1usb) with its installed device tree plus
-this property and fan_control=N: both fanX_target are 0644, the kernel
-is not tainted, fan 1 set to 4000 rpm ran at 3996 rpm and returned to
-the firmware's idle speed (2326 rpm) after 0 was written, with no
-macsmc-hwmon warnings.
-
-Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
----
- arch/arm64/boot/dts/apple/t6050-j714s.dts | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
-
-diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index b1dcc1d9d98f..9e565552c9c3 100644
---- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
-+++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -599,10 +599,10 @@ &jpeg1 {
- #include "t6050-j714s-pmp-tunables.dtsi"
- 
- /*
-- * SMC sensors, as on J716s: the shared fan, power, voltage and current keys, plus
-- * every readable float T* key through apple,discover-temperatures in
-- * t6050-die0.dtsi, labelled with the key name. A key this SMC lacks only drops
-- * its channel.
-+ * SMC sensors, as on J716s except that userspace may set the fans (below): the
-+ * shared fan, power, voltage and current keys, plus every readable float T* key
-+ * through apple,discover-temperatures in t6050-die0.dtsi, labelled with the key
-+ * name. A key this SMC lacks only drops its channel.
-  *
-  * Discovery refuses to run once any temperature channel exists, so the shared
-  * temperature nodes go (their keys are discovered anyway), and so does
-@@ -620,13 +620,20 @@ &smc_hwmon {
- 	/delete-node/ temperature-TCHP;
- 	/delete-node/ temperature-TW0P;
- 
--	/* The T6050 SMC spells the fan mode keys F0md/F1md. The SMC drives the fans. */
-+	/*
-+	 * The T6050 SMC spells the fan mode keys F0md/F1md. The SMC drives the
-+	 * fans (the M5 GPU governor sets them through macsmc_hwmon_fans_request()
-+	 * as well); it also accepts a manual speed for both from userspace and
-+	 * returns them to firmware control when the request is dropped.
-+	 */
- 	fan-F0Ac {
- 		apple,fan-mode = "F0md";
-+		apple,fan-manual-control;
- 	};
- 
- 	fan-F1Ac {
- 		apple,fan-mode = "F1md";
-+		apple,fan-manual-control;
- 	};
- };
- 
--- 
-2.56.0
-
-From 57406b881258b6a4e741b87f9ce3c273f1b8d077 Mon Sep 17 00:00:00 2001
+From 73696b6702fbc430bba9cb2091eb10bc2661bba3 Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 13:23:08 -0700
-Subject: [PATCH 25/32] thunderbolt: apple: tell appledrm whether a DP tunnel
+Subject: [PATCH 24/26] thunderbolt: apple: tell appledrm whether a DP tunnel
  is still requested
 
 appledrm connects a DP tunnel's display from the DP IN adapter's ordered
@@ -5653,10 +5572,10 @@ index 034a74b852eb..09afceeda700 100644
 -- 
 2.56.0
 
-From 2c807a34d9765d1968f8be2cbafc028e7b7437f8 Mon Sep 17 00:00:00 2001
+From af18ff2d679f90dbd1965ff1db135bff86d1a0de Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 13:23:08 -0700
-Subject: [PATCH 26/32] drm/apple: stop waiting for a link on a DP tunnel that
+Subject: [PATCH 25/26] drm/apple: stop waiting for a link on a DP tunnel that
  went
 
 A Thunderbolt 5 dock (Ugreen 10-in-1) on a J714s withdraws its first DP
@@ -5793,10 +5712,10 @@ index e96f1694af5e..5c47b5906555 100644
 -- 
 2.56.0
 
-From eca9f3e63a3492daa552500419a11bcd8f302561 Mon Sep 17 00:00:00 2001
+From 5041f2f8f0b9000283215ca934733cccb2358f67 Mon Sep 17 00:00:00 2001
 From: DjDeveloperr <hey@djdev.me>
 Date: Thu, 12 Nov 2026 15:01:46 -0500
-Subject: [PATCH 27/32] usb: typec: tipd: sn201202x: Send no LDCM command to a
+Subject: [PATCH 26/26] usb: typec: tipd: sn201202x: Send no LDCM command to a
  dry port
 
 On every probe, and again after a controller reset, the driver sends an
@@ -5830,10 +5749,10 @@ Signed-off-by: Diljit Singh <hey@djdev.me>
  2 files changed, 18 insertions(+)
 
 diff --git a/drivers/usb/typec/tipd/spmi.c b/drivers/usb/typec/tipd/spmi.c
-index 8a6b6b417775..0996a2eb6139 100644
+index 4522994124f3..04c49a74245d 100644
 --- a/drivers/usb/typec/tipd/spmi.c
 +++ b/drivers/usb/typec/tipd/spmi.c
-@@ -302,6 +302,19 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
+@@ -300,6 +300,19 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
  	if (sn->ldcm_mitigation_known && sn->ldcm_mitigated == enable)
  		return 0;
  
@@ -5853,7 +5772,7 @@ index 8a6b6b417775..0996a2eb6139 100644
  	/*
  	 * Successful task completion is the controller's mitigation ACK.
  	 * Startup commands can take more than a second on SN201202x. Wait for
-@@ -312,6 +325,8 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
+@@ -310,6 +323,8 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
  	sn->ldcm_mitigation_known = !ret;
  	if (!ret)
  		sn->ldcm_mitigated = enable;
@@ -5862,7 +5781,7 @@ index 8a6b6b417775..0996a2eb6139 100644
  	return ret;
  }
  
-@@ -467,6 +482,7 @@ static void sn201202x_ldcm_invalidate(struct tps6598x *tps)
+@@ -465,6 +480,7 @@ static void sn201202x_ldcm_invalidate(struct tps6598x *tps)
  	tps->contaminant = TYPEC_CONTAMINANT_UNKNOWN;
  	sn->ldcm_mitigated = false;
  	sn->ldcm_mitigation_known = false;
@@ -5871,372 +5790,18 @@ index 8a6b6b417775..0996a2eb6139 100644
  }
  
 diff --git a/drivers/usb/typec/tipd/tps6598x.h b/drivers/usb/typec/tipd/tps6598x.h
-index 2174c9e89a73..da892da0a33d 100644
+index 282ccc232da3..8b11f63f0e69 100644
 --- a/drivers/usb/typec/tipd/tps6598x.h
 +++ b/drivers/usb/typec/tipd/tps6598x.h
-@@ -512,6 +512,8 @@ struct sn201202x {
+@@ -510,6 +510,8 @@ struct sn201202x {
+ 	bool ldcm_mitigated;
+ 	/* ldcm_mitigated matches the controller (unknown after a reset) */
  	bool ldcm_mitigation_known;
- 	/* J714s, no connector (its MagSafe controller): only its system sleep state is driven */
- 	bool sleep_only;
 +	/* A mitigation was requested since the controller's last reset */
 +	bool ldcm_requested;
  };
  
  extern const struct tipd_data *tipd_hw_variants[];
--- 
-2.56.0
-
-From f6a2a96fe295340da3b2cda11db35d33f0157079 Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Thu, 12 Nov 2026 12:19:50 -0700
-Subject: [PATCH 28/32] arm64: dts: apple: t6050: keep the PMP's power domains
- on
-
-The PMP's firmware runs from the moment its driver starts it, and in a
-suspend-to-idle the driver leaves it running: only a firmware-driven sleep
-stops it. Its three power states were ordinary genpd domains, though, so
-at the noirq phase of every s2idle genpd gated the PMP's core (pmp) and
-its SRAM (pms-sram) under the running firmware and then tried their parent
-(pms), which the PMGR refuses:
-
-  PS pms: Failed to reach power state 0x0 (requested 0xf0000f0, now: 0x1f0002ff)
-
-With power back at the wake the firmware usually takes a translation fault
-within the first moments (PC 0x10178b4, 0x1025498 or 0, every register
-zero) and reports a crash; it stays down until reboot, and prints its
-crash log again at each later wake. On the K116s that was 3 of the 4
-suspends that reached the noirq phase with a live PMP.
-
-Mark all three always-on, as the ADT's "critical" flag on PMP asks.
-Every other SoC description with a pms domain keeps it on, and those
-whose PMP Linux runs (T6030, T604x, T8122, T8132, T8140 and the T8142
-J813, which gained it for the same crash) keep pmp on. The PMP then
-keeps running through s2idle as it does under macOS, and the pms
-message goes away with the power-off request.
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[thomas: name the SoCs that keep pms and pmp on]
-Signed-off-by: Thomas Glanzmann <thomas@glanzmann.de>
----
- arch/arm64/boot/dts/apple/t6050-peripherals.dtsi | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
-index 4c803c77a130..5c4a029f5751 100644
---- a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
-+++ b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
-@@ -94,6 +94,12 @@ ps_pms: power-controller@100 {
- 		#power-domain-cells = <0>;
- 		#reset-cells = <0>;
- 		label = "pms";
-+		/*
-+		 * The PMP's firmware runs from boot until a real sleep stops it, on its own
-+		 * core (pmp, "critical" in the ADT) and out of its own SRAM (pms-sram): none
-+		 * of the three may be gated under it, s2idle included.
-+		 */
-+		apple,always-on;
- 		status = "disabled";
- 	};
- 	ps_pmp: power-controller@128 {
-@@ -103,6 +109,7 @@ ps_pmp: power-controller@128 {
- 		#reset-cells = <0>;
- 		label = "pmp";
- 		power-domains = <&ps_pms>;
-+		apple,always-on;
- 		status = "disabled";
- 	};
- 	ps_pms_sram: power-controller@130 {
-@@ -112,6 +119,7 @@ ps_pms_sram: power-controller@130 {
- 		#reset-cells = <0>;
- 		label = "pms-sram";
- 		power-domains = <&ps_pms>;
-+		apple,always-on;
- 		status = "disabled";
- 	};
- 	ps_fab0_piogw: power-controller@1d8 {
--- 
-2.56.0
-
-From be37a1c2716432f062cefd6891974469be31bbb5 Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Wed, 11 Nov 2026 10:18:42 -0700
-Subject: [PATCH 29/32] PCI: apple: qualify the K116s for suspend-to-idle over
- the adopted N1 link
-
-The adopted link's suspend check admits only the J716c; the K116s is its
-OLED sibling with the same T6050 host and the N1 on port 0, and the
-first s2idle attempt there failed with -EBUSY from the noirq suspend.
-Let it through the same checks.
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[thomas: rebased onto integration, where the check also admits the K114c]
-Signed-off-by: Thomas Glanzmann <thomas@glanzmann.de>
----
- drivers/pci/controller/pcie-apple.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
-index 342c76f5cd46..694192325b6e 100644
---- a/drivers/pci/controller/pcie-apple.c
-+++ b/drivers/pci/controller/pcie-apple.c
-@@ -6542,9 +6542,14 @@ static int apple_pcie_check_adopted_s2idle(struct apple_pcie *pcie)
- 	struct apple_pcie_port *port;
- 	int error = 0;
- 
--	/* Other adopted platforms and deeper sleep remain unqualified. */
-+	/*
-+	 * Qualified on the J716c, the K114c and the K116s. The K116s is the
-+	 * J716c's OLED sibling: the same T6050 host, the N1 on port 0. Other
-+	 * adopted platforms and deeper sleep remain unqualified.
-+	 */
- 	if (!(of_machine_is_compatible("apple,j716c") ||
--	      of_machine_is_compatible("apple,k114c")) || !pm_suspend_no_platform())
-+	      of_machine_is_compatible("apple,k114c") ||
-+	      of_machine_is_compatible("apple,k116s")) || !pm_suspend_no_platform())
- 		return -EBUSY;
- 
- 	if (!(readl(pcie->base + CORE_RC_CTL) & CORE_RC_CTL_RUN) ||
--- 
-2.56.0
-
-From 0a785f23b17d293873e67cd85436a35c8a2a0b68 Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Wed, 11 Nov 2026 13:19:41 -0700
-Subject: [PATCH 30/32] PCI: apple: let devices below a kernel-trained port
- leave D0 over s2idle
-
-The adopted-link s2idle check walked the whole bus and refused to suspend
-when any device had left D0. With a kernel-trained second port (the SD
-reader on the K116s) the PCI core puts that root port into D3hot, and
-suspend failed with -EBUSY. Below a port Linux trained itself, only the
-devices that asked to stay awake need to remain in D0; the PCI core
-restores the rest. Below a port the boot loader trained, such as the
-N1's, every device must still be in D0, so the J716c and the K114c, whose
-only port is adopted, are checked as before.
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[thomas: skip only devices below a port Linux trained (port->pwren), so
- adopted ports keep requiring D0 for every device]
-Signed-off-by: Thomas Glanzmann <thomas@glanzmann.de>
----
- drivers/pci/controller/pcie-apple.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
-
-diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
-index 694192325b6e..439daa464e2b 100644
---- a/drivers/pci/controller/pcie-apple.c
-+++ b/drivers/pci/controller/pcie-apple.c
-@@ -6509,6 +6509,22 @@ static void apple_pcie_stop_for_sleep(struct device *dev)
- 
- static void apple_pcie_neo_save_functions(struct apple_pcie *pcie);
- 
-+/* Whether Linux trained the port above pdev itself (cold train), rather than adopting it */
-+static bool apple_pcie_below_kernel_trained_port(struct pci_dev *pdev)
-+{
-+	struct pci_config_window *cfg = pdev->sysdata;
-+	struct apple_pcie *pcie = apple_pcie_lookup(cfg->parent);
-+	struct pci_dev *rp = pcie_find_root_port(pdev);
-+	struct apple_pcie_port *port;
-+
-+	if (!rp)
-+		return false;
-+	list_for_each_entry(port, &pcie->ports, entry)
-+		if (port->idx == PCI_SLOT(rp->devfn))
-+			return !!port->pwren;
-+	return false;
-+}
-+
- /*
-  * The J716c radio drivers save PCI state without entering D3. The PCI core
-  * keeps the root port in D0 as well. Its host and DART have no switchable
-@@ -6523,6 +6539,16 @@ static int apple_pcie_check_d0(struct pci_dev *pdev, void *data)
- 	int *error = data;
- 	u16 value;
- 
-+	/*
-+	 * Below a port the boot loader trained (the N1's), every device stays
-+	 * in D0. Below a port Linux trained itself (the K116s SD reader's), the
-+	 * PCI core restores what it suspends to D3hot, so only the devices that
-+	 * asked to stay awake need to remain in D0.
-+	 */
-+	if (!device_awake_path(&pdev->dev) &&
-+	    apple_pcie_below_kernel_trained_port(pdev))
-+		return 0;
-+
- 	if (pci_read_config_word(pdev, PCI_VENDOR_ID, &value) ||
- 	    value != pdev->vendor) {
- 		*error = -ENODEV;
--- 
-2.56.0
-
-From a9a829c2e3990da7b69ef8c68526a8807d3c76cb Mon Sep 17 00:00:00 2001
-From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
-Date: Sun, 15 Nov 2026 17:19:27 +0000
-Subject: [PATCH 31/32] PCI: apple: qualify the J714s for suspend-to-idle over
- the adopted N1 link
-
-The adopted-link check admits the J716c, the K114c and the K116s. The
-J714s (MacBook Pro 14", M5 Pro) has the same T6050 host as the K116s,
-with the N1 on port 0, and every s2idle there failed in the noirq
-suspend:
-
-  pcie-apple 1cb0000000.pcie: PM: dpm_run_callback(): apple_pcie_suspend_noirq returns -16
-  pcie-apple 1cb0000000.pcie: PM: failed to suspend noirq: error -16
-
-Like the K116s, the J714s has its SD card reader (a GL9755) on port 1,
-which the boot loader leaves down and Linux trains itself. The previous
-commit lets the devices below such a port leave D0 over s2idle, which
-the check needs on this board too.
-
-Add the J714s to the list. For a clean wake it also needs the PMP's
-power domains kept on ("arm64: dts: apple: t6050: keep the PMP's power
-domains on"), and for the Type-C ports to work after the wake, the ATC
-usb-aon domains kept on ("arm64: dts: apple: t6050: keep the ATC usb-aon
-power domains on").
-
-Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
----
- drivers/pci/controller/pcie-apple.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
-index 439daa464e2b..cf8ad34c9b7e 100644
---- a/drivers/pci/controller/pcie-apple.c
-+++ b/drivers/pci/controller/pcie-apple.c
-@@ -6569,13 +6569,15 @@ static int apple_pcie_check_adopted_s2idle(struct apple_pcie *pcie)
- 	int error = 0;
- 
- 	/*
--	 * Qualified on the J716c, the K114c and the K116s. The K116s is the
--	 * J716c's OLED sibling: the same T6050 host, the N1 on port 0. Other
--	 * adopted platforms and deeper sleep remain unqualified.
-+	 * Qualified on the J716c, the K114c, the K116s and the J714s: the same
-+	 * T6050 host with the N1 adopted on port 0. The K116s and the J714s
-+	 * (16- and 14-inch M5 Pro) also have a kernel-trained SD reader port.
-+	 * Other adopted platforms and deeper sleep remain unqualified.
- 	 */
- 	if (!(of_machine_is_compatible("apple,j716c") ||
- 	      of_machine_is_compatible("apple,k114c") ||
--	      of_machine_is_compatible("apple,k116s")) || !pm_suspend_no_platform())
-+	      of_machine_is_compatible("apple,k116s") ||
-+	      of_machine_is_compatible("apple,j714s")) || !pm_suspend_no_platform())
- 		return -EBUSY;
- 
- 	if (!(readl(pcie->base + CORE_RC_CTL) & CORE_RC_CTL_RUN) ||
--- 
-2.56.0
-
-From 7aa82e5f993bce24e84095d0b2895bab9c3351a4 Mon Sep 17 00:00:00 2001
-From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
-Date: Sun, 15 Nov 2026 22:35:20 +0000
-Subject: [PATCH 32/32] arm64: dts: apple: t6050: keep the ATC usb-aon power
- domains on
-
-On the J714s both Type-C ports are dead after a suspend-to-idle wake.
-The PHY's first start after it times out in its first power-up step:
-
-  apple-t6050-dp-phy 2ab000000.phy: start of mode 1 failed (-110)
-  apple-t6050-dp-phy 383000000.phy: CIO mode failed (-110), reverse orientation, 1 ms
-
-Traced with pmgr-pwrstate's dynamic debug: at the noirq suspend genpd
-gates each port's usb domain, which was off at probe and so has no
-GENPD_FLAG_ACTIVE_WAKEUP, and with it its parents, common and usb-aon,
-whose own devices (the display crossbar's and the PHY's) have suspended.
-Nothing sets the PHY up again at an s2idle wake.
-
-DjDeveloperr noted that the usb-aon domains should not be turned off
-("aon = always on"). The older SoCs (T8103, T8112, T600x, T602x) and
-T604x mark them apple,always-on; T603x, T8122, T8140 and T8132 outside
-the J713 do not, and neither did T6050.
-
-Tested on the J714s: with only atc0/1/2's usb-aon marked always-on and a
-PHY driver without any s2idle handling, genpd still gated atc*_usb and
-atc*_common on all three ports during a 42 s s2idle and powered them on
-again at the resume, but never touched usb-aon. After the wake a dock on
-the right port came up in CIO mode at the first plug, with three
-displays. With this patch's DTB, three s2idle sleeps in one boot (39 s,
-102 s and 12 min) were each followed by a dock coming up in CIO mode at
-the first plug on all three ports. Keeping usb-aon on is enough; gating
-usb and common across s2idle is harmless.
-
-Mark every T6050 usb-aon domain always-on. At runtime nothing changes
-where the display crossbar holds the domain from its probe on, as on the
-J714s (atc1, atc2) and the J716c (atc0 to atc2). On the other T6050
-boards the crossbar is disabled, so a usb-aon domain used by a PHY went
-off while its port was idle and now stays on (J714c, J716s, K114c,
-K116s: atc1, atc2; J775c, J873s: atc1, atc3; J775d: atc1, atc3, atc4,
-atc5), and an enabled usb-aon domain with no user is now powered at
-probe (atc3 on the J714c, J716c, J716s, K114c, K114s, K116c and K116s;
-atc1 on the K114s and K116c). The idle power this costs there, and the
-PHY without a usb-aon power cycle on those boards, are untested. genpd
-no longer gates usb-aon in a deep sleep's noirq phase either; the J714s
-already keeps ATC3's on through the commit (t6050-j714s-sleep.dtsi), and
-deep sleep cannot run on the J714s today, so that part is untested.
-
-Signed-off-by: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
----
- arch/arm64/boot/dts/apple/t6050-die0.dtsi        | 2 ++
- arch/arm64/boot/dts/apple/t6050-dieX.dtsi        | 1 +
- arch/arm64/boot/dts/apple/t6050-peripherals.dtsi | 1 +
- arch/arm64/boot/dts/apple/t6050-ultra.dtsi       | 1 +
- 4 files changed, 5 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/apple/t6050-die0.dtsi b/arch/arm64/boot/dts/apple/t6050-die0.dtsi
-index fdd2f6bfa746..caa23251d0f9 100644
---- a/arch/arm64/boot/dts/apple/t6050-die0.dtsi
-+++ b/arch/arm64/boot/dts/apple/t6050-die0.dtsi
-@@ -998,6 +998,7 @@ ps_atc2_usb_aon: power-controller@178 {
- 		compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
- 		reg = <0x178 4>;
- 		label = "atc2_usb_aon";
-+		apple,always-on; /* The ATC PHY loses its state without it */
- 		#power-domain-cells = <0>;
- 		#reset-cells = <0>;
- 		status = "disabled";
-@@ -1029,6 +1030,7 @@ ps_atc3_usb_aon: power-controller@190 {
- 		compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
- 		reg = <0x190 4>;
- 		label = "atc3_usb_aon";
-+		apple,always-on; /* The ATC PHY loses its state without it */
- 		#power-domain-cells = <0>;
- 		#reset-cells = <0>;
- 	};
-diff --git a/arch/arm64/boot/dts/apple/t6050-dieX.dtsi b/arch/arm64/boot/dts/apple/t6050-dieX.dtsi
-index 94e9def5533f..6c6a48ca205c 100644
---- a/arch/arm64/boot/dts/apple/t6050-dieX.dtsi
-+++ b/arch/arm64/boot/dts/apple/t6050-dieX.dtsi
-@@ -74,6 +74,7 @@ DIE_NODE(ps_atc1_usb_aon): power-controller@160 {
- 			compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
- 			reg = <0x160 4>;
- 			label = DIE_ATC1_LABEL(_usb_aon);
-+			apple,always-on; /* The ATC PHY loses its state without it */
- 			#power-domain-cells = <0>;
- 			#reset-cells = <0>;
- 		};
-diff --git a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
-index 5c4a029f5751..ee04965ce117 100644
---- a/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
-+++ b/arch/arm64/boot/dts/apple/t6050-peripherals.dtsi
-@@ -931,6 +931,7 @@ ps_atc0_usb_aon: power-controller@148 {
- 		#power-domain-cells = <0>;
- 		#reset-cells = <0>;
- 		label = "atc0-usb-aon";
-+		apple,always-on; /* The ATC PHY loses its state without it */
- 		status = "disabled";
- 	};
- 	ps_atc0_usb: power-controller@150 {
-diff --git a/arch/arm64/boot/dts/apple/t6050-ultra.dtsi b/arch/arm64/boot/dts/apple/t6050-ultra.dtsi
-index fae5621266fb..90bf4bb29be0 100644
---- a/arch/arm64/boot/dts/apple/t6050-ultra.dtsi
-+++ b/arch/arm64/boot/dts/apple/t6050-ultra.dtsi
-@@ -120,6 +120,7 @@ ps_atc4_usb_aon: power-controller@148 {
- 		compatible = "apple,t6050-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate";
- 		reg = <0x148 4>;
- 		label = "atc4_usb_aon";
-+		apple,always-on; /* The ATC PHY loses its state without it */
- 		#power-domain-cells = <0>;
- 		#reset-cells = <0>;
- 	};
 -- 
 2.56.0
 

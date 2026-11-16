@@ -1,7 +1,7 @@
-From d8405432270d0920d3330eb81dd06e6e4ac07b28 Mon Sep 17 00:00:00 2001
+From 79b61d8ad0c7ec30707e9a16511a20aa6b6215ae Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 18/32] drm/apple: T6050 HDMI: complete flips locally while the
+Subject: [PATCH 18/26] drm/apple: T6050 HDMI: complete flips locally while the
  output connects
 
 A monitor that wakes from standby when the HDMI link comes up drops HPD about
@@ -51,10 +51,10 @@ index 666053f3f948..318a1604aa1f 100644
  	dcp_hdmi_update_locked(dcp);
  	/* The GPIO edge detector is off throughout an oneshot handler. */
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index 98c21ee2a24e..f1b9701fc856 100644
+index 8ff58e2d140f..8d9f26ff6c6c 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -1049,6 +1049,9 @@ struct apple_dcp {
+@@ -1055,6 +1055,9 @@ struct apple_dcp {
  	struct delayed_work hdmi_recheck_wq;
  	/* T6030 HDMI converter service requests, see dcp-hdmi.c */
  	struct dcp_hdmi *hdmi;
@@ -64,7 +64,7 @@ index 98c21ee2a24e..f1b9701fc856 100644
  
  	/*
  	 * Interrupts of a Thunderbolt DP tunnel's DP IN adapter, to pass to
-@@ -1138,6 +1141,7 @@ void iomfb_queue_crc_h17p(struct apple_dcp *dcp, u32 swap_id);
+@@ -1144,6 +1147,7 @@ void iomfb_queue_crc_h17p(struct apple_dcp *dcp, u32 swap_id);
  void dcp_drm_crtc_page_flip(struct apple_dcp *dcp, ktime_t now);
  void dcp_handle_hotplug_actions(struct apple_dcp *dcp, unsigned int action);
  bool dcp_external_hotplug(struct apple_dcp *dcp, bool connected);
@@ -96,10 +96,10 @@ index 5a8ced923d7a..e96f1694af5e 100644
  			int irq = gpiod_to_irq(dcp->hdmi_hpd);
  			if (irq < 0 && dcp->external_native) {
 diff --git a/drivers/gpu/drm/apple/iomfb.c b/drivers/gpu/drm/apple/iomfb.c
-index 5bdcddaef12d..25452d2e18ab 100644
+index da95b9fd7c11..63c7e913c5e6 100644
 --- a/drivers/gpu/drm/apple/iomfb.c
 +++ b/drivers/gpu/drm/apple/iomfb.c
-@@ -4126,6 +4126,46 @@ static bool dcp_fw27_vrr_switch(struct apple_dcp *dcp, struct drm_crtc *crtc,
+@@ -4176,6 +4176,46 @@ static bool dcp_fw27_vrr_switch(struct apple_dcp *dcp, struct drm_crtc *crtc,
  	return false;
  }
  
@@ -146,7 +146,7 @@ index 5bdcddaef12d..25452d2e18ab 100644
  void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  {
  	struct platform_device *pdev = to_apple_crtc(crtc)->dcp;
-@@ -4154,6 +4194,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
+@@ -4204,6 +4244,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  		return;
  	}
  

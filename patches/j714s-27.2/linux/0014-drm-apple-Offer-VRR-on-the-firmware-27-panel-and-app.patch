@@ -1,7 +1,7 @@
-From c1a5de77cd6837c8b878a0e73398799bb8665016 Mon Sep 17 00:00:00 2001
+From 310c3e7d9d1486c417ae0b653937d8842a578527 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 12:29:34 -0500
-Subject: [PATCH 14/32] drm/apple: Offer VRR on the firmware 27 panel and apply
+Subject: [PATCH 14/26] drm/apple: Offer VRR on the firmware 27 panel and apply
  VRR_ENABLED (J716s daily)
 
 The T6050 ProMotion panel reports its 120 Hz timing with both
@@ -44,10 +44,10 @@ Claude-Session: https://claude.ai/code/session_01BV6NpmcwB5iJuY9huL52C5
  4 files changed, 91 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index 78859c8e29df..98c21ee2a24e 100644
+index 89f287e47bad..8ff58e2d140f 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -680,6 +680,8 @@ struct apple_dcp {
+@@ -686,6 +686,8 @@ struct apple_dcp {
  	bool typec_hpd_held;
  	bool use_timestamps;
  	bool vrr_enabled;
@@ -56,7 +56,7 @@ index 78859c8e29df..98c21ee2a24e 100644
  	/*
  	 * The mode set asks for a PQ signal; output_pq: the one set carries it;
  	 * output_edr: a panel shows the PQ content as EDR, edr_sent: swaps
-@@ -1202,6 +1204,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
+@@ -1208,6 +1210,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
  	       dcp_has_panel(dcp);
  }
  
@@ -99,7 +99,7 @@ index 21a0c8a82229..5a8ced923d7a 100644
  			msecs_to_jiffies(DCP_SWAP_WATCHDOG_MS);
  		mod_delayed_work(system_dfl_wq, &dcp->swap_watchdog_wq,
 diff --git a/drivers/gpu/drm/apple/iomfb.c b/drivers/gpu/drm/apple/iomfb.c
-index 336f6f46fdea..5bdcddaef12d 100644
+index 8714adf0b7e1..da95b9fd7c11 100644
 --- a/drivers/gpu/drm/apple/iomfb.c
 +++ b/drivers/gpu/drm/apple/iomfb.c
 @@ -45,6 +45,23 @@
@@ -126,7 +126,7 @@ index 336f6f46fdea..5bdcddaef12d 100644
  struct dcp_identity_trace {
  	struct apple_dcp *dcp;
  	atomic_t *count;
-@@ -2361,7 +2378,12 @@ int dcp_modes_replace(struct apple_dcp *dcp, struct dcp_parse_ctx *ctx,
+@@ -2404,7 +2421,12 @@ int dcp_modes_replace(struct apple_dcp *dcp, struct dcp_parse_ctx *ctx,
  				       !dcp_has_panel(dcp);
  		ctx->pq_dsc = dcp->fw_compat == DCP_FIRMWARE_V_27_0;
  	}
@@ -140,7 +140,7 @@ index 336f6f46fdea..5bdcddaef12d 100644
  	ctx->internal_present_deadline = dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP;
  	if (dcp->fixed_connector_type != DRM_MODE_CONNECTOR_eDP &&
  	    smp_load_acquire(&dcp->dptxport[0].tile_hint)) {
-@@ -2804,6 +2826,8 @@ int dcp_get_modes(struct drm_connector *connector)
+@@ -2847,6 +2869,8 @@ int dcp_get_modes(struct drm_connector *connector)
  		}
  		vrr_capable |= modes[i].vrr;
  	}
@@ -149,7 +149,7 @@ index 336f6f46fdea..5bdcddaef12d 100644
  	drm_connector_set_vrr_capable_property(connector, vrr_capable);
  modes_done:
  	mutex_unlock(&dcp->dcpavserv.lock);
-@@ -4064,6 +4088,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
+@@ -4114,6 +4138,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
  	schedule_work(&dcp->vblank_wq);
  }
  
@@ -194,7 +194,7 @@ index 336f6f46fdea..5bdcddaef12d 100644
  void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  {
  	struct platform_device *pdev = to_apple_crtc(crtc)->dcp;
-@@ -4130,6 +4192,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
+@@ -4180,6 +4242,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  			dcp_hdr_metadata_sync(dcp, crtc, commit);
  	}
  

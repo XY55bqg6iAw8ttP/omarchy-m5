@@ -1,7 +1,7 @@
-From 2c807a34d9765d1968f8be2cbafc028e7b7437f8 Mon Sep 17 00:00:00 2001
+From af18ff2d679f90dbd1965ff1db135bff86d1a0de Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 13:23:08 -0700
-Subject: [PATCH 26/32] drm/apple: stop waiting for a link on a DP tunnel that
+Subject: [PATCH 25/26] drm/apple: stop waiting for a link on a DP tunnel that
  went
 
 A Thunderbolt 5 dock (Ugreen 10-in-1) on a J714s withdraws its first DP

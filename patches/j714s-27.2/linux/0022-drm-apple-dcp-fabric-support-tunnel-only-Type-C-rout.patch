@@ -1,7 +1,7 @@
-From f26ef461b13c44523a83d719264de30b77ddbfea Mon Sep 17 00:00:00 2001
+From e4fb194f5c31bbdd092d58fe80e9ce4724532f1a Mon Sep 17 00:00:00 2001
 From: Isaac Duarte <31712685+Isaac-Duarte@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 10:56:38 -0700
-Subject: [PATCH 22/32] drm/apple: dcp-fabric: support tunnel-only Type-C
+Subject: [PATCH 22/26] drm/apple: dcp-fabric: support tunnel-only Type-C
  routes
 
 A route marked apple,tunnel-only exists to give USB4 DP tunnels another
@@ -93,7 +93,7 @@ index 9959f24170e9..bd57a279537c 100644
  			if (!mask)
  				continue;
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-core.c b/drivers/gpu/drm/apple/dcp-fabric-core.c
-index 8b87a129eae9..74328af75a7b 100644
+index 3f60206acf66..8fd211427396 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-core.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric-core.c
 @@ -186,7 +186,8 @@ dcp_fabric_free_route(const struct dcp_fabric_port *port,
@@ -160,7 +160,7 @@ index 8b87a129eae9..74328af75a7b 100644
  	if (!pipeline->bound || pipeline->fixed_busy || pipeline->terminal ||
  	    !pipeline->services_ready)
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-core.h b/drivers/gpu/drm/apple/dcp-fabric-core.h
-index a775649ff934..8ee2f535dfe6 100644
+index e7b4bc41b6e8..f1fd83c56985 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-core.h
 +++ b/drivers/gpu/drm/apple/dcp-fabric-core.h
 @@ -65,6 +65,8 @@ struct dcp_fabric_route {
@@ -173,7 +173,7 @@ index a775649ff934..8ee2f535dfe6 100644
  
  struct dcp_fabric_plan {
 diff --git a/drivers/gpu/drm/apple/dcp-fabric-test.c b/drivers/gpu/drm/apple/dcp-fabric-test.c
-index fed2534f6584..542852e4409c 100644
+index ad58f1f927d3..b6864283f3ba 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric-test.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric-test.c
 @@ -2108,6 +2108,77 @@ static void fabric_per_dpin_slot_test(struct kunit *test)
@@ -254,7 +254,7 @@ index fed2534f6584..542852e4409c 100644
  static void fabric_t6030_follow_test(struct kunit *test)
  {
  	struct fabric_fixture f;
-@@ -2433,6 +2504,7 @@ static struct kunit_case fabric_tests[] = {
+@@ -2498,6 +2569,7 @@ static struct kunit_case fabric_tests[] = {
  	KUNIT_CASE(fabric_t6030_plan_test),
  	KUNIT_CASE(fabric_t6030_follow_test),
  	KUNIT_CASE(fabric_per_dpin_slot_test),

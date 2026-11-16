@@ -1,7 +1,7 @@
-From 230742322dd284e04baea316b57f2ce78d0fb4c9 Mon Sep 17 00:00:00 2001
+From 98a8d1eba14559bab3de63308ad064ef6ee47415 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:30:00 -0500
-Subject: [PATCH 17/32] arm64: dts: apple: t6050-j714s: Describe the HDMI port
+Subject: [PATCH 17/26] arm64: dts: apple: t6050-j714s: Describe the HDMI port
 
 The J714s HDMI port: dcpext3 -> the atc3 display crossbar -> ATC3 as a fixed
 four-lane DP PHY (the J714sAP ADT has no usb-drd3) -> the on-board DP-to-HDMI
@@ -142,10 +142,10 @@ index 000000000000..7677e05b0d6f
 +	/delete-property/ resets;
 +};
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index e7447a37c614..b1dcc1d9d98f 100644
+index 5e16259450fb..60e9b16b07da 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -1032,3 +1032,6 @@ &ave0_dart1 {
+@@ -1041,3 +1041,6 @@ &ave0_dart1 {
  &ave0 {
  	status = "okay";
  };

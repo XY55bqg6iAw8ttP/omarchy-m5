@@ -1,7 +1,7 @@
-From 94105c6b59ffd51105a28a385c1e7891c1aaa9c4 Mon Sep 17 00:00:00 2001
+From f3592fe23e0575a350f459611d9384e334422794 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 15:41:37 -0500
-Subject: [PATCH 02/32] drm/apple: Name the firmware 27 adaptive sync parameter
+Subject: [PATCH 02/26] drm/apple: Name the firmware 27 adaptive sync parameter
 
 The firmware 27 template instance sends adaptive sync as a bare 15,
 where every other instance sends IOMFBPARAM_ADAPTIVE_SYNC (14). The DCP
@@ -26,7 +26,7 @@ Signed-off-by: Rolando Trevino <rolotrealanis@gmail.com>
  2 files changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/iomfb.h b/drivers/gpu/drm/apple/iomfb.h
-index e5a22ca45c4b..2570bc8d788e 100644
+index 2b08c20cfa69..aa5ab333d110 100644
 --- a/drivers/gpu/drm/apple/iomfb.h
 +++ b/drivers/gpu/drm/apple/iomfb.h
 @@ -57,6 +57,13 @@ enum dcpep_type {
