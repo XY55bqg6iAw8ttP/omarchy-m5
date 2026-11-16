@@ -7,7 +7,14 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 `kmutil configure-boot --compress` after `bputil -nc`; Linux runs at EL2 on every CPU inside the
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
-Status (2026-11-15, latest): v272-13: #2018 reworked as Isaac-Duarte's DT change, #2012 updated,
+Status (2026-11-15, latest): v272-14: v272-13 plus chrisohearn's 38 network options (#19); built, not booted.
+Same pin and series as v272-13 (patch byte-identical); only `config` and `j714s-required.config` change (BBR, fq,
+fq_codel, cake, policy routing, connmark, MARK, MASQUERADE/NAT/REDIRECT/TCPMSS, BNEP, the ufw IPv4/IPv6 matches).
+The resolved config differs from v272-13's in exactly #19's 57 symbols; 21 modules added, none removed; all DTBs
+byte-identical to v272-13. Package `linux-aurora-7.3.0.aurora17.v272-14-aarch64.pkg.tar.zst`, sha256
+`a19d0bc3a5d8312565860f33f8e4bef1f73a2ab2aaa5d222585eabff54d1543e` (44369616 bytes).
+
+Previous: v272-13: #2018 reworked as Isaac-Duarte's DT change, #2012 updated,
 #17 as a DT always-on for the HDMI PHY (already in the tree, so no new patch); built, not booted. Same pin as v272-12 (`c0a2a7522b4e`);
 0001-0030 unchanged. 0031 is #2012's current last commit `56b02059cfc8` (`af590f044ca2` with
 only its commit message changed: it now points at the DT change instead of the PHY hold; the code
