@@ -2,6 +2,56 @@
 
 Pull requests and issues on this repo: what came in, what we did, where it stands. Newest first.
 
+## 2026-11-15: #18, Aura 0008: the K114s/K116s 27.2 DCP image beside the J714s pin (chrisohearn)
+
+[#18](https://github.com/betizzel/omarchy-m5/pull/18) from chrisohearn adds
+`patches/j714s-27.2/aura/0008`: Jens Axboe's aura #226 pin table carried onto 0005. On 27.2 it also
+admits the 26B8125 DCP image `3D6C8857-E6F1-3D2E-9DFF-587028AE0C6E`, the image the K116s runs and that
+the K114s's ADT names on `dcp` and all four `dcpext`. With that image, only the internal panel is
+handed off. The recipe goes to `m1n1-aurora 1.6.1.aurora24.v272-4`. It was merged as merge commit
+5297eae, his commit 7306169 kept, on the owner's call before testing. Merging doesn't reach any Mac,
+because releases pin packages by hash. The checks below gate the next release and the J714s boot test.
+[Merge note](https://github.com/betizzel/omarchy-m5/pull/18#issuecomment-6903714968),
+[results](https://github.com/betizzel/omarchy-m5/pull/18#issuecomment-6904222706).
+
+Checked after merging (work dir `~/m5/work/pr18`, `RESULT.md`):
+
+- **Patches:**
+  - 0001-0007 change only their `[PATCH n/7]` → `[PATCH n/8]` subject line.
+  - The recipe patch is `cat aura/000*.patch` (sha256 `ee0813e5…`).
+  - `git am` of 0001-0008 on 22b71758 gives the recipe's `patch --fuzz=0` tree.
+  - 0005's J714s pin `C51FB0C8-…`, its gate and its messages are unchanged.
+- **Build:** on ush, the same way as v272-3 (makepkg cross, `makepkg-aarch64.conf`, clang 23.1.3,
+  rust 1.89.0).
+  - Control: main's v272-3, rebuilt there, is byte-identical in every file to the shipped v272-3 package.
+  - v272-4 package: sha256 `4436dcd19b84f3c3baf007e6cff3844838bc9e1375d142668ba86f876f5e5459`,
+    2,427,423 bytes. Copy in `~/m5/work/pkgs-m1n1-pr18`.
+  - Stage 2 `m1n1.bin`: 3,997,696 → 4,063,232 bytes (+64 KiB), sha256 `3bac9396…7445`.
+  - Why +64 KiB: `.rodata` grows by 0xc8 and `.init` by 0x60, and there are still 2667 relocations.
+    `.rela.dyn` used to end at exactly 0x100000, so `.data` and `.bss` move up by 0x10000.
+  - Stage 1 files keep their sizes but not their content. Updates never enroll Stage 1.
+- **Binary:**
+  - Of 154 objects (debug info stripped), only `kboot_display_handoff.o` differs. `librust.a` is identical.
+  - In it, `t6050_check_adt` gains the table loop, and `t6050_handoff` gains the `ext` test and the
+    new log line. Its memset of `t6050` grows from 528 to 536 bytes.
+  - One epilogue is outlined into a new outlined function. The rest is layout: offsets +8 and
+    renumbered outlined functions.
+  - In Stage 2, every old string is unchanged.
+- **Tests:**
+  - `check()` passes.
+  - `run-t8122-display-handoff.sh`: every scenario passes.
+  - `run-t6031-unchanged.sh HEAD~1`: PASS (85 G15 and 25 display scenarios identical). It needs
+    aarch64, so it ran in `alarm-builder` under qemu.
+  - No in-tree test runs the T6050 gate, so the J714s path was checked only by reading the source
+    and the disassembly.
+- **J714s Stage 2:** with v272-12's device trees, `m1n1/boot-ctxr.bin` goes from 10,101,130 bytes
+  (`eb14ead0…`) to 10,166,666 bytes (`12747954…`). That is under 11 MB, and also under
+  `bmboot-wdt.sh`'s 10 MiB.
+
+Open: the J714s boot test (install with `pacman -U` of the v272-4 package; the hooks rewrite
+`m1n1/boot.bin` and copy it to `m1n1/boot-ctxr.bin`), then the next image. chrisohearn will report
+his K114s Stage 2 trial on #18.
+
 ## 2026-11-15: #16, one boot guard for every M5 board (chrisohearn)
 
 [#16](https://github.com/betizzel/omarchy-m5/pull/16) from chrisohearn generalises the #11 guard:
