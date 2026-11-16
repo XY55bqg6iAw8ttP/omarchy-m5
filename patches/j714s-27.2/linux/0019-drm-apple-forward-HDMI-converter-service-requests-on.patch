@@ -1,7 +1,7 @@
-From 9a510315bedcde9a64c4ada634a194f7a510bcd6 Mon Sep 17 00:00:00 2001
+From 75ee74157bb2f9dde38249756a00d6833d44eb95 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 19/26] drm/apple: forward HDMI converter service requests on
+Subject: [PATCH 19/20] drm/apple: forward HDMI converter service requests on
  T6050
 
 The J714s HDMI port is the same design as the T6030 one: dcpext drives an

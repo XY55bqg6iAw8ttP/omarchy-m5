@@ -1,7 +1,7 @@
-From 5041f2f8f0b9000283215ca934733cccb2358f67 Mon Sep 17 00:00:00 2001
+From 43f89877a9ce0e4e8153c31f27f44123c4530e5e Mon Sep 17 00:00:00 2001
 From: DjDeveloperr <hey@djdev.me>
 Date: Thu, 12 Nov 2026 15:01:46 -0500
-Subject: [PATCH 26/26] usb: typec: tipd: sn201202x: Send no LDCM command to a
+Subject: [PATCH 20/20] usb: typec: tipd: sn201202x: Send no LDCM command to a
  dry port
 
 On every probe, and again after a controller reset, the driver sends an
@@ -35,7 +35,7 @@ Signed-off-by: Diljit Singh <hey@djdev.me>
  2 files changed, 18 insertions(+)
 
 diff --git a/drivers/usb/typec/tipd/spmi.c b/drivers/usb/typec/tipd/spmi.c
-index 4522994124f3..04c49a74245d 100644
+index 2eaa698da2e4..4428fdbc03b2 100644
 --- a/drivers/usb/typec/tipd/spmi.c
 +++ b/drivers/usb/typec/tipd/spmi.c
 @@ -300,6 +300,19 @@ static int sn201202x_ldcm_set_mitigation(void *ctx, bool enable)
@@ -76,10 +76,10 @@ index 4522994124f3..04c49a74245d 100644
  }
  
 diff --git a/drivers/usb/typec/tipd/tps6598x.h b/drivers/usb/typec/tipd/tps6598x.h
-index 282ccc232da3..8b11f63f0e69 100644
+index a9bc1d738300..42692ced9ad3 100644
 --- a/drivers/usb/typec/tipd/tps6598x.h
 +++ b/drivers/usb/typec/tipd/tps6598x.h
-@@ -510,6 +510,8 @@ struct sn201202x {
+@@ -513,6 +513,8 @@ struct sn201202x {
  	bool ldcm_mitigated;
  	/* ldcm_mitigated matches the controller (unknown after a reset) */
  	bool ldcm_mitigation_known;

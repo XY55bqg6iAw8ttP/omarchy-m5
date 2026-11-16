@@ -7,7 +7,21 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 `kmutil configure-boot --compress` after `bputil -nc`; Linux runs at EL2 on every CPU inside the
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
-Status (2026-11-16, latest): v272-15: re-pinned to aurora-silicon/linux `integration/aurora` `6612865ee100`
+Status (2026-11-16, latest): v272-16: re-pinned to aurora-silicon/linux `integration/aurora` `6e2043af8c5e`
+(48 commits past `6612865ee100`); #1921 and #1930 merged upstream, so the old 0020-0024 are dropped (patch-identical per
+`git cherry`) and the old 0025 is replaced by #1930's merged `56793eff52dc`, which differs from ours (it also watches a tiled
+split's second tunnel and runs only on T6050). The series is now 0001-0020: 0001-0019 as before, old 0026 (#1721) is 0020.
+One context conflict: 0001 (#1173) in `g17/fw/variant.rs`, where #1981 added `render_id_at_create` beside #1173's
+`m5_layouts`; both are kept, and the 27.2/27.3 M5 variants inherit `false`. New upstream: #2006 (dcpext1 also gets a
+tunnel-only route to the left-front port, plus that router's DP IN interrupts), #2034 (tunnel-only routes first), #2032
+(external EDID defaults), #2031 (J714s resume tail: N1 link watch, SD reader port after the resume, cd321x wake state), #2045
+(ATC USB2 restart), #2047 (SN201202x probe retry with a reset), G17 changes and other boards' DT. HDMI on dcpext3 does not
+clash with #2006 or #1921 (see "HDMI and #1921"). Deep sleep driver still off (`CONFIG_APPLE_SOC_SLEEP` not set, `[s2idle]`
+only); no Kconfig changes upstream, diffconfig empty. J714s DTB: only #2006 changed (tunnel-only routes 1 -> 2). Built, not
+booted. Package `linux-aurora-7.3.0.aurora17.v272-16-aarch64.pkg.tar.zst`, sha256
+`d8eda4d5f891c98a2e9b6d80fe7fab5a2c7239727a9a5abdd936a81ae02a5119` (44405999 bytes).
+
+Previous: v272-15: re-pinned to aurora-silicon/linux `integration/aurora` `6612865ee100`
 (37 commits past `c0a2a7522b4e`); 6 patches dropped as upstream (patch-identical per `git cherry`): old 0024 #1944
 (`7a479d4a41c9`), 0028 #1789 (`f61eb4550a95`), 0029-0030 #1647 (`aa16d423cf8a`, `70bf8ed1867b`), 0031 #2012
 (`56b02059cfc8`), 0032 #2018 (`64d473f5321d`). Deep sleep driver still off (`CONFIG_APPLE_SOC_SLEEP` not set,
@@ -25,7 +39,7 @@ lines added, none removed, all #2030's sleep data; fan-manual-control, PMP and A
 the HDMI nodes and the tunnel-only route as before. Package `linux-aurora-7.3.0.aurora17.v272-15-aarch64.pkg.tar.zst`,
 sha256 `67863904c81ca6befdec60939b24c5b386307b33c5f226389cfece44e4521611` (44392032 bytes).
 
-Previous: v272-14: v272-13 plus chrisohearn's 38 network options (#19); built, not booted.
+Before that: v272-14: v272-13 plus chrisohearn's 38 network options (#19); built, not booted.
 Same pin and series as v272-13 (patch byte-identical); only `config` and `j714s-required.config` change (BBR, fq,
 fq_codel, cake, policy routing, connmark, MARK, MASQUERADE/NAT/REDIRECT/TCPMSS, BNEP, the ufw IPv4/IPv6 matches).
 The resolved config differs from v272-13's in exactly #19's 57 symbols; 21 modules added, none removed; all DTBs
@@ -171,10 +185,13 @@ Release 1 was built on linux `572eb88e8642` and Aura `2232ae7a` (git history of 
 | 0017 | **J714s HDMI port** (DT): dcpext3 → the atc3 display crossbar → ATC3 as a fixed four-lane DP PHY → the on-board DP-to-HDMI converter; frees AOP pin 14 (HPD) from `t6050-max-atc2.dtsi`'s reserved range, atc3_dpxbar power domains. Tested on his J714s on 27.3 (HP E240c, 1920x1080@60: cold plug, hotplug, replug); not tried on 27.2. His `0010-linux-t6050-j714s-hdmi-dt.patch` at 267c7ea3cb gives a tree identical to this one | FatBoy721 (FatBoy721/omarchy-m5 898d8ad6cb), ported unchanged |
 | 0018 | **HDMI v2 hold** (v272-5, replaces v1): while a T6050 fixed HDMI output connects (sink at boot, power-on, HPD edge) complete its flips locally for 8 s, so a present the DCP swallows during the monitor's wake HPD cycle can't time out the IOMFB queue and leave the DCP crashed. Per-DCP state, only `apple,t6050-dcpext` with an HDMI HPD GPIO; `appledrm.hdmi_hold_presents=0` turns it off. Tested on his J714s on 27.3 | FatBoy721 (`j714s-hdmi-upstream273` 267c7ea3cb, his 0012 v2), applied unchanged |
 | 0019 | **HDMI IRQ_HPD** (v272-5, new): `dcp-hdmi.c`'s converter IRQ_HPD forwarder enabled for `apple,t6050-dcpext` as macOS does on the J714s (T6030 only before). Booted on his J714s on 27.3, no visible change on its own | FatBoy721 (267c7ea3cb, his 0013), applied unchanged |
-| 0020 | **Dock displays** (v272-6, new): dcp-fabric gives T6050 DP IN 2 and 3 their own tunnel slots, so a Thunderbolt dock's third and fourth DP tunnels can be routed | Isaac-Duarte (aurora-silicon/linux #1921, 27f9349ab5f0), applied unchanged |
-| 0021 | dt-bindings: `apple,tunnel-only` Type-C routes (no `mode-switch` needed) | Isaac-Duarte (#1921, 723d72539a93), unchanged |
-| 0022 | dcp-fabric: tunnel-only routes (DP alt mode never lands on them, the pairing plan and `dcp_fabric_follow()` respect them, KUnit cases); their connectors are created in a second pass so DP-1..DP-4 keep their names and the new one is DP-5 | Isaac-Duarte (#1921, 7e34917fd867), unchanged |
-| 0023 | J714s DT: dcpext1 gets a tunnel-only route to the right port's DP IN crossbar outputs (crossbar source 2) and hpm2 `endpoint@2`, so a dock on the right port can drive three displays as on macOS | Isaac-Duarte (#1921, head 4c6a7b451f34), unchanged |
+| 0020 | No LDCM command to a dry SN201202x port, as macOS (`ldcm_requested`); v272-15: `tps6598x.h` context follows #2039. Old 0026; the PR head `de9a01da6442` has the same patch-id | DjDeveloperr (aurora-silicon/linux #1721, open) |
+
+Dropped in v272-16 (upstream merged them): old 0020-0023 (#1921: own tunnel slots for DP IN 2/3, `apple,tunnel-only`
+routes, dcpext1 on the right port) and old 0024 (#1930's first commit), all patch-identical per `git cherry`; old 0025
+(#1930's second commit) is replaced by upstream's merged `56793eff52dc`, which differs from ours:
+`dcp_tb_tunnel_withdrawn(dcp, port)` also watches the tunnel of a tiled split's second tile (port 1, `split.binding`), and
+the watch runs only on T6050 (`dcp_watches_tunnel_withdrawal()`).
 
 Dropped in v272-13: the old 0032 (#2018 at `ad7f44429aab`, the PHY's s2idle domain hold), replaced
 by #2018's DT commit `64d473f5321d`; and 0033 (betizzel/omarchy-m5#17, the HDMI DP-only PHY's hold
@@ -216,6 +233,15 @@ keeps dcpext3 for all three. The comments in both DT patches ("dcpext0/dcpext1 k
 "pair with dcpext3") are each true only without the other. 27.2 runs the firmware 27 interface
 (`DCP_FIRMWARE_V_27_0`), so this applies on our stub. Choices: keep both (HDMI plus a third dock
 display, no high-refresh merged modes), drop 0020-0023, or drop 0017-0019.
+v272-16: #1921 is upstream, and #2006 also gives dcpext1 a tunnel-only route to the left-front port (route@1, atc1
+crossbar source 2, typec1 `endpoint@2`, acio1's DP IN interrupts). Neither touches the nodes 0017 changes (dcpext3,
+atc3, atc3_dpxbar, AOP pin 14, `smc_pcio`, usb_drd3), and the HDMI path uses the atc3 crossbar, not atc1's or atc2's.
+#2034's "tunnel-only routes first" rule looks only at a Type-C port's routes, which never include the fixed-PHY dcpext3.
+So the picture above still holds: HDMI on dcpext3 plus up to three Type-C/tunnel displays, and no merged-mode peer for
+any output. Upstream's comments in `t6050-j714s-display.dtsi` and #2034's message ("dcpext3 is the merged-mode peer",
+"dcpext0, dcpext1 and dcpext2 then pair with dcpext3") are not true with 0017: here 4K240-class modes that need two
+pipelines fall back to single-pipeline modes. The "0023" and "drop 0020-0023" above are the old numbers of #1921,
+now upstream (0020 is now #1721); the remaining choice is keeping or dropping 0017-0019.
 
 Camera presets: #1835 (DjDeveloperr, merged) gives seven sizes on config 6 (1920x1080, 640x480,
 1280x720, 1760x1328, 1328x1760, 1552x1552, 1080x1920). Our release-1 presets (edimoldovan's
@@ -385,5 +411,5 @@ this file's git history and on ush in `~/m5-build/pkg272/out/`.
 
 ## Queued for the next kernel
 
-Nothing queued. #1921 is in v272-6 at its head 4c6a7b451f34 while still open; re-take it when it
-merges (drop 0020-0023 then) or if its head moves.
+Nothing queued. #1921 and #1930 merged and were dropped in v272-16. Still open upstream and carried here: #1173 (0001),
+#1650 (0005), #1721 (0020); the HDMI patches 0017-0019 and the 27.2 ANE pin 0016 are not upstream.

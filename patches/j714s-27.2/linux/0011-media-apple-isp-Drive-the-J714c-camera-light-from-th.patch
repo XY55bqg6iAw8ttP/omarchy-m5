@@ -1,7 +1,7 @@
-From 1d18fda01898e265d97f1eb49e175da6ded85112 Mon Sep 17 00:00:00 2001
+From 31e4f2aa4870f04f8e222d1c383919fd169e455f Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:35 +0100
-Subject: [PATCH 11/26] media: apple: isp: Drive the J714c camera light from
+Subject: [PATCH 11/20] media: apple: isp: Drive the J714c camera light from
  the driver
 
 On the J714c the camera light belongs to the exclave indicator

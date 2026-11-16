@@ -1,7 +1,7 @@
-From 21ac6384f9022b508284584e1a182591042b40fe Mon Sep 17 00:00:00 2001
+From 81466ba51187d4ae4037774d6d8fa7f399af4a34 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 11:16:29 -0500
-Subject: [PATCH 10/26] arm64: dts: apple: t6050-j714s: Also offer 2560x1440
+Subject: [PATCH 10/20] arm64: dts: apple: t6050-j714s: Also offer 2560x1440
  from sensor config 6
 
 DjDeveloperr's J714s presets (#1835) crop and scale sensor config 6 to

@@ -1,7 +1,7 @@
-From f3592fe23e0575a350f459611d9384e334422794 Mon Sep 17 00:00:00 2001
+From 2c2d71961edc867b605ae62332ba25ea344c1208 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 15:41:37 -0500
-Subject: [PATCH 02/26] drm/apple: Name the firmware 27 adaptive sync parameter
+Subject: [PATCH 02/20] drm/apple: Name the firmware 27 adaptive sync parameter
 
 The firmware 27 template instance sends adaptive sync as a bare 15,
 where every other instance sends IOMFBPARAM_ADAPTIVE_SYNC (14). The DCP

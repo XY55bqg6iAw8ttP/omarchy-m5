@@ -1,7 +1,7 @@
-From b8fa7097dbdafe314ccce3df37c1a6927d7dc744 Mon Sep 17 00:00:00 2001
+From 5775da9c64289cb3e5a14502d93a4c58edfe6a0a Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 08:13:48 -0500
-Subject: [PATCH 04/26] drm/apple: firmware 27.3: the full IOMFB method table
+Subject: [PATCH 04/20] drm/apple: firmware 27.3: the full IOMFB method table
  and the 27.3 swap record (J716s daily)
 
 Private to the J716s daily: the IDs beyond the 20 traced ones and the 27.3 swap layout were
@@ -20,7 +20,7 @@ Claude-Session: https://claude.ai/code/session_01BV6NpkesyT31Ta49VjQELY
  5 files changed, 154 insertions(+), 42 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index 2eb5eb53fb8c..89f287e47bad 100644
+index 97b0db066bb9..50afd0dd5760 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
 @@ -592,6 +592,8 @@ struct apple_dcp {

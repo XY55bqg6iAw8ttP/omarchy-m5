@@ -2,13 +2,17 @@
 # macOS 27.2 stub (UniversalMac_27.2_26B123, mBoot-20457.41.3), booted from a padded Aura Mach-O
 # Stage 1 with SPTM off: Linux at EL2 on every CPU inside the CTXR execute window.
 #
-# The one J714s image line. aurora-silicon/linux integration/aurora at 6612865ee100 (v272-15
-# re-pin, 2026-11-16; adds the merged #1647, #1789, #1944, #2012, #2018, DjDeveloperr's J714s
-# deep-sleep completion #2027-#2030 (display coprocessor restart during the wake, its DART and power
-# words, the J714s deep-sleep SoC data), dwc3 teardown out of the PM notifier chain, the rtkit crash
-# log, the display/tunnel work #2033, #2035-#2038 and the J714s MagSafe port #2039; on top of
-# c0a2a7522b4e's #1963 T6050 sleep series, #2022, #1950, the G17 fixes, DP audio, the J714s Secure
-# Enclave, CLPC, CPU PMU, JPEG, ProRes, MagSafe PD, external displays, #1645, #1835, #1891) plus
+# The one J714s image line. aurora-silicon/linux integration/aurora at 6e2043af8c5e (v272-16
+# re-pin, 2026-11-16; adds the merged #1921 (a third dock display through dcpext1), #1930 (stop
+# waiting for a link on a withdrawn DP tunnel), #2006 (dcpext1 also routed to the left-front port's
+# DP tunnels, the left-front router's DP IN interrupts), #2034 (tunnel-only routes first), #2032
+# (external EDID defaults), #2031 (J714s resume tail: N1 link watch, SD reader port after the resume,
+# cd321x wake state), #2045 (ATC USB2 restart), #2047 (SN201202x probe retry with a reset), the G17
+# changes #1977, #1981, #1982, #2058 and other boards' DT (#933, #1923, #1928, #1932, #1955); on top
+# of 6612865ee100's #1647, #1789, #1944, #2012, #2018, #2027-#2030 J714s deep-sleep completion,
+# #1947, #2033, #2035-#2039, and c0a2a7522b4e's #1963 T6050 sleep series, #2022, #1950, the G17
+# fixes, DP audio, the J714s Secure Enclave, CLPC, CPU PMU, JPEG, ProRes, MagSafe PD, external
+# displays, #1645, #1835, #1891) plus
 # linux-j714s-27.2.patch, betizzel/omarchy-m5 patches/j714s-27.2/linux:
 #   0001     #1173, GPU InitData for 27.2 (26B123) and 27.3 (Rolando Trevino)
 #   0002-04  rolotrealanis98's firmware 27 DCP fixes and the 27.3 IOMFB table (27.3 rollback stub)
@@ -24,11 +28,11 @@
 #   0017     FatBoy721's J714s HDMI port (DT)
 #   0018-19  FatBoy721's HDMI v2: per-DCP flip hold while a T6050 HDMI output connects
 #            (appledrm.hdmi_hold_presents=0 turns it off) and the converter IRQ_HPD forwarder
-#   0020-23  Isaac-Duarte's #1921 (open) at 4c6a7b451f34: a third dock display through dcpext1
-#            on the right port (own tunnel slots for DP IN 2/3, tunnel-only Type-C routes)
-#   0024-25  Isaac-Duarte's #1930 (open): stop waiting for a link on a DP tunnel the dock withdrew
-#   0026     DjDeveloperr's #1721 (open): no LDCM command to a dry SN201202x port, as macOS
+#   0020     DjDeveloperr's #1721 (open): no LDCM command to a dry SN201202x port, as macOS
 #            (v272-15: tps6598x.h context follows #2039, which removed sleep_only)
+# Dropped at the v272-16 re-pin (upstream carries them): old 0020-23 #1921 and 0024 #1930's first commit
+#   (patch-identical); old 0025, #1930's second commit, replaced by upstream's merged 56793eff52dc
+#   (dcp_tb_tunnel_withdrawn() also watches a tiled split's second tunnel; the watch is T6050-only).
 # Dropped at the v272-15 re-pin (upstream carries them, patch-identical): old 0024 #1944 (7a479d4a41c9),
 #   0028 #1789 (f61eb4550a95), 0029-30 #1647 (aa16d423cf8a, 70bf8ed1867b), 0031 #2012 (56b02059cfc8),
 #   0032 #2018 (64d473f5321d).
@@ -41,9 +45,9 @@
 
 _auroraver=7.3.0
 _aurorarel=17.v272
-pkgrel=15
+pkgrel=16
 
-_commit=6612865ee100cd266aedb55de13aaec2131ac8aa
+_commit=6e2043af8c5e522dda8f8876be87411921c26a31
 
 # Any m1n1 1.6.1 loads these device trees. The Neo's own Stage 2 comes from the
 # image, so the floor stays where M1 and M2 users' m1n1-aurora already meets it.
@@ -69,11 +73,11 @@ source=(validate-config.py configure.sh "linux-${_commit}.tar.gz::https://github
         speakersafetyd-hold.conf)
 sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             'b95c0f0ddf106f3861e0e62a746af6a881fb8e0f356a892961f9e86062877400'
-            '023b5bc1756132cb3be040e3b49d25d60040b2aa0644b2c885e1488584410687'
+            'e82ca9aa86756c5416f1bdbe14c052fbcd25b5c60c148986950e07722722e550'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
             'c784712b49e495ee40a2aaaddacd4ffaf3beb62654f571cead7673eb17eae11d'
-            '7bcb254501f0191b699f67a21ff9ee6cadaa9ed0cbd335c1e4efd9b2101f5037'
+            '5248348443296bc6c2d1a57633501d388c36a1636f913bc9c1098dccb590ab01'
             '7175fecb20dc8e8801ce7b5a7aeb02fb4c4cb259104465b2361b92ab1c3f5468'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 

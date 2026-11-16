@@ -1,7 +1,7 @@
-From 310c3e7d9d1486c417ae0b653937d8842a578527 Mon Sep 17 00:00:00 2001
+From 0bcb794a3fd74d8ebfd1a946c7f8d6c4e3aea286 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 12:29:34 -0500
-Subject: [PATCH 14/26] drm/apple: Offer VRR on the firmware 27 panel and apply
+Subject: [PATCH 14/20] drm/apple: Offer VRR on the firmware 27 panel and apply
  VRR_ENABLED (J716s daily)
 
 The T6050 ProMotion panel reports its 120 Hz timing with both
@@ -44,7 +44,7 @@ Claude-Session: https://claude.ai/code/session_01BV6NpmcwB5iJuY9huL52C5
  4 files changed, 91 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index 89f287e47bad..8ff58e2d140f 100644
+index 50afd0dd5760..35d72dddfff0 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
 @@ -686,6 +686,8 @@ struct apple_dcp {
@@ -56,7 +56,7 @@ index 89f287e47bad..8ff58e2d140f 100644
  	/*
  	 * The mode set asks for a PQ signal; output_pq: the one set carries it;
  	 * output_edr: a panel shows the PQ content as EDR, edr_sent: swaps
-@@ -1208,6 +1210,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
+@@ -1209,6 +1211,14 @@ static inline bool dcp_vrr_live(struct apple_dcp *dcp)
  	       dcp_has_panel(dcp);
  }
  
@@ -72,10 +72,10 @@ index 89f287e47bad..8ff58e2d140f 100644
   * Does @dcp's firmware speak the 14.7 AFK, DPTX and DPAV endpoint protocol,
   * whichever IOMFB path drives it? DCP_FIRMWARE_V_14_7 is the native DCPLink
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index 21a0c8a82229..5a8ced923d7a 100644
+index 57ebc6df61ee..17c34ca5d5b8 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -1602,6 +1602,12 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
+@@ -1613,6 +1613,12 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
  		WRITE_ONCE(dcp->vrr_enabled, false);
  		dev_warn(dcp->dev, "adaptive swap timed out, restoring fixed refresh\n");
  	}
@@ -88,7 +88,7 @@ index 21a0c8a82229..5a8ced923d7a 100644
  	dev_warn(dcp->dev, "swap not completed, retraining the display\n");
  	dcp_mode_invalidate(&dcp->mode_state);
  	dcp_drm_crtc_vblank(dcp->crtc);
-@@ -1612,7 +1618,8 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
+@@ -1623,7 +1629,8 @@ VISIBLE_IF_KUNIT void dcp_swap_watchdog(struct work_struct *work)
  
  void dcp_swap_watchdog_arm(struct apple_dcp *dcp)
  {
@@ -99,7 +99,7 @@ index 21a0c8a82229..5a8ced923d7a 100644
  			msecs_to_jiffies(DCP_SWAP_WATCHDOG_MS);
  		mod_delayed_work(system_dfl_wq, &dcp->swap_watchdog_wq,
 diff --git a/drivers/gpu/drm/apple/iomfb.c b/drivers/gpu/drm/apple/iomfb.c
-index 8714adf0b7e1..da95b9fd7c11 100644
+index 3b41359bba82..abf564e58074 100644
 --- a/drivers/gpu/drm/apple/iomfb.c
 +++ b/drivers/gpu/drm/apple/iomfb.c
 @@ -45,6 +45,23 @@
@@ -140,7 +140,7 @@ index 8714adf0b7e1..da95b9fd7c11 100644
  	ctx->internal_present_deadline = dcp->fw_compat == DCP_FIRMWARE_V_26_6_DESKTOP;
  	if (dcp->fixed_connector_type != DRM_MODE_CONNECTOR_eDP &&
  	    smp_load_acquire(&dcp->dptxport[0].tile_hint)) {
-@@ -2847,6 +2869,8 @@ int dcp_get_modes(struct drm_connector *connector)
+@@ -2854,6 +2876,8 @@ int dcp_get_modes(struct drm_connector *connector)
  		}
  		vrr_capable |= modes[i].vrr;
  	}
@@ -149,7 +149,7 @@ index 8714adf0b7e1..da95b9fd7c11 100644
  	drm_connector_set_vrr_capable_property(connector, vrr_capable);
  modes_done:
  	mutex_unlock(&dcp->dcpavserv.lock);
-@@ -4114,6 +4138,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
+@@ -4121,6 +4145,44 @@ static void iomfb_queue_atomic(struct apple_dcp *dcp, struct drm_crtc *crtc,
  	schedule_work(&dcp->vblank_wq);
  }
  
@@ -194,7 +194,7 @@ index 8714adf0b7e1..da95b9fd7c11 100644
  void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  {
  	struct platform_device *pdev = to_apple_crtc(crtc)->dcp;
-@@ -4180,6 +4242,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
+@@ -4187,6 +4249,11 @@ void dcp_flush(struct drm_crtc *crtc, struct drm_atomic_commit *commit)
  			dcp_hdr_metadata_sync(dcp, crtc, commit);
  	}
  
