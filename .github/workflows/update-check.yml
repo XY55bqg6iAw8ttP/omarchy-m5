@@ -12,7 +12,7 @@ on:
       release:
         description: Developer image release tag
         required: true
-        default: j714s-developer-image-2026.11.11-5
+        default: j714s-developer-image-omarchy-j714s-9
 
 permissions:
   contents: read
