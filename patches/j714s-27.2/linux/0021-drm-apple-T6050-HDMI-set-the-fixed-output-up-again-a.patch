@@ -1,0 +1,141 @@
+From 2d45dc02bd4f39d8e94796ff14faa313edd826ec Mon Sep 17 00:00:00 2001
+From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
+Date: Mon, 16 Nov 2026 21:13:51 -0500
+Subject: [PATCH] drm/apple: T6050 HDMI: set the fixed output up again after a
+ system sleep
+
+After an s2idle on the J714s with a display on the HDMI port the display
+never comes back: at the wake DCP sees HPD high and connects, the DPTX
+firmware reports link faults 22 and 24 on target 0:3 (no AUX),
+dcp_dptx_connect() times out waiting for the port's link configuration,
+and the same happens on every HPD cycle, an unplug and replug included,
+until a reboot (betizzel/omarchy-m5#22, reproduced by TripleU613 on
+v272-16 with a Samsung G9).
+
+The HDMI route goes through the atc3 display crossbar, which shares the
+ATC3 power domain. The sleep takes that domain down and the crossbar wakes
+with its select register cleared, while the mux core still holds the
+selection taken at probe. The driver has two ways of setting a route up
+again after a sleep, and neither runs for this output:
+
+- dcp_platform_resume() sets the fixed HDMI output up again
+  (dcp_fabric_hdmi_reinit(): converter power, PHY, crossbar output
+  deselected and selected again) only for external_native, the T6030 one;
+- the H17P sleep path parks and unparks Type-C routes
+  (dcp_typec_route_park()), and the fixed HDMI route is none
+  (active_typec_route is NULL).
+
+Nor does the crossbar driver restore its routes: apple_dpxbar_resume() is
+T6030-only.
+
+Run the fixed-HDMI re-setup for the T6050 external coprocessor's HDMI
+output too. dcp_fixed_hdmi_sleeps() gates it on a fixed PHY with an HDMI
+HPD GPIO on apple,t6030-dcpext (as before) or apple,t6050-dcpext, and
+dcp_platform_resume() calls it for every DCP, a no-op elsewhere. On the
+T6050 it sets the converter's power enables (already on) and deselects and
+selects the crossbar output again, which rewrites the select register; the
+Type-C mux step is skipped, as the J714s DP-only PHY has no mux (the
+suspend's DPTX deactivate stops that PHY and the next activate starts it
+again). It runs after the Type-C unpark and before the HPD sample that
+connects the display again. Nothing changes at suspend: a T8142 crossbar's
+deselect writes no register while the output's link is down, so there is
+nothing to park. The M1/M2 Pro HDMI ports and the native external retry
+(dcp_external_retry(), external_native only) are unchanged.
+
+The "forwarding converter service requests" line missing after the wake
+is a consequence, not the cause: dcp-hdmi.c logs it once per boot, and the
+forwarder has nothing to do while the link does not train.
+
+Compiles with W=1 without diagnostics on integration/aurora 677be395b9d2
+with patches 0001-0020 (LLVM 23).
+
+Tested on the owner's J714s (HP E240c at 1920x1080@60 on the HDMI port),
+as this change ported onto the kernel it runs (an older integration/aurora
+base, 3766943238bd, with the J714s HDMI DT and ATC3 usb-aon always-on):
+- stock module: s2idle by systemctl suspend, keyboard wake: link fault 22
+  twice, the port 0 link configuration timeout, link fault 24, HDMI-A-1
+  disconnected; the issue as reported;
+- with this change: two s2idle cycles, HDMI-A-1 connected 1 s after each
+  wake, "HDMI: setting up the output again (after system sleep)" once per
+  wake, no link fault; an unplug and replug after the wake connects in 2 s;
+  a cold boot with the monitor attached shows the desktop; the internal
+  panel and Wi-Fi come back as before.
+Not tried: a USB-C display or dock across a sleep (the owner has neither).
+
+Signed-off-by: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
+---
+ drivers/gpu/drm/apple/dcp-fabric.c | 30 +++++++++++++++++++++++++-----
+ drivers/gpu/drm/apple/dcp.c        |  8 +++++---
+ 2 files changed, 30 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
+index bd161d0ebd9e..cdb39e4b7159 100644
+--- a/drivers/gpu/drm/apple/dcp-fabric.c
++++ b/drivers/gpu/drm/apple/dcp-fabric.c
+@@ -1326,19 +1326,39 @@ void dcp_fabric_hdmi_resume(struct apple_dcp *dcp)
+ }
+ 
+ /*
+- * T6030 HDMI output: the ATC PHY that runs it as four-lane DP, and the
+- * crossbar it goes through, are in power domains that system sleep may
++ * The fixed HDMI outputs whose PHY and crossbar sleep with their ATC power
++ * domain: the T6030 one, and the T6050 J714s one (dcpext3 through the atc3
++ * crossbar). On the T6050 the crossbar driver restores no route after a power
++ * loss (apple_dpxbar_resume() is T6030-only) and the H17P sleep path parks
++ * only Type-C routes (dcp_typec_route_park()), so after an s2idle the crossbar
++ * wakes with its select register cleared while the mux core still holds the
++ * selection: the next connect gets no AUX (link faults 22 and 24) until a
++ * reboot. The M1/M2 Pro HDMI ports keep their setup and are left alone.
++ */
++static bool dcp_fixed_hdmi_sleeps(struct apple_dcp *dcp)
++{
++	if (!dcp->fixed_phy || !dcp->hdmi_hpd)
++		return false;
++	return dcp->external_native ||
++	       of_device_is_compatible(dcp->dev->of_node, "apple,t6050-dcpext");
++}
++
++/*
++ * T6030 and T6050 HDMI output: the ATC PHY that runs it as four-lane DP, and
++ * the crossbar it goes through, are in power domains that system sleep may
+  * switch off, losing their setup, and the converter is powered through
+  * GPIOs. Set them up again as probe did: converter power on, the PHY taken
+- * out of DP and back into it, and the crossbar output selected again if the
+- * HDMI route holds it. No HDMI link is up when this runs.
++ * out of DP and back into it where a Type-C mux manages it (T6030; the T6050
++ * DP-only PHY is started again by the next DPTX activation), and the crossbar
++ * output selected again if the HDMI route holds it. No HDMI link is up when
++ * this runs.
+  */
+ static void dcp_fixed_hdmi_reinit_locked(struct apple_dcp *dcp, const char *why)
+ {
+ 	int ret = 0;
+ 
+ 	lockdep_assert_held(&dcp_typec_fabric_lock);
+-	if (!dcp->external_native || !dcp->fixed_phy || !dcp->hdmi_hpd)
++	if (!dcp_fixed_hdmi_sleeps(dcp))
+ 		return;
+ 	dev_info(dcp->dev, "HDMI: setting up the output again (%s)\n", why);
+ 	if (dcp->hdmi_pwren)
+diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
+index e7b6844b14e2..45972f18a3e7 100644
+--- a/drivers/gpu/drm/apple/dcp.c
++++ b/drivers/gpu/drm/apple/dcp.c
+@@ -9030,9 +9030,11 @@ static int dcp_platform_resume(struct device *dev)
+ 	if (dcp_is_external_h17p(dcp))
+ 		dcp_typec_route_unpark(dcp);
+ 	dcp_enable_typec_work(dcp);
+-	/* The HDMI output's PHY and crossbar may have lost their setup in sleep. */
+-	if (dcp->external_native)
+-		dcp_fabric_hdmi_reinit(dcp, "after system sleep");
++	/*
++	 * The HDMI output's PHY and crossbar may have lost their setup in sleep
++	 * (T6030, T6050; a no-op elsewhere).
++	 */
++	dcp_fabric_hdmi_reinit(dcp, "after system sleep");
+ 	/* Observe future edges before sampling any edges lost in sleep. */
+ 	if (dcp->hdmi_hpd_irq)
+ 		dcp_fabric_run_resume(&dcp_resume_ops, dcp);
+-- 
+2.56.0
+
