@@ -7,7 +7,13 @@ boot object with no `__TEXT_BOOT_EXEC` (`kcbz` 0, so iBoot does not start SPTM),
 `kmutil configure-boot --compress` after `bputil -nc`; Linux runs at EL2 on every CPU inside the
 128 MiB code-execute window, as aurora-silicon targets 27.2 (`docs/move-to-27.2.md`).
 
-Status (2026-11-16, latest): v272-17: re-pinned to aurora-silicon/linux `integration/aurora` `677be395b9d2`
+Status (2026-11-16, latest): v272-18 = v272-17 plus 0021 (FatBoy721, PR #26 for #22): after an s2idle the T6050 fixed HDMI
+output on dcpext3 is set up again (`dcp_fixed_hdmi_sleeps()`; the atc3 crossbar output selected again before the HPD
+sample reconnects). Same pin `677be395b9d2`, no re-pin; 0001-0020 unchanged (only their `[PATCH n/21]` numbering).
+diffconfig empty, `CONFIG_APPLE_SOC_SLEEP` still off, DTBs byte-identical to v272-17's. Built, not booted. Package
+`linux-aurora-7.3.0.aurora17.v272-18-aarch64.pkg.tar.zst`, sha256 `f63f3a040389e330160bf59fb1af54cd37b26603ecaba592bc646938e5726712` (44466134 bytes).
+
+Previous: v272-17: re-pinned to aurora-silicon/linux `integration/aurora` `677be395b9d2`
 (53 commits past `6e2043af8c5e`: #2046 #2084 #2053 #2057 #2073 #2079 #2080 #2056 #2055 #2067, G17 #1978 #1979 #2052
 #2066 #2076, #2064 #2005). No patch dropped (`git cherry` all "+"); series 0001-0020 unchanged, range-diff "=" for 0002-0020.
 One both-sides edit in 0001 (#1173), composed: #2080 removed `Board::calibration` and the calibration gate in
@@ -23,7 +29,7 @@ HDMI on dcpext3 untouched (no audio port, as before). Built, not booted. Package
 `linux-aurora-7.3.0.aurora17.v272-17-aarch64.pkg.tar.zst`, sha256
 `6d7adebd0b3602af99e7b6bca2b3f130d60b11b6067f09e30a4b5b51522f52ed` (44463376 bytes).
 
-Previous: v272-16: re-pinned to aurora-silicon/linux `integration/aurora` `6e2043af8c5e`
+Before that: v272-16: re-pinned to aurora-silicon/linux `integration/aurora` `6e2043af8c5e`
 (48 commits past `6612865ee100`); #1921 and #1930 merged upstream, so the old 0020-0024 are dropped (patch-identical per
 `git cherry`) and the old 0025 is replaced by #1930's merged `56793eff52dc`, which differs from ours (it also watches a tiled
 split's second tunnel and runs only on T6050). The series is now 0001-0020: 0001-0019 as before, old 0026 (#1721) is 0020.
@@ -429,4 +435,4 @@ this file's git history and on ush in `~/m5-build/pkg272/out/`.
 ## Queued for the next kernel
 
 Nothing queued. #1921 and #1930 merged and were dropped in v272-16; v272-17 dropped nothing. Still open upstream and carried here: #1173 (0001),
-#1650 (0005), #1721 (0020); the HDMI patches 0017-0019 and the 27.2 ANE pin 0016 are not upstream.
+#1650 (0005), #1721 (0020); the HDMI patches 0017-0019 and 0021 (v272-18) and the 27.2 ANE pin 0016 are not upstream.

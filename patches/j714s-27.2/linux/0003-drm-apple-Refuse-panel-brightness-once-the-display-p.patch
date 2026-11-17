@@ -1,7 +1,7 @@
 From 283a117511147c45028ffe80281fcdd707b35be9 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 18:21:40 -0500
-Subject: [PATCH 03/20] drm/apple: Refuse panel brightness once the display
+Subject: [PATCH 03/21] drm/apple: Refuse panel brightness once the display
  processor crashed
 
 A panel that presents its level in the swap gets a new level only with

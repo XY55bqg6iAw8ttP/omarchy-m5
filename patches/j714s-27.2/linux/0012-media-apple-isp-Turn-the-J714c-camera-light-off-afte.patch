@@ -1,7 +1,7 @@
 From 4673ca2939dfb1ec816e98df123508dae3f4d1ef Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
-Subject: [PATCH 12/20] media: apple: isp: Turn the J714c camera light off
+Subject: [PATCH 12/21] media: apple: isp: Turn the J714c camera light off
  after a firmware halt
 
 A firmware that dies mid-start can leave the sensor powered, and a

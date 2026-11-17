@@ -1,8 +1,8 @@
-From 2d45dc02bd4f39d8e94796ff14faa313edd826ec Mon Sep 17 00:00:00 2001
+From 113e53a0ac24d95d6f5510c2abefe66656aec798 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Mon, 16 Nov 2026 21:13:51 -0500
-Subject: [PATCH] drm/apple: T6050 HDMI: set the fixed output up again after a
- system sleep
+Subject: [PATCH 21/21] drm/apple: T6050 HDMI: set the fixed output up again
+ after a system sleep
 
 After an s2idle on the J714s with a display on the HDMI port the display
 never comes back: at the wake DCP sees HPD high and connects, the DPTX

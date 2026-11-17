@@ -38,6 +38,9 @@
 #            (appledrm.hdmi_hold_presents=0 turns it off) and the converter IRQ_HPD forwarder
 #   0020     DjDeveloperr's #1721 (open): no LDCM command to a dry SN201202x port, as macOS
 #            (v272-15: tps6598x.h context follows #2039, which removed sleep_only)
+#   0021     FatBoy721's HDMI after a sleep (v272-18, betizzel/omarchy-m5#26 for #22): the fixed-HDMI
+#            re-setup dcp_platform_resume() ran for the T6030 also runs for apple,t6050-dcpext, so the
+#            atc3 crossbar output is selected again after an s2idle
 # Dropped at the v272-16 re-pin (upstream carries them): old 0020-23 #1921 and 0024 #1930's first commit
 #   (patch-identical); old 0025, #1930's second commit, replaced by upstream's merged 56793eff52dc
 #   (dcp_tb_tunnel_withdrawn() also watches a tiled split's second tunnel; the watch is T6050-only).
@@ -53,7 +56,7 @@
 
 _auroraver=7.3.0
 _aurorarel=17.v272
-pkgrel=17
+pkgrel=18
 
 _commit=677be395b9d2e15d98696107ebf88191f08efbf9
 
@@ -85,7 +88,7 @@ sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
             'c784712b49e495ee40a2aaaddacd4ffaf3beb62654f571cead7673eb17eae11d'
-            '3736df9ae8d2715ebc38105cc54f2b165b91862663f7d7887eaa004bb4d589ce'
+            'bb1156274469f29db4e00246826da2d7c25b87a37fdd0216fba2a15efcc03829'
             '7175fecb20dc8e8801ce7b5a7aeb02fb4c4cb259104465b2361b92ab1c3f5468'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 

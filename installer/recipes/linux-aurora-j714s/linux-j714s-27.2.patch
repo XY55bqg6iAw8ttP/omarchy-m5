@@ -1,7 +1,7 @@
 From 9f324623fb3a57f7826bc980ff0045b0ec0ea639 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 10:56:02 -0500
-Subject: [PATCH 01/20] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
+Subject: [PATCH 01/21] drm/asahi: M5: InitData for the macOS 27.2 and 27.3
  firmware (#1173)
 
 aurora-silicon/linux #1173 (Rolando Trevino, rolotrealanis98; head
@@ -1622,7 +1622,7 @@ index 4ea3862efd4c..ab1fcb7a9c21 100644
 From b021fdd23284df4d1276e178ec90aa76b5c67453 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 15:41:37 -0500
-Subject: [PATCH 02/20] drm/apple: Name the firmware 27 adaptive sync parameter
+Subject: [PATCH 02/21] drm/apple: Name the firmware 27 adaptive sync parameter
 
 The firmware 27 template instance sends adaptive sync as a bare 15,
 where every other instance sends IOMFBPARAM_ADAPTIVE_SYNC (14). The DCP
@@ -1692,7 +1692,7 @@ index 2ae38159ab06..f184ffabfaeb 100644
 From 283a117511147c45028ffe80281fcdd707b35be9 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 18:21:40 -0500
-Subject: [PATCH 03/20] drm/apple: Refuse panel brightness once the display
+Subject: [PATCH 03/21] drm/apple: Refuse panel brightness once the display
  processor crashed
 
 A panel that presents its level in the swap gets a new level only with
@@ -1741,7 +1741,7 @@ index 7432513a7ba2..c25fb11a0ed6 100644
 From 602c934e1977f899d0f75df76f278745eded0e2e Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 08:13:48 -0500
-Subject: [PATCH 04/20] drm/apple: firmware 27.3: the full IOMFB method table
+Subject: [PATCH 04/21] drm/apple: firmware 27.3: the full IOMFB method table
  and the 27.3 swap record (J716s daily)
 
 Private to the J716s daily: the IDs beyond the 20 traced ones and the 27.3 swap layout were
@@ -2054,7 +2054,7 @@ index 915de53c68bf..be4576e03f01 100644
 From 28f565f56e6610ba809e9505d4f8f7712bef4b82 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Wed, 11 Nov 2026 12:00:39 -0700
-Subject: [PATCH 05/20] drm/asahi: t6050: identify the 27.2 (26B8125) G17S
+Subject: [PATCH 05/21] drm/asahi: t6050: identify the 27.2 (26B8125) G17S
  firmware of the K114/K116
 
 Applies on top of aurora-silicon/linux PR #1173.
@@ -2136,7 +2136,7 @@ index ab1fcb7a9c21..df70226a1f1b 100644
 From aa77698613b8b3489ae0ca4a2ad3c5404d68272a Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 23:52:29 -0500
-Subject: [PATCH 06/20] accel/ane, media: apple: ave: T6050 Neural Engine on
+Subject: [PATCH 06/21] accel/ane, media: apple: ave: T6050 Neural Engine on
  macOS 27.3; AVE builds by TEXT CRC
 
 The T6050 ANE driver admits one preloaded firmware build, the macOS 27.0
@@ -2701,7 +2701,7 @@ index d8075a8d38bc..05dd6fa2fe0c 100644
 From e52b2e0a5a12b9ae000096c3885751b2c4af7581 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
-Subject: [PATCH 07/20] media: apple: isp: Tune the J714c IMX958 with setfile
+Subject: [PATCH 07/21] media: apple: isp: Tune the J714c IMX958 with setfile
  2226_02
 
 macOS's appleh16camerad carries three setfiles naming sensor 0x958:
@@ -2796,7 +2796,7 @@ index 3551018baf17..79a4445d1c4f 100644
 From 45af00794bee1c00fcfadda45f26be887b8c6326 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:11:59 +0100
-Subject: [PATCH 08/20] media: apple: isp: Compute the T6050 setfile's noise
+Subject: [PATCH 08/21] media: apple: isp: Compute the T6050 setfile's noise
  reduction radial gains
 
 The IMX958 setfile 2226_02 carries its noise reduction radial gains
@@ -2979,7 +2979,7 @@ index 79a4445d1c4f..6b7e6b5f9a70 100644
 From 9a4750412a4001c7d3fe28c532528916d8b5feb0 Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 14:13:01 +0100
-Subject: [PATCH 09/20] media: apple: isp: Set the J714c lens shading target
+Subject: [PATCH 09/21] media: apple: isp: Set the J714c lens shading target
  and scene metering
 
 macOS's appleh16camerad sets the IMX958's lens shading ideal percent to
@@ -3122,7 +3122,7 @@ index 6b7e6b5f9a70..c13914ef62e9 100644
 From 7a949ab8b3bb5fc82d0860eec4b8588f6df245f8 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 11:16:29 -0500
-Subject: [PATCH 10/20] arm64: dts: apple: t6050-j714s: Also offer 2560x1440
+Subject: [PATCH 10/21] arm64: dts: apple: t6050-j714s: Also offer 2560x1440
  from sensor config 6
 
 DjDeveloperr's J714s presets (#1835) crop and scale sensor config 6 to
@@ -3173,7 +3173,7 @@ index 383ec08bedbe..5f4765eb6526 100644
 From d6a6d97f0ce09a7ebd46b38a34a83b8a287eab7d Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:35 +0100
-Subject: [PATCH 11/20] media: apple: isp: Drive the J714c camera light from
+Subject: [PATCH 11/21] media: apple: isp: Drive the J714c camera light from
  the driver
 
 On the J714c the camera light belongs to the exclave indicator
@@ -3402,7 +3402,7 @@ index 09b691228650..3c39a1d5fc9d 100644
 From 4673ca2939dfb1ec816e98df123508dae3f4d1ef Mon Sep 17 00:00:00 2001
 From: Eduard Moldovan <edimoldovan@gmail.com>
 Date: Sun, 8 Nov 2026 12:56:36 +0100
-Subject: [PATCH 12/20] media: apple: isp: Turn the J714c camera light off
+Subject: [PATCH 12/21] media: apple: isp: Turn the J714c camera light off
  after a firmware halt
 
 A firmware that dies mid-start can leave the sensor powered, and a
@@ -3512,7 +3512,7 @@ index 3c39a1d5fc9d..a35961de0f15 100644
 From 9a12638c78ae5919ac4e1a0ccfee9940e0c2b7b6 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 05:03:13 -0500
-Subject: [PATCH 13/20] arm64: dts: apple: t6050-j714s: Describe the camera
+Subject: [PATCH 13/21] arm64: dts: apple: t6050-j714s: Describe the camera
  light
 
 edimoldovan's camera light driver (omacom/linux-aurora #422, 5a3e9d8a5f0b
@@ -3566,7 +3566,7 @@ index 5f4765eb6526..5e16259450fb 100644
 From 9664b4f487b9acf62f79dca6fb8c3d84078d76db Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 12:29:34 -0500
-Subject: [PATCH 14/20] drm/apple: Offer VRR on the firmware 27 panel and apply
+Subject: [PATCH 14/21] drm/apple: Offer VRR on the firmware 27 panel and apply
  VRR_ENABLED (J716s daily)
 
 The T6050 ProMotion panel reports its 120 Hz timing with both
@@ -3826,7 +3826,7 @@ index c34e27a12ad2..82445bb4e199 100644
 From 62ce67bb92fa940cee20cd4353cac4742413e50b Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Thu, 12 Nov 2026 23:54:15 -0500
-Subject: [PATCH 15/20] accel/ane, media: apple: ave: T6050 Neural Engine and
+Subject: [PATCH 15/21] accel/ane, media: apple: ave: T6050 Neural Engine and
  encoder on macOS 27.2
 
 The J714s 27.2 stub (UniversalMac_27.2_26B123, J714s identity) preloads
@@ -4003,7 +4003,7 @@ index 05dd6fa2fe0c..ad9c7b28956e 100644
 From 6941b2f096d7bbd185da993f301e8007f131845f Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:06:46 -0500
-Subject: [PATCH 16/20] accel/ane: T6050: pin the macOS 27.2 (26B123) ANE TEXT
+Subject: [PATCH 16/21] accel/ane: T6050: pin the macOS 27.2 (26B123) ANE TEXT
 
 Read from the first J714s 27.2 boot: H17 ANE: preloaded TEXT sha256 b15dd8fb3367a6d5a77935a62b4c6c9d6a6e166cd11c1b2a886c65f114d7c40e.
 
@@ -4046,7 +4046,7 @@ index 2ad203340e31..6079ea9a3999 100644
 From dceb61dfcef9be6cc974b29eb0b211ca034462f7 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:30:00 -0500
-Subject: [PATCH 17/20] arm64: dts: apple: t6050-j714s: Describe the HDMI port
+Subject: [PATCH 17/21] arm64: dts: apple: t6050-j714s: Describe the HDMI port
 
 The J714s HDMI port: dcpext3 -> the atc3 display crossbar -> ATC3 as a fixed
 four-lane DP PHY (the J714sAP ADT has no usb-drd3) -> the on-board DP-to-HDMI
@@ -4203,7 +4203,7 @@ index 5e16259450fb..60e9b16b07da 100644
 From b4bbb3dafab517bada3835c8bd8f5826b4129008 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 18/20] drm/apple: T6050 HDMI: complete flips locally while the
+Subject: [PATCH 18/21] drm/apple: T6050 HDMI: complete flips locally while the
  output connects
 
 A monitor that wakes from standby when the HDMI link comes up drops HPD about
@@ -4378,7 +4378,7 @@ index 82445bb4e199..7ce5d0d7137f 100644
 From 9b9c9ec662b0545a2f4841b09916eb31b65377fb Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 19/20] drm/apple: forward HDMI converter service requests on
+Subject: [PATCH 19/21] drm/apple: forward HDMI converter service requests on
  T6050
 
 The J714s HDMI port is the same design as the T6030 one: dcpext drives an
@@ -4430,7 +4430,7 @@ index 0603de2a0e22..3ac28f24a7af 100644
 From 8dcc47c4f8dcb78f85e5bd9d690c4acf72e326e1 Mon Sep 17 00:00:00 2001
 From: DjDeveloperr <hey@djdev.me>
 Date: Thu, 12 Nov 2026 15:01:46 -0500
-Subject: [PATCH 20/20] usb: typec: tipd: sn201202x: Send no LDCM command to a
+Subject: [PATCH 20/21] usb: typec: tipd: sn201202x: Send no LDCM command to a
  dry port
 
 On every probe, and again after a controller reset, the driver sends an
@@ -4517,6 +4517,147 @@ index a9bc1d738300..42692ced9ad3 100644
  };
  
  extern const struct tipd_data *tipd_hw_variants[];
+-- 
+2.56.0
+
+From 113e53a0ac24d95d6f5510c2abefe66656aec798 Mon Sep 17 00:00:00 2001
+From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
+Date: Mon, 16 Nov 2026 21:13:51 -0500
+Subject: [PATCH 21/21] drm/apple: T6050 HDMI: set the fixed output up again
+ after a system sleep
+
+After an s2idle on the J714s with a display on the HDMI port the display
+never comes back: at the wake DCP sees HPD high and connects, the DPTX
+firmware reports link faults 22 and 24 on target 0:3 (no AUX),
+dcp_dptx_connect() times out waiting for the port's link configuration,
+and the same happens on every HPD cycle, an unplug and replug included,
+until a reboot (betizzel/omarchy-m5#22, reproduced by TripleU613 on
+v272-16 with a Samsung G9).
+
+The HDMI route goes through the atc3 display crossbar, which shares the
+ATC3 power domain. The sleep takes that domain down and the crossbar wakes
+with its select register cleared, while the mux core still holds the
+selection taken at probe. The driver has two ways of setting a route up
+again after a sleep, and neither runs for this output:
+
+- dcp_platform_resume() sets the fixed HDMI output up again
+  (dcp_fabric_hdmi_reinit(): converter power, PHY, crossbar output
+  deselected and selected again) only for external_native, the T6030 one;
+- the H17P sleep path parks and unparks Type-C routes
+  (dcp_typec_route_park()), and the fixed HDMI route is none
+  (active_typec_route is NULL).
+
+Nor does the crossbar driver restore its routes: apple_dpxbar_resume() is
+T6030-only.
+
+Run the fixed-HDMI re-setup for the T6050 external coprocessor's HDMI
+output too. dcp_fixed_hdmi_sleeps() gates it on a fixed PHY with an HDMI
+HPD GPIO on apple,t6030-dcpext (as before) or apple,t6050-dcpext, and
+dcp_platform_resume() calls it for every DCP, a no-op elsewhere. On the
+T6050 it sets the converter's power enables (already on) and deselects and
+selects the crossbar output again, which rewrites the select register; the
+Type-C mux step is skipped, as the J714s DP-only PHY has no mux (the
+suspend's DPTX deactivate stops that PHY and the next activate starts it
+again). It runs after the Type-C unpark and before the HPD sample that
+connects the display again. Nothing changes at suspend: a T8142 crossbar's
+deselect writes no register while the output's link is down, so there is
+nothing to park. The M1/M2 Pro HDMI ports and the native external retry
+(dcp_external_retry(), external_native only) are unchanged.
+
+The "forwarding converter service requests" line missing after the wake
+is a consequence, not the cause: dcp-hdmi.c logs it once per boot, and the
+forwarder has nothing to do while the link does not train.
+
+Compiles with W=1 without diagnostics on integration/aurora 677be395b9d2
+with patches 0001-0020 (LLVM 23).
+
+Tested on the owner's J714s (HP E240c at 1920x1080@60 on the HDMI port),
+as this change ported onto the kernel it runs (an older integration/aurora
+base, 3766943238bd, with the J714s HDMI DT and ATC3 usb-aon always-on):
+- stock module: s2idle by systemctl suspend, keyboard wake: link fault 22
+  twice, the port 0 link configuration timeout, link fault 24, HDMI-A-1
+  disconnected; the issue as reported;
+- with this change: two s2idle cycles, HDMI-A-1 connected 1 s after each
+  wake, "HDMI: setting up the output again (after system sleep)" once per
+  wake, no link fault; an unplug and replug after the wake connects in 2 s;
+  a cold boot with the monitor attached shows the desktop; the internal
+  panel and Wi-Fi come back as before.
+Not tried: a USB-C display or dock across a sleep (the owner has neither).
+
+Signed-off-by: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
+---
+ drivers/gpu/drm/apple/dcp-fabric.c | 30 +++++++++++++++++++++++++-----
+ drivers/gpu/drm/apple/dcp.c        |  8 +++++---
+ 2 files changed, 30 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
+index bd161d0ebd9e..cdb39e4b7159 100644
+--- a/drivers/gpu/drm/apple/dcp-fabric.c
++++ b/drivers/gpu/drm/apple/dcp-fabric.c
+@@ -1326,19 +1326,39 @@ void dcp_fabric_hdmi_resume(struct apple_dcp *dcp)
+ }
+ 
+ /*
+- * T6030 HDMI output: the ATC PHY that runs it as four-lane DP, and the
+- * crossbar it goes through, are in power domains that system sleep may
++ * The fixed HDMI outputs whose PHY and crossbar sleep with their ATC power
++ * domain: the T6030 one, and the T6050 J714s one (dcpext3 through the atc3
++ * crossbar). On the T6050 the crossbar driver restores no route after a power
++ * loss (apple_dpxbar_resume() is T6030-only) and the H17P sleep path parks
++ * only Type-C routes (dcp_typec_route_park()), so after an s2idle the crossbar
++ * wakes with its select register cleared while the mux core still holds the
++ * selection: the next connect gets no AUX (link faults 22 and 24) until a
++ * reboot. The M1/M2 Pro HDMI ports keep their setup and are left alone.
++ */
++static bool dcp_fixed_hdmi_sleeps(struct apple_dcp *dcp)
++{
++	if (!dcp->fixed_phy || !dcp->hdmi_hpd)
++		return false;
++	return dcp->external_native ||
++	       of_device_is_compatible(dcp->dev->of_node, "apple,t6050-dcpext");
++}
++
++/*
++ * T6030 and T6050 HDMI output: the ATC PHY that runs it as four-lane DP, and
++ * the crossbar it goes through, are in power domains that system sleep may
+  * switch off, losing their setup, and the converter is powered through
+  * GPIOs. Set them up again as probe did: converter power on, the PHY taken
+- * out of DP and back into it, and the crossbar output selected again if the
+- * HDMI route holds it. No HDMI link is up when this runs.
++ * out of DP and back into it where a Type-C mux manages it (T6030; the T6050
++ * DP-only PHY is started again by the next DPTX activation), and the crossbar
++ * output selected again if the HDMI route holds it. No HDMI link is up when
++ * this runs.
+  */
+ static void dcp_fixed_hdmi_reinit_locked(struct apple_dcp *dcp, const char *why)
+ {
+ 	int ret = 0;
+ 
+ 	lockdep_assert_held(&dcp_typec_fabric_lock);
+-	if (!dcp->external_native || !dcp->fixed_phy || !dcp->hdmi_hpd)
++	if (!dcp_fixed_hdmi_sleeps(dcp))
+ 		return;
+ 	dev_info(dcp->dev, "HDMI: setting up the output again (%s)\n", why);
+ 	if (dcp->hdmi_pwren)
+diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
+index e7b6844b14e2..45972f18a3e7 100644
+--- a/drivers/gpu/drm/apple/dcp.c
++++ b/drivers/gpu/drm/apple/dcp.c
+@@ -9030,9 +9030,11 @@ static int dcp_platform_resume(struct device *dev)
+ 	if (dcp_is_external_h17p(dcp))
+ 		dcp_typec_route_unpark(dcp);
+ 	dcp_enable_typec_work(dcp);
+-	/* The HDMI output's PHY and crossbar may have lost their setup in sleep. */
+-	if (dcp->external_native)
+-		dcp_fabric_hdmi_reinit(dcp, "after system sleep");
++	/*
++	 * The HDMI output's PHY and crossbar may have lost their setup in sleep
++	 * (T6030, T6050; a no-op elsewhere).
++	 */
++	dcp_fabric_hdmi_reinit(dcp, "after system sleep");
+ 	/* Observe future edges before sampling any edges lost in sleep. */
+ 	if (dcp->hdmi_hpd_irq)
+ 		dcp_fabric_run_resume(&dcp_resume_ops, dcp);
 -- 
 2.56.0
 

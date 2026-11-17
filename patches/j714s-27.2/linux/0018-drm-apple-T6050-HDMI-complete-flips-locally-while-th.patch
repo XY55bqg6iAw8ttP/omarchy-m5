@@ -1,7 +1,7 @@
 From b4bbb3dafab517bada3835c8bd8f5826b4129008 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 17:15:00 -0500
-Subject: [PATCH 18/20] drm/apple: T6050 HDMI: complete flips locally while the
+Subject: [PATCH 18/21] drm/apple: T6050 HDMI: complete flips locally while the
  output connects
 
 A monitor that wakes from standby when the HDMI link comes up drops HPD about
