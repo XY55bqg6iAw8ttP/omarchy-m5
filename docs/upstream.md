@@ -74,8 +74,8 @@ Each kernel builds on the one above it. The first boot after installing v272-8 o
 | Kernel | Adds | Source | Their hardware evidence |
 | --- | --- | --- | --- |
 | v272-8 | J714s fans take a userspace target | Isaac-Duarte, aurora-silicon/linux #1944 (open) | his J714s: hotspot 114 C with the firmware curve, builds back to 47-57 s. **Ours, 2026-11-15:** fan1_target 3000 gave 2989 rpm, 0 handed it back (0 rpm idle) |
-| v272-8 | appledrm stops waiting on a DP tunnel the dock withdrew | Isaac-Duarte, #1930 (open) | his J714s with a Thunderbolt 5 dock |
-| v272-8 | no LDCM command to a dry SN201202x port | DjDeveloperr, #1721 (open) | 19 boots on a J714s |
+| v272-8 | appledrm stops waiting on a DP tunnel the dock withdrew | Isaac-Duarte, #1930 (merged 2026-11-16) | his J714s with a Thunderbolt 5 dock |
+| v272-8 | no LDCM command to a dry SN201202x port | DjDeveloperr, #1721 (merged 2026-11-17; drop 0020 at the next re-pin) | 19 boots on a J714s |
 | v272-8 | the PMP's power domains stay on through s2idle | Jens Axboe, #1789 (open, sent by sithglan) | two clean s2idle cycles on a K116s |
 | v272-9 | `BT_RFCOMM`, `BT_RFCOMM_TTY`, `PKCS8_PRIVATE_KEY_PARSER` | chrisohearn, betizzel/omarchy-m5#9 | the bluetoothd and modules-load errors on his K114s. **Ours:** `rfcomm` and `pkcs8_key_parser` load on v272-11 |
 | v272-10 | three G17 fixes merged upstream after our pin | Diljit Singh, #1925, #1946, #1948 (merged) | merged into integration/aurora |

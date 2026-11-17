@@ -2,6 +2,16 @@
 
 Pull requests and issues on this repo: what came in, what we did, where it stands. Newest first.
 
+## 2026-11-16 to 2026-11-17: #21 to #26
+
+| Item | Who | What happened | State |
+| --- | --- | --- | --- |
+| [#21](https://github.com/betizzel/omarchy-m5/issues/21) K114s OLED black with Hyprland colour management on | chrisohearn | Root cause found by him: the K114s panel's EDID has zero R/G/B primaries (aurora-silicon/linux #2060), and Hyprland 0.57.2 inverts them to NaN. The J714s runs the sRGB preset and was never affected (checked on the Mac). Hyprland guard [#24](https://github.com/betizzel/omarchy-m5/pull/24) merged and built for aarch64 and x86_64 (headers byte-identical, his 8 cases pass), shipped in release 9 as hyprland-m5 0.57.2-4; his kernel fix (aurora-silicon/linux #2087) lit the panel | closed by him with the result |
+| [#22](https://github.com/betizzel/omarchy-m5/issues/22) HDMI dark after a sleep until a reboot | benthepythondev00 | Reproduced on our J714s on v272-16 (link faults 22/24, a replug doesn't help). FatBoy721 found the cause (the fixed-HDMI re-setup on resume ran only on the T6030) and sent the fix as [#26](https://github.com/betizzel/omarchy-m5/pull/26), tested on his J714s. Built here as kernel v272-18 (no fuzz, check() 35 OK, DTBs identical to v272-17) and booted on our J714s unattended; the G9 sleep test with the owner is still to do | #26 merged 2026-11-17, #22 closed with it |
+| [#23](https://github.com/betizzel/omarchy-m5/issues/23) J716s test report | rolotrealanis98 | Recorded under "Other M5 boards" in the README | closed |
+| [#25](https://github.com/betizzel/omarchy-m5/issues/25) VRR crashes the K114s DCP | chrisohearn | 24 Hz and 48 Hz minimums crash alike. Firmware j714s15 (5acbae7) no longer ships `aurora-m5-vrr.conf`, so no board gets VRR by default; installed and booted on our J714s unattended (`fw27_panel_vrr` N, no failed units) | open until the release with j714s15 |
+| update-check after omacom's `aurora-*` package rename | this repo | Release 9's image keeps every J714s package (run 44020883522, 9 packages changed); the workflow's default image moved to release 9 (c4324ef) | done |
+
 ## 2026-11-15: #18, Aura 0008: the K114s/K116s 27.2 DCP image beside the J714s pin (chrisohearn)
 
 [#18](https://github.com/betizzel/omarchy-m5/pull/18) from chrisohearn adds
