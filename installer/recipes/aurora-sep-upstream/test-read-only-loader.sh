@@ -40,4 +40,9 @@ run_case "later file wins (read-only)" $'options apple-sep xart_writes=1\noption
 run_case "nothing configured = driver default 1" "" disabled 1 "asks for xART writes"
 run_case "no diag attribute, read-only" "options apple_sep xart_writes=0 provision_keybag=0" absent 0 "xART absent"
 run_case "no diag attribute, owner opt-in: upstream flow" "options apple_sep xart_writes=1 provision_keybag=1" absent 1 "did not seal"
+# An install command picks the options itself (here per kernel), out of sight.
+install='install apple_sep if [ "$(uname -r)" = 7.3.0-test ]; then exec /sbin/modprobe --ignore-install apple_sep xart_writes=1 $CMDLINE_OPTS; else exec /sbin/modprobe --ignore-install apple_sep $CMDLINE_OPTS; fi'
+run_case "install command, driver read-only" "$install" disabled 0 "install command"
+run_case "install command, driver writes: upstream flow" "$install" enabled 1 "did not seal"
+run_case "install command wins over an options line" $'options apple_sep xart_writes=1\n'"$install" disabled 0 "install command"
 exit $fail

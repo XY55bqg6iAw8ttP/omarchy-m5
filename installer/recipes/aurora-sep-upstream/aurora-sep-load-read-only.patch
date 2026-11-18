@@ -1,6 +1,6 @@
 --- a/aurora-sep-load
 +++ b/aurora-sep-load
-@@ -51,9 +51,52 @@
+@@ -51,9 +51,58 @@
              exit 1
          fi
          ;;
@@ -27,14 +27,17 @@
 +    echo absent
 +}
 +# The xart_writes value modprobe.d gives the driver; the driver's own default
-+# is 1 when nothing sets it.
++# is 1 when nothing sets it. An install command for the module runs instead
++# of modprobe's own load, and the options it passes (often chosen per kernel)
++# cannot be read from here: "install".
 +configured_writes=$(modprobe -c 2>/dev/null | awk '
++    $1 == "install" && ($2 == "apple_sep" || $2 == "apple-sep") { install = 1 }
 +    $1 == "options" && ($2 == "apple_sep" || $2 == "apple-sep") {
 +        for (i = 3; i <= NF; i++)
 +            if ($i ~ /^xart_writes=/)
 +                value = substr($i, length("xart_writes=") + 1)
 +    }
-+    END { print (value == "" ? 1 : value) }')
++    END { print (install ? "install" : value == "" ? 1 : value) }')
 +xart=$(xart_state)
 +xart_wait_end=$(($(uptime_s) + 10))
 +while [ "$xart" = absent ] && [ "$(uptime_s)" -lt "$xart_wait_end" ]; do
@@ -46,6 +49,9 @@
 +    exit 0
 +elif [ "$xart" = absent ]; then
 +    log "this kernel does not report diag/xart; going on as upstream does"
++elif [ "$configured_writes" = install ] && [ "$xart" != enabled ]; then
++    log "read-only: apple_sep runs with xART writes off (xART $xart). modprobe.d loads it through an install command, whose options are not read here, so this may be what it asks for. Nothing is written to the enclave's xART store and no identity keybag is created. If writes were meant to be on: journalctl -k -g apple_sep; XART-SAFETY.md"
++    exit 0
 +elif [ "$xart" != enabled ]; then
 +    log "modprobe.d asks for xART writes, but the driver reports xART $xart: it was loaded earlier this boot with other options (reboot), or the xART store did not validate for writing (journalctl -k -g apple_sep; XART-SAFETY.md). Not probing trusted keys"
 +    exit 1

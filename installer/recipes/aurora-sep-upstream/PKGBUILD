@@ -18,7 +18,7 @@ pkgname=aurora-sep
 _commit=8679514f4dff40a7c907daf834208e6afca427f1
 _short=${_commit:0:12}
 pkgver=1.17.g${_short}
-pkgrel=1
+pkgrel=2
 pkgdesc="Loader and Touch ID integration for the Apple SEP driver (read-only unless the owner opts in)"
 url="https://github.com/aurora-silicon/linux/tree/${_commit}/tools/aurora-sep"
 arch=(any)
@@ -67,11 +67,11 @@ sha256sums=('13aae91619958aece2d080d99db316a0534bf972b8b2eb08801a9c9c3e091285'
             'af4b8249f52d8b4eb4a6d3427d1258499061c5e06a8d2511bb4c14b81a03d704'
             'b20ec9e7a46bd3fe970ec8b79e46a3780bf7ad5b167e0d358c7f6bf34ee8b875'
             '52020e636e62b60f0c3e6251c3b67b8a8c409bff0486bc3463f356fd3073384b'
-            'bf72eb50725d3bf20be92362bb103d3f7a09302034333c06498aa06cff437bb2'
+            '9b69126bd6cb107c761ff84b33162bb86021362be3f0c99304ef797e2073f870'
             '97385185c62fbc5ea3fe0307a1151517124ae618b21412cfe25fae7c072fa903'
             '94762af4819c128072a6d734e361de8b3308e7894cff91fb2a3deb4660c7c857'
-            '78855adacc5f40b6aa04fa36724cb5b6d79dc4795259ca311406101d6ebc71bb'
-            'bb73d9d27c7c1038678e471574fedc0b4208c7e73ee910d623b8f22b74d046b6')
+            '02abb1dba8bb9d3e82db583169aead4ec87dec535900b91da0b802742aed917a'
+            '3f98406f7ee165d386b45cfc38edb2abefd60fb29fa7152410e752b1d12ba048')
 
 prepare() {
   # A copy, so the patch never touches the downloaded file makepkg checks.
