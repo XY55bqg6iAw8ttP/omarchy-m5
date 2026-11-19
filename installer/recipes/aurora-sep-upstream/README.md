@@ -179,6 +179,9 @@ What to look for:
 - `aurora-sep-ready`'s verdict (`aurora-sep-ready:78-108`, `:153-164`).
 
 The loader exits 1 when the driver refused writes; read its line.
+When modprobe.d loads `apple_sep` through an `install` command (options
+chosen per kernel, for example), the loader cannot read what it asks for: a
+read-only driver is then reported, not failed.
 
 ### 6. Enrol and verify
 
