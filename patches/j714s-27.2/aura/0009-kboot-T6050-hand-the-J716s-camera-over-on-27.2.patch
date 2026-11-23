@@ -1,0 +1,28 @@
+From: Julian Arango <95070226+ja-818@users.noreply.github.com>
+Subject: [PATCH] kboot: T6050: hand the J716s camera over on 27.2
+
+The J716s on the 27.2 stub (26B123): its identity loads the J714s's ISP
+firmware, byte for byte, and its ADT isp0 is the J714s's but for the sensor
+type 0x76. Seen on one J716s: the camera streams with the light on.
+Upstream, aura #362 (sensor type from the ADT on every board) replaces the
+table; drop this when it lands.
+
+Signed-off-by: Julian Arango <95070226+ja-818@users.noreply.github.com>
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+--- a/src/kboot.c
++++ b/src/kboot.c
+@@ -9423,6 +9423,12 @@
+      */
+     {"apple,j714s", 0x74, V27_2},
+     /*
++     * J716s on the 27.2 stub (26B123): its identity loads the J714s's ISP firmware, byte for byte
++     * (isp_bni/adc-nyx-sc7x, TEXT 0xc1c000, DATA 0x13d0000), and its ADT isp0 is the J714s's but
++     * for the sensor type 0x76, which rolotrealanis98's J716s also reads live on 27.3 beta.
++     */
++    {"apple,j716s", 0x76, V27_2},
++    /*
+      * K116s: ADT isp0 of 27.2 (26B8125). Firmware uuid 980F533B-34EA-3FBA-878C-809F6AF57345,
+      * the IPSW's isp_bni/adc-nyx-sck11pm; its K116 connection table has one FrontRGB IMX958.
+      */
