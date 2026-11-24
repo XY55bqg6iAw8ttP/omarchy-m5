@@ -13,6 +13,10 @@ on:
         description: Developer image release tag
         required: true
         default: j714s-developer-image-omarchy-j714s-9
+      preinstall:
+        description: Release tags whose .pkg.tar.zst assets are installed with pacman -U first (space-separated; the manual steps owners are told to run, e.g. firmware-j714s16 for #34). Empty for a plain update.
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -24,6 +28,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       RELEASE: ${{ inputs.release }}
+      PREINSTALL: ${{ inputs.preinstall }}
     steps:
       - name: Download and check the image
         run: |
@@ -71,6 +76,16 @@ jobs:
         run: |
           set -uo pipefail
           sudo chroot /mnt/sys pacman -Q > "$RUNNER_TEMP/before.txt"
+          for tag in $PREINSTALL; do
+            mkdir -p "$RUNNER_TEMP/pre/$tag"
+            gh release download "$tag" -R "$GITHUB_REPOSITORY" -p '*.pkg.tar.zst' -D "$RUNNER_TEMP/pre/$tag"
+            sudo mkdir -p /mnt/sys/var/tmp/pre && sudo cp "$RUNNER_TEMP/pre/$tag"/*.pkg.tar.zst /mnt/sys/var/tmp/pre/
+          done
+          if [ -n "$PREINSTALL" ]; then
+            sudo chroot /mnt/sys env OMARCHY_ALLOW_DIRECT_PACMAN=1 pacman -Sy --noconfirm 2>&1 | tail -3
+            sudo chroot /mnt/sys sh -c 'OMARCHY_ALLOW_DIRECT_PACMAN=1 pacman -U --noconfirm /var/tmp/pre/*.pkg.tar.zst' 2>&1 | tee "$RUNNER_TEMP/preinstall.log"
+            echo "preinstall exit: ${PIPESTATUS[0]}" | tee -a "$RUNNER_TEMP/preinstall.log"
+          fi
           # omarchy update runs this transaction (plus snapshot and migrations); its pacman hook stops a
           # bare pacman -Syu unless told this is deliberate.
           sudo chroot /mnt/sys env OMARCHY_ALLOW_DIRECT_PACMAN=1 pacman -Syu --noconfirm 2>&1 | tee "$RUNNER_TEMP/upgrade.log"
