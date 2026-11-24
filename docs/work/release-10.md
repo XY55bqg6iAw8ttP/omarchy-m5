@@ -35,3 +35,10 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 - **Blocked: the inputs bundle can't be signed.** `finish-inputs.py --signing-home` needs the private half of the developer signer `0DA040FF…B6D116B1`, kept in the work PC's `~/m5/private/installer-dev-signing`, which was deleted with `~/m5` on 2026-11-24. There is no other copy on the work PC or ush. Options: find a backup of that directory, or make a new developer signer and change the profile's trust (`image-builder/builder/profiles/j714s/candidate-trust/{policy.json,public.asc}`) in a new patch, as 0007 of `installer/patches` did when the fork's key was lost. That changes which key the image trusts, so it's the owner's call.
 - Not started (wait for the bundle): inputs release, `installer-image.yml` image-version 10, update-check. `installer-app.yml` and the `omarchy-j714s-10` prerelease wait for the owner's sleep test anyway.
 - PR #29 changed only `installer-app.yml`, `installer/app/*` and `installer/patches-j716s`; none of them feeds `installer-image.yml`, so the J714s image is unaffected.
+
+## Watching for the next kernel (open upstream, 2026-11-24)
+
+- aurora-silicon/linux #3023, #3025, #3036 (DjDeveloperr): G17 (M5 GPU) idle housekeeping, sync-input chains, event worker placement.
+- aurora-silicon/linux #2201 (K116s deep sleep), #2007 (PMIC RTC alarm: unattended s2idle tests), #2190 (idle power).
+- aurora-silicon/aura #506: PMP values onto aliasless PMP nodes, handoff hardening.
+- #33 here: the camera light on top of upstream's indicator.
