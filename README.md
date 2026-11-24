@@ -45,7 +45,7 @@ kernel (v272-7) and USB-C DisplayPort was last seen there too.
 | DisplayPort over USB-C, left DFU port | ❌ nothing shows in Linux; no charging or USB there either | open (Isaac-Duarte's aurora-silicon/linux #2017 describes the port) |
 | Thunderbolt dock, three displays | untested (Isaac-Duarte's dock route #1921 and dark-display fix #1930 are upstream now) | Isaac-Duarte |
 | DisplayPort audio | 🟡 three DP audio cards on v272-17 (release 9); nothing played through them yet | DjDeveloperr (#2079) |
-| Front camera | ✅ 1920x1080 at 30 fps, a sharp picture (checked 2026-11-16, kernel v272-12); colours have a slight cast in dim light | edimoldovan, Jens Axboe, sithglan, Erik Bourget, DjDeveloperr |
+| Front camera | ✅ 1920x1080 at 30 fps, a sharp picture (checked 2026-11-16, kernel v272-12); colours have a slight cast in dim light. Kernel v272-19 (built, booted here, not released yet) moves to upstream's tuning (aurora-silicon/linux #2233: setfile 2224_01, computed noise reduction) and **the green camera light stays off** there; upstream shows an indicator on the display instead. Streams 1080p on v272-19 | edimoldovan, Jens Axboe, sithglan, Erik Bourget, DjDeveloperr, Isaac-Duarte |
 | Neural Engine | 🟡 device up; no workload run | DjDeveloperr, Joshua Warren, Nick, this repo |
 | Hardware video encode | ❌ probe only on 27.2 | DjDeveloperr, this repo |
 | Hardware video decode | ✅ H.264 and HEVC through the AVD decoder, 60 of 60 test frames bit-identical to software (2026-11-16); by default since release 9 (firmware j714s14): VA-API lists 8 profiles with no environment variable | DjDeveloperr |
@@ -103,7 +103,7 @@ being sent upstream, and what waits on a test first, is in [`docs/upstream.md`](
 - **K114s** (14-inch OLED, M5 Pro, `apple,k114s`): admitted in developer builds, experimental, tested on one machine by chrisohearn; no image here, and admission alone gives a keyboard-only system.
   Notes: [`docs/boards/k114s.md`](docs/boards/k114s.md) and [chrisohearn/omarchy-m5p-oled](https://github.com/chrisohearn/omarchy-m5p-oled).
 - **J716s** (16-inch, M5 Pro, `apple,j716s`): admitted in developer builds, experimental, tested on one machine by ja-818 on the 27.2 stub with release 9's image ([#28](https://github.com/betizzel/omarchy-m5/issues/28), [#29](https://github.com/betizzel/omarchy-m5/pull/29)). Works there: all 18 CPUs, panel, keyboard, trackpad, USB, Bluetooth, lid sleep; Wi-Fi with a device-tree change not carried here yet.
-  Carried in the patch series for the next kernel: front camera (0023-0024, [#31](https://github.com/betizzel/omarchy-m5/pull/31)); jack, microphones and light sensor with the speakers held off (0025-0026, [#32](https://github.com/betizzel/omarchy-m5/pull/32)). Not built or released yet.
+  In kernel v272-19 (built and booted on our J714s, not released yet; 0009-0011 there): front camera ([#31](https://github.com/betizzel/omarchy-m5/pull/31)); jack, microphones and light sensor with the speakers held off ([#32](https://github.com/betizzel/omarchy-m5/pull/32)). Not tested on a J716s in this build.
   Earlier report on the 27.3 beta with rolotrealanis98's own kernel: [#23](https://github.com/betizzel/omarchy-m5/issues/23).
 ---
 

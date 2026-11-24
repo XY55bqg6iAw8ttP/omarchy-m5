@@ -6,10 +6,10 @@ Started 2026-11-24. Builds and packages live on ush (`~/m5/work`, `~/m5/pkgs`), 
 
 | Piece | Version | State |
 | --- | --- | --- |
-| Kernel | v272-19: patches/j714s-27.2/linux rebased from 677be395b9d2 onto aurora-silicon/linux main 93e92d293a25; drops what upstream merged (0020 = #1721 at least); adds 0022 (N1 WPA/WPA2 mixed, ja-818) and 0023-0026 (J716s camera and sound) | rebase running on ush |
-| Firmware | omarchy-aurora-firmware j714s15 (VRR off by default, #25) | built 2026-11-17, package lost; rebuild on ush |
+| Kernel | v272-19: patches/j714s-27.2/linux rebased from 677be395b9d2 onto aurora-silicon/linux main 93e92d293a25; drops what upstream merged (0020 = #1721 at least); adds 0022 (N1 WPA/WPA2 mixed, ja-818) and 0023-0026 (J716s camera and sound) | **built and booted on the J714s 2026-11-24** (pin 0c1f7e707784, 11 patches; draft release build-linux-v272-19). Tests 1-3 and 6 pass; 4-5 need the owner |
+| Firmware | omarchy-aurora-firmware j714s15 (VRR off by default, #25) | rebuilt on ush 2026-11-24, byte-identical to the Mac's; draft release build-fw-j714s15 |
 | Hyprland | hyprland-m5 0.57.2-4 | in release 9 already |
-| m1n1-aurora | v272-4 (Aura 0008) | in release 9; check Aura 1.0.0b15 for T6050 changes first |
+| m1n1-aurora | v272-4 (Aura 0008) | stays v272-4: Aura b15-b17 have nothing for the T6050 |
 
 Upstream gained this week (in the new base): T6050 deep-sleep series (#2657, #2698, #2739, #2718, #2606, #2611),
 DP pin D beside a running USB 3 link (#2681), PCIe Clock PM mask (#1618), CPU caches (#2654), #2117, #2113, #2085, #1721.
