@@ -28,3 +28,10 @@ Release when 1-4 and 6 pass; 5 is reported on #22 when the owner has time.
 ## After the release
 
 Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, docs/maintenance.md, docs/upstream.md.
+
+## Release pipeline state (2026-11-24)
+
+- Done: `installer/patches-j714s-r2/0013` (53e1b5c): set `j714s-dev-runtime-1438d54ecdd3`, TREE `ec7ae12a`; `rebuild-installer-tree.sh DEST upstream-27.3 j714s j714s-r2` reproduces it. The two changed packages (`.zst`) are on ush in `~/m5/pkgs/r10/`.
+- **Blocked: the inputs bundle can't be signed.** `finish-inputs.py --signing-home` needs the private half of the developer signer `0DA040FF…B6D116B1`, kept in the work PC's `~/m5/private/installer-dev-signing`, which was deleted with `~/m5` on 2026-11-24. There is no other copy on the work PC or ush. Options: find a backup of that directory, or make a new developer signer and change the profile's trust (`image-builder/builder/profiles/j714s/candidate-trust/{policy.json,public.asc}`) in a new patch, as 0007 of `installer/patches` did when the fork's key was lost. That changes which key the image trusts, so it's the owner's call.
+- Not started (wait for the bundle): inputs release, `installer-image.yml` image-version 10, update-check. `installer-app.yml` and the `omarchy-j714s-10` prerelease wait for the owner's sleep test anyway.
+- PR #29 changed only `installer-app.yml`, `installer/app/*` and `installer/patches-j716s`; none of them feeds `installer-image.yml`, so the J714s image is unaffected.
