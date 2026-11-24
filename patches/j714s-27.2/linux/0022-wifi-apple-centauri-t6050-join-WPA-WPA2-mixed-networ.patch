@@ -1,0 +1,88 @@
+From 65a6b0af72072e3463fed13c0999a4a3b5d99722 Mon Sep 17 00:00:00 2001
+From: Julian Arango <95070226+ja-818@users.noreply.github.com>
+Date: Sun, 22 Nov 2026 16:54:15 -0500
+Subject: [PATCH] wifi: apple: centauri: t6050: join WPA/WPA2 mixed networks
+ (TKIP group)
+
+Routers in WPA/WPA2 mixed mode, a common ISP default, advertise a TKIP
+group cipher with CCMP and TKIP pairwise ciphers. connect() and
+select_rsn() refused any group cipher but CCMP, so the N1 could not join
+them; iwd reports that as a wrong passphrase.
+
+Accept TKIP as the group cipher when CCMP is the only pairwise cipher,
+and list TKIP in the wiphy's cipher suites so cfg80211 lets the
+supplicant ask for it. Pairwise TKIP stays refused, and so does SAE with
+a TKIP group. The driver installs no keys: the firmware runs the 4-way
+handshake and installs the group key itself.
+
+Tested on a J716s (16-inch M5 Pro, 27.2 stub 26B123, omarchy-m5 release 9
+kernel v272-17 with this change built as a module): joins a WPA/WPA2
+mixed router (RSN group TKIP, pairwise TKIP CCMP, PSK) on 2.4 GHz.
+
+Signed-off-by: Julian Arango <95070226+ja-818@users.noreply.github.com>
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ .../apple/centauri/t6050/centauri_wifi.c      | 24 +++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wireless/apple/centauri/t6050/centauri_wifi.c b/drivers/net/wireless/apple/centauri/t6050/centauri_wifi.c
+index 2e24d1e..81b896c 100644
+--- a/drivers/net/wireless/apple/centauri/t6050/centauri_wifi.c
++++ b/drivers/net/wireless/apple/centauri/t6050/centauri_wifi.c
+@@ -125,8 +125,22 @@ static const u32 akm_suites[] = { WLAN_AKM_SUITE_PSK, WLAN_AKM_SUITE_SAE };
+ static const u32 cipher_suites[] = {
+ 	WLAN_CIPHER_SUITE_CCMP,
+ 	WLAN_CIPHER_SUITE_AES_CMAC,
++	/*
++	 * Only as the group cipher of a WPA/WPA2 mixed-mode network (group
++	 * TKIP, pairwise CCMP): connect refuses TKIP as a pairwise cipher. The
++	 * firmware runs the 4-way handshake and installs every key itself;
++	 * there is no add_key here.
++	 */
++	WLAN_CIPHER_SUITE_TKIP,
+ };
+ 
++/* The group ciphers a join may use: CCMP, or TKIP with WPA2-Personal. */
++static bool group_cipher_ok(u32 cipher)
++{
++	return cipher == WLAN_CIPHER_SUITE_CCMP ||
++	       cipher == WLAN_CIPHER_SUITE_TKIP;
++}
++
+ /* The firmware's band numbers: 0 is 2.4 GHz, 1 is 5 GHz, 2 is 6 GHz. */
+ static int firmware_band(enum nl80211_band band)
+ {
+@@ -1287,7 +1301,7 @@ static int select_rsn(const u8 *body, size_t size, u32 akm, u8 *selected)
+ 	tail = offset + 2 + 4 * get_unaligned_le16(body + offset);
+ 	if (tail + 2 > size)
+ 		return -EINVAL;
+-	if (get_unaligned_be32(body + 2) != WLAN_CIPHER_SUITE_CCMP ||
++	if (!group_cipher_ok(get_unaligned_be32(body + 2)) ||
+ 	    get_unaligned_le16(body + 6) != 1 ||
+ 	    get_unaligned_be32(body + 8) != WLAN_CIPHER_SUITE_CCMP)
+ 		return -EOPNOTSUPP;
+@@ -1439,7 +1453,7 @@ static int wifi_connect(struct wiphy *wiphy, struct net_device *netdev,
+ 	    params->crypto.sae_pwd_len > SAE_PASSWORD_MAX_LEN ||
+ 	    params->crypto.n_ciphers_pairwise != 1 ||
+ 	    params->crypto.ciphers_pairwise[0] != WLAN_CIPHER_SUITE_CCMP ||
+-	    params->crypto.cipher_group != WLAN_CIPHER_SUITE_CCMP ||
++	    !group_cipher_ok(params->crypto.cipher_group) ||
+ 	    params->ie_len > sizeof(wifi->request_ie)) {
+ 		dev_dbg(dev, "connect refused: %d pairwise ciphers, first %08x, group %08x, %zu bytes of elements\n",
+ 			params->crypto.n_ciphers_pairwise,
+@@ -1475,6 +1489,12 @@ static int wifi_connect(struct wiphy *wiphy, struct net_device *netdev,
+ 	}
+ 	rsn_size = ret;
+ 	sae = akm == WLAN_AKM_SUITE_SAE;
++	/* A TKIP group key goes only with WPA2-Personal, never with SAE. */
++	if (sae && params->crypto.cipher_group != WLAN_CIPHER_SUITE_CCMP) {
++		dev_dbg(dev, "connect refused: SAE with group cipher %08x\n",
++			params->crypto.cipher_group);
++		return -EOPNOTSUPP;
++	}
+ 	ret = 0;
+ 	mutex_lock(&wifi->lock);
+ 	if (READ_ONCE(wifi->stopping)) {
+-- 
+2.56.0
+
