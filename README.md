@@ -6,6 +6,8 @@ We don't reinvent anything. A lot of people are getting Linux running on the M5 
 in their own repo. We collect the parts that already work, put them together in **one image
 with one installer**, test it on a real J714s, and say who made each part.
 
+> **Updates:** turn on the signed [`[omarchy-m5]` package repository](tools/update-source/README.md) once (`bash enable`), and `omarchy update` brings our tested J714s kernel, firmware, m1n1 and Hyprland builds from then on.
+
 > **On release 7 to 9 and `omarchy update` fails with `aurora_drv_video.so exists in filesystem`?** Install [firmware j714s16](https://github.com/betizzel/omarchy-m5/releases/tag/firmware-j714s16) once, then update again ([#34](https://github.com/betizzel/omarchy-m5/issues/34)).
 
 **The image: [omarchy-j714s 10](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-10)** (prerelease, 2026-11-24): kernel
