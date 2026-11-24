@@ -210,6 +210,8 @@ Release 1 was built on linux `572eb88e8642` and Aura `2232ae7a` (git history of 
 | 0020 | No LDCM command to a dry SN201202x port, as macOS (`ldcm_requested`); v272-15: `tps6598x.h` context follows #2039. Old 0026; the PR head `de9a01da6442` has the same patch-id | DjDeveloperr (aurora-silicon/linux #1721, open) |
 | 0021 | **HDMI after a sleep** (new): after an s2idle the atc3 crossbar wakes with its select register cleared and the HDMI link never trains (faults 22/24, #22). The fixed-HDMI re-setup that `dcp_platform_resume()` ran only for the T6030 (`external_native`) now also runs for `apple,t6050-dcpext` (`dcp_fixed_hdmi_sleeps()`): converter power enables, crossbar output deselected and selected again, before the HPD sample reconnects. Tested on his J714s: stock reproduces #22, with the patch HDMI is back 1 s after each of two wakes, replug and cold boot fine | FatBoy721 |
 | 0022 | **N1 joins WPA/WPA2 mixed networks** (new): accept a TKIP group cipher with CCMP as the only pairwise cipher (a common ISP router default); pairwise TKIP and SAE with a TKIP group stay refused, and the firmware still runs the handshake and installs the keys. Tested on a J716s with v272-17 as a module (#28); not tested on a J714s | ja-818 (aurora-silicon/linux #2872, open) |
+| 0023 | **J716s camera, setfile by board** (new): the IMX958 setfile can be named by the board's tree (`apple,imx958-setfile`), the SoC default otherwise; `apple_isp.imx958_setfile=` for A/B. The J716s runs 2224_01. Seen on one J716s | ja-818 |
+| 0024 | **J716s front camera** (new): the shared T6050 ISP nodes (upstream #2275 adds the same include), the camera light, 1080p/720p presets on config 5, setfile 2224. Seen on one J716s: streams with the light on | ja-818 |
 
 Dropped in v272-16 (upstream merged them): old 0020-0023 (#1921: own tunnel slots for DP IN 2/3, `apple,tunnel-only`
 routes, dcpext1 on the right port) and old 0024 (#1930's first commit), all patch-identical per `git cherry`; old 0025
@@ -300,6 +302,7 @@ v272-2 to v272-4: `patch -Np1` of that release's `linux-j714s-27.2.patch` on the
 | 0006 | **J714s camera on 27.2:** sensor 0x74, the IPSW's ISP segments | this repo |
 | 0007 | ATC tunables for a fixed DP PHY (`apple,t6050-dp-phy`, the J714s ATC3 behind HDMI), needed by kernel 0017. Tested on 27.3 with 0017 | FatBoy721 (060831d4f8), ported unchanged |
 | 0008 | **K114s and K116s internal panel on 27.2:** aura #226's pin table, with the 26B8125 DCP image `3D6C8857-E6F1-3D2E-9DFF-587028AE0C6E` (the K116s's, and the K114s's on `dcp` and all four `dcpext`) admitted for the internal panel only; the external engines stay with iBoot. The 27.0 and J714s `C51FB0C8-...` rows, 0005's gate and its log lines are unchanged. Not booted in this form | Jens Axboe (aura #226, 023eb3a01a), adapted onto 0005 by chrisohearn |
+| 0009 | **J716s camera on 27.2:** sensor 0x76, the J714s's ISP firmware (byte for byte in 26B123). Seen on one J716s. Upstream aura #362 replaces the board table | ja-818 |
 
 The recipe also packages the Stage 1 tooling: `aura-j714s-stage1 --esp-partuuid UUID OUT` fills
 the raw Stage 1 in place (Aura's `fill_stage1_config.py`, Stage 2 `m1n1/boot-ctxr.bin` by default)
