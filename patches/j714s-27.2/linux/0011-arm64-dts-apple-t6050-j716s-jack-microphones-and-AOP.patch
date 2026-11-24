@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Arango <95070226+ja-818@users.noreply.github.com>
 Date: Sun, 22 Nov 2026 21:46:25 -0500
-Subject: [PATCH 26/26] arm64: dts: apple: t6050-j716s: jack, microphones and
+Subject: [PATCH 11/11] arm64: dts: apple: t6050-j716s: jack, microphones and
  AOP sensors; speakers held off
 
 The J716s's AOP, its audio service, microphone array, light sensor and
@@ -23,10 +23,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 97 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/apple/t6050-j716s.dts b/arch/arm64/boot/dts/apple/t6050-j716s.dts
-index c6c878376e62..53e37e64a692 100644
+index d6cf011a7786..216f7f37762d 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j716s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j716s.dts
-@@ -445,23 +445,53 @@ &usb_drd2_dart_1 {
+@@ -447,23 +447,53 @@ &usb_drd2_dart_1 {
  	status = "okay";
  };
  
@@ -85,7 +85,7 @@ index c6c878376e62..53e37e64a692 100644
  /*
   * SMC sensors: the shared fan, power, voltage and current keys, plus every
   * readable float T* key through apple,discover-temperatures in
-@@ -621,3 +651,65 @@ preset1 {
+@@ -638,3 +668,65 @@ preset1 {
  		};
  	};
  };

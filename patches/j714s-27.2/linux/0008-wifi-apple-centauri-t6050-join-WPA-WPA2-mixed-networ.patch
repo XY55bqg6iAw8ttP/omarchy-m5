@@ -1,8 +1,8 @@
-From 65a6b0af72072e3463fed13c0999a4a3b5d99722 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Arango <95070226+ja-818@users.noreply.github.com>
 Date: Sun, 22 Nov 2026 16:54:15 -0500
-Subject: [PATCH] wifi: apple: centauri: t6050: join WPA/WPA2 mixed networks
- (TKIP group)
+Subject: [PATCH 08/11] wifi: apple: centauri: t6050: join WPA/WPA2 mixed
+ networks (TKIP group)
 
 Routers in WPA/WPA2 mixed mode, a common ISP default, advertise a TKIP
 group cipher with CCMP and TKIP pairwise ciphers. connect() and
@@ -26,10 +26,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 22 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/wireless/apple/centauri/t6050/centauri_wifi.c b/drivers/net/wireless/apple/centauri/t6050/centauri_wifi.c
-index 2e24d1e..81b896c 100644
+index ffb4793934cc..fd946903b2ae 100644
 --- a/drivers/net/wireless/apple/centauri/t6050/centauri_wifi.c
 +++ b/drivers/net/wireless/apple/centauri/t6050/centauri_wifi.c
-@@ -125,8 +125,22 @@ static const u32 akm_suites[] = { WLAN_AKM_SUITE_PSK, WLAN_AKM_SUITE_SAE };
+@@ -159,8 +159,22 @@ static const u32 akm_suites[] = { WLAN_AKM_SUITE_PSK, WLAN_AKM_SUITE_SAE };
  static const u32 cipher_suites[] = {
  	WLAN_CIPHER_SUITE_CCMP,
  	WLAN_CIPHER_SUITE_AES_CMAC,
@@ -52,7 +52,7 @@ index 2e24d1e..81b896c 100644
  /* The firmware's band numbers: 0 is 2.4 GHz, 1 is 5 GHz, 2 is 6 GHz. */
  static int firmware_band(enum nl80211_band band)
  {
-@@ -1287,7 +1301,7 @@ static int select_rsn(const u8 *body, size_t size, u32 akm, u8 *selected)
+@@ -1393,7 +1407,7 @@ static int select_rsn(const u8 *body, size_t size, u32 akm, u8 *selected)
  	tail = offset + 2 + 4 * get_unaligned_le16(body + offset);
  	if (tail + 2 > size)
  		return -EINVAL;
@@ -61,7 +61,7 @@ index 2e24d1e..81b896c 100644
  	    get_unaligned_le16(body + 6) != 1 ||
  	    get_unaligned_be32(body + 8) != WLAN_CIPHER_SUITE_CCMP)
  		return -EOPNOTSUPP;
-@@ -1439,7 +1453,7 @@ static int wifi_connect(struct wiphy *wiphy, struct net_device *netdev,
+@@ -1545,7 +1559,7 @@ static int wifi_connect(struct wiphy *wiphy, struct net_device *netdev,
  	    params->crypto.sae_pwd_len > SAE_PASSWORD_MAX_LEN ||
  	    params->crypto.n_ciphers_pairwise != 1 ||
  	    params->crypto.ciphers_pairwise[0] != WLAN_CIPHER_SUITE_CCMP ||
@@ -70,7 +70,7 @@ index 2e24d1e..81b896c 100644
  	    params->ie_len > sizeof(wifi->request_ie)) {
  		dev_dbg(dev, "connect refused: %d pairwise ciphers, first %08x, group %08x, %zu bytes of elements\n",
  			params->crypto.n_ciphers_pairwise,
-@@ -1475,6 +1489,12 @@ static int wifi_connect(struct wiphy *wiphy, struct net_device *netdev,
+@@ -1581,6 +1595,12 @@ static int wifi_connect(struct wiphy *wiphy, struct net_device *netdev,
  	}
  	rsn_size = ret;
  	sae = akm == WLAN_AKM_SUITE_SAE;
@@ -84,5 +84,5 @@ index 2e24d1e..81b896c 100644
  	mutex_lock(&wifi->lock);
  	if (READ_ONCE(wifi->stopping)) {
 -- 
-2.56.0
+2.56.1
 

@@ -1,7 +1,7 @@
-From 602c934e1977f899d0f75df76f278745eded0e2e Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Thu, 12 Nov 2026 08:13:48 -0500
-Subject: [PATCH 04/21] drm/apple: firmware 27.3: the full IOMFB method table
+Subject: [PATCH 03/11] drm/apple: firmware 27.3: the full IOMFB method table
  and the 27.3 swap record (J716s daily)
 
 Private to the J716s daily: the IDs beyond the 20 traced ones and the 27.3 swap layout were
@@ -20,10 +20,10 @@ Claude-Session: https://claude.ai/code/session_01BV6NpkesyT31Ta49VjQELY
  5 files changed, 154 insertions(+), 42 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-internal.h b/drivers/gpu/drm/apple/dcp-internal.h
-index 97b0db066bb9..50afd0dd5760 100644
+index c6d017cde353..4ec7875e12ef 100644
 --- a/drivers/gpu/drm/apple/dcp-internal.h
 +++ b/drivers/gpu/drm/apple/dcp-internal.h
-@@ -592,6 +592,8 @@ struct apple_dcp {
+@@ -722,6 +722,8 @@ struct apple_dcp {
  	bool v27_a407;
  	struct dcp_swap_submit_req_v27_a407 present_v27_a407;
  	struct dcp_swap_submit_req_v27_a407 peer_present_v27_a407;
@@ -66,10 +66,10 @@ index eb5e11c6868e..1433b0176170 100644
  	if (READ_ONCE(peer->crashed))
  		dcp_peer_swap_error(owner, "peer publication", -EIO);
 diff --git a/drivers/gpu/drm/apple/iomfb_template.c b/drivers/gpu/drm/apple/iomfb_template.c
-index f184ffabfaeb..c34e27a12ad2 100644
+index 21ac09666cb8..01c9c2715336 100644
 --- a/drivers/gpu/drm/apple/iomfb_template.c
 +++ b/drivers/gpu/drm/apple/iomfb_template.c
-@@ -423,6 +423,11 @@ static void dcp_swap_submit(struct apple_dcp *dcp, bool oob,
+@@ -424,6 +424,11 @@ static void dcp_swap_submit(struct apple_dcp *dcp, bool oob,
  			    dcp_callback_t cb, void *cookie)
  {
  	const void *data = request;
@@ -79,9 +79,9 @@ index f184ffabfaeb..c34e27a12ad2 100644
 +	u32 len = sizeof(*request);
 +#endif
  
- 	if (dcp->hw.iomfb_method_profile != DCP_IOMFB_METHODS_H17G) {
- 		iomfb_serialize_present_h17p(&dcp->present_h17p, request);
-@@ -456,23 +461,24 @@ static void dcp_swap_submit(struct apple_dcp *dcp, bool oob,
+ #if DCP_FW_H17(DCP_FW_VER) && DCP_FW_VER < DCP_FW_VERSION(27, 0, 0)
+ 	if (dcp_is_ext26(dcp)) {
+@@ -472,23 +477,24 @@ static void dcp_swap_submit(struct apple_dcp *dcp, bool oob,
  		dcp->present_v27.swap.brightness_nits =
  			get_unaligned_le64(dcp->present_h17p.swap + 0x35e);
  		dcp_external_stamp_submit(dcp, &dcp->present_v27.swap);
@@ -116,10 +116,10 @@ index f184ffabfaeb..c34e27a12ad2 100644
  }
  #else
 diff --git a/drivers/gpu/drm/apple/iomfb_v27.c b/drivers/gpu/drm/apple/iomfb_v27.c
-index 27e5eef581db..540b03796413 100644
+index def54604d8c3..bcc574292e06 100644
 --- a/drivers/gpu/drm/apple/iomfb_v27.c
 +++ b/drivers/gpu/drm/apple/iomfb_v27.c
-@@ -213,37 +213,58 @@ static const struct dcp_method_entry dcp_methods_27_2[dcpep_num_methods] = {
+@@ -257,37 +257,58 @@ static const struct dcp_method_entry dcp_methods_27_2[dcpep_num_methods] = {
  };
  
  /*
@@ -207,7 +207,7 @@ index 27e5eef581db..540b03796413 100644
  };
  
  const struct dcp_method_entry *iomfb_v27_methods(const char *compat)
-@@ -307,6 +328,47 @@ const char *iomfb_v27_missing_method(const struct dcp_method_entry *methods,
+@@ -427,6 +448,47 @@ const char *iomfb_v27_missing_method(const struct dcp_method_entry *methods,
  	return first;
  }
  
@@ -256,7 +256,7 @@ index 27e5eef581db..540b03796413 100644
  #define dcp_methods (dcp->v27_methods)
  
 diff --git a/drivers/gpu/drm/apple/iomfb_v27.h b/drivers/gpu/drm/apple/iomfb_v27.h
-index 915de53c68bf..be4576e03f01 100644
+index d6978e36a49d..1e89e744aa2e 100644
 --- a/drivers/gpu/drm/apple/iomfb_v27.h
 +++ b/drivers/gpu/drm/apple/iomfb_v27.h
 @@ -129,10 +129,48 @@ static_assert(offsetof(struct dcp_swap_v27, bl_limit) == 0x376);
@@ -309,5 +309,5 @@ index 915de53c68bf..be4576e03f01 100644
  void iomfb_firmware_state_cleanup_v27(void *data);
  int iomfb_modeset_v27(struct apple_dcp *dcp, struct drm_crtc_state *state);
 -- 
-2.56.0
+2.56.1
 

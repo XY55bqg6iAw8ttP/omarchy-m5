@@ -1,7 +1,7 @@
-From b021fdd23284df4d1276e178ec90aa76b5c67453 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 15:41:37 -0500
-Subject: [PATCH 02/21] drm/apple: Name the firmware 27 adaptive sync parameter
+Subject: [PATCH 01/11] drm/apple: Name the firmware 27 adaptive sync parameter
 
 The firmware 27 template instance sends adaptive sync as a bare 15,
 where every other instance sends IOMFBPARAM_ADAPTIVE_SYNC (14). The DCP
@@ -26,7 +26,7 @@ Signed-off-by: Rolando Trevino <rolotrealanis@gmail.com>
  2 files changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/iomfb.h b/drivers/gpu/drm/apple/iomfb.h
-index 2b08c20cfa69..aa5ab333d110 100644
+index 0b2c04b7c612..1a85f2f2d1c9 100644
 --- a/drivers/gpu/drm/apple/iomfb.h
 +++ b/drivers/gpu/drm/apple/iomfb.h
 @@ -57,6 +57,13 @@ enum dcpep_type {
@@ -44,10 +44,10 @@ index 2b08c20cfa69..aa5ab333d110 100644
  
  #define IOMFB_MESSAGE_TYPE	GENMASK_ULL( 3,  0)
 diff --git a/drivers/gpu/drm/apple/iomfb_template.c b/drivers/gpu/drm/apple/iomfb_template.c
-index 2ae38159ab06..f184ffabfaeb 100644
+index 8f21e219c1f2..21ac09666cb8 100644
 --- a/drivers/gpu/drm/apple/iomfb_template.c
 +++ b/drivers/gpu/drm/apple/iomfb_template.c
-@@ -2461,7 +2461,7 @@ static void dcp_on_set_parameter(struct apple_dcp *dcp, void *out, void *cookie)
+@@ -2549,7 +2549,7 @@ static void dcp_on_set_parameter(struct apple_dcp *dcp, void *out, void *cookie)
  	struct dcp_set_parameter_dcp param = {
  		.param =
  #if (DCP_FW_H17(DCP_FW_VER) && DCP_FW_VER >= DCP_FW_VERSION(27, 0, 0))
@@ -56,7 +56,7 @@ index 2ae38159ab06..f184ffabfaeb 100644
  #else
  		IOMFBPARAM_ADAPTIVE_SYNC,
  #endif
-@@ -4042,7 +4042,7 @@ static void dcp_set_adaptive_sync(struct apple_dcp *dcp, u32 min_vrr,
+@@ -4180,7 +4180,7 @@ static void dcp_set_adaptive_sync(struct apple_dcp *dcp, u32 min_vrr,
  	struct dcp_set_parameter_dcp param = {
  		.param =
  #if (DCP_FW_H17(DCP_FW_VER) && DCP_FW_VER >= DCP_FW_VERSION(27, 0, 0))
@@ -66,5 +66,5 @@ index 2ae38159ab06..f184ffabfaeb 100644
  		IOMFBPARAM_ADAPTIVE_SYNC,
  #endif
 -- 
-2.56.0
+2.56.1
 

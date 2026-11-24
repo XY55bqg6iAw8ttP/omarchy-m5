@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Arango <95070226+ja-818@users.noreply.github.com>
 Date: Sun, 22 Nov 2026 21:46:25 -0500
-Subject: [PATCH 24/26] arm64: dts: apple: t6050-j716s: front camera
+Subject: [PATCH 09/11] arm64: dts: apple: t6050-j716s: front camera
 
 The J716s's camera: the shared T6050 ISP description (as upstream's
 #2275 adds for the J716s), the camera light (ADT eic offset 141, the
@@ -21,10 +21,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 51 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/apple/t6050-j716s.dts b/arch/arm64/boot/dts/apple/t6050-j716s.dts
-index 43747a4ce6be..c6c878376e62 100644
+index 7eb3a3415d8d..d6cf011a7786 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j716s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j716s.dts
-@@ -570,3 +570,54 @@ tp-accel {
+@@ -587,3 +587,54 @@ tp-accel {
  
  #define T6050_J716S
  #include "t6050-peripherals.dtsi"

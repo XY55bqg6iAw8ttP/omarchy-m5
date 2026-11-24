@@ -2,6 +2,12 @@
 # macOS 27.2 stub (UniversalMac_27.2_26B123, mBoot-20457.41.3), booted from a padded Aura Mach-O
 # Stage 1 with SPTM off: Linux at EL2 on every CPU inside the CTXR execute window.
 #
+# v272-19 (2026-11-24): re-pinned on aurora-silicon/linux main 0c1f7e707784 (adds this week's T6050
+# sleep series #2657 #2698 #2739 #2718 #2606 #2611, DP pin D #2681, #1618, #2654, #2117, #2113, #2085,
+# #1721, #1173, #1650, #1957, #2233 camera tuning, #2498 HDMI modeset once plugged in) plus 11 patches;
+# patches/j714s-27.2/README.md "v272-19" maps the old 0001-0026 to the new 0001-0011 and says what
+# was dropped and why. The text below describes v272-18 and earlier.
+#
 # The one J714s image line. aurora-silicon/linux integration/aurora at 677be395b9d2 (v272-17
 # re-pin, 2026-11-16; adds the merged #2046 (a dock's USB4 router sleeps in place across a deep
 # sleep) and #2084 (J714s LSTX held high during that sleep), #2053 (T6050 paired-display sleep
@@ -56,9 +62,9 @@
 
 _auroraver=7.3.0
 _aurorarel=17.v272
-pkgrel=18
+pkgrel=19
 
-_commit=677be395b9d2e15d98696107ebf88191f08efbf9
+_commit=0c1f7e7077848abb0078414c3f4b2394f378b3fd
 
 # Any m1n1 1.6.1 loads these device trees. The Neo's own Stage 2 comes from the
 # image, so the floor stays where M1 and M2 users' m1n1-aurora already meets it.
@@ -84,11 +90,11 @@ source=(validate-config.py configure.sh "linux-${_commit}.tar.gz::https://github
         speakersafetyd-hold.conf)
 sha256sums=('aca7420a18139474da62a81c77fc6e5c3f25001f872b6e11e18605cd892aa4c3'
             'b95c0f0ddf106f3861e0e62a746af6a881fb8e0f356a892961f9e86062877400'
-            '0b6877a3288761c741600e25520a9fa901dc02eb3256955c6d35fc2e3fbe499f'
+            '6a71d644e5a79a7c3fdaffb73bf72a512344582bf88c146fd1b70c1d7ee0436c'
             'd71a5756f6803008c92fd5b14bb377baa538cd56a5674970bfaea3584a60d291'
             '84a03d5fea19cae243c89f50c1736c639622d25d4d1de8d7d53ebd8f603c0f62'
             'c784712b49e495ee40a2aaaddacd4ffaf3beb62654f571cead7673eb17eae11d'
-            'bb1156274469f29db4e00246826da2d7c25b87a37fdd0216fba2a15efcc03829'
+            '5b82d7103bc8dce11f91082f82050ef6d9a8f1c3722b75b280faeeda7ab92e79'
             '7175fecb20dc8e8801ce7b5a7aeb02fb4c4cb259104465b2361b92ab1c3f5468'
             'd3e222ba146df83ab33a4cfa344534c13d125525c2a6d63747452bbce3302669')
 

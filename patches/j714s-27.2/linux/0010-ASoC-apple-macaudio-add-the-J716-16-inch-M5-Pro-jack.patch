@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Arango <95070226+ja-818@users.noreply.github.com>
 Date: Sun, 22 Nov 2026 21:46:25 -0500
-Subject: [PATCH 25/26] ASoC: apple: macaudio: add the J716 (16-inch M5 Pro),
+Subject: [PATCH 10/11] ASoC: apple: macaudio: add the J716 (16-inch M5 Pro),
  jack only
 
 The J716s's AOP-fed card is the J714s's: the J716sAP 27.2 (26B123) ADT
@@ -25,10 +25,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 24 insertions(+)
 
 diff --git a/sound/soc/apple/macaudio.c b/sound/soc/apple/macaudio.c
-index 16488315b399..ae09fd556231 100644
+index ae4c96a816fe..3a025c915bf8 100644
 --- a/sound/soc/apple/macaudio.c
 +++ b/sound/soc/apple/macaudio.c
-@@ -4121,6 +4121,28 @@ struct macaudio_platform_cfg macaudio_j714_cfg = {
+@@ -4191,6 +4191,28 @@ struct macaudio_platform_cfg macaudio_j714_cfg = {
  	.tweeter_hpf_granted = true,
  };
  
@@ -57,7 +57,7 @@ index 16488315b399..ae09fd556231 100644
  /*
   * J815 (T8142, MacBook Air M5 15"): J813's AOP-fed card with six SN012776,
   * two woofers and a tweeter per side, in ADT speaker-config order (left
-@@ -4432,6 +4454,8 @@ static const struct of_device_id macaudio_snd_device_id[]  = {
+@@ -4502,6 +4524,8 @@ static const struct of_device_id macaudio_snd_device_id[]  = {
  	{ .compatible = "apple,j714-macaudio", .data = &macaudio_j714_cfg },
  	/* k116    -       sn012776    15      2x 2W+1T (AOP-fed, V/I sense; the 16" PROLED chassis, J714's amps and frame) */
  	{ .compatible = "apple,k116-macaudio", .data = &macaudio_j714_cfg },

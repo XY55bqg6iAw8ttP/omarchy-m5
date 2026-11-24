@@ -1,7 +1,7 @@
-From 113e53a0ac24d95d6f5510c2abefe66656aec798 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Mon, 16 Nov 2026 21:13:51 -0500
-Subject: [PATCH 21/21] drm/apple: T6050 HDMI: set the fixed output up again
+Subject: [PATCH 07/11] drm/apple: T6050 HDMI: set the fixed output up again
  after a system sleep
 
 After an s2idle on the J714s with a display on the HDMI port the display
@@ -69,10 +69,10 @@ Signed-off-by: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
  2 files changed, 30 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/gpu/drm/apple/dcp-fabric.c b/drivers/gpu/drm/apple/dcp-fabric.c
-index bd161d0ebd9e..cdb39e4b7159 100644
+index 80a7f53f686b..4be0cb8469fa 100644
 --- a/drivers/gpu/drm/apple/dcp-fabric.c
 +++ b/drivers/gpu/drm/apple/dcp-fabric.c
-@@ -1326,19 +1326,39 @@ void dcp_fabric_hdmi_resume(struct apple_dcp *dcp)
+@@ -1360,19 +1360,39 @@ void dcp_fabric_hdmi_resume(struct apple_dcp *dcp)
  }
  
  /*
@@ -118,10 +118,10 @@ index bd161d0ebd9e..cdb39e4b7159 100644
  	dev_info(dcp->dev, "HDMI: setting up the output again (%s)\n", why);
  	if (dcp->hdmi_pwren)
 diff --git a/drivers/gpu/drm/apple/dcp.c b/drivers/gpu/drm/apple/dcp.c
-index e7b6844b14e2..45972f18a3e7 100644
+index eb3595b336b7..c81232141a87 100644
 --- a/drivers/gpu/drm/apple/dcp.c
 +++ b/drivers/gpu/drm/apple/dcp.c
-@@ -9030,9 +9030,11 @@ static int dcp_platform_resume(struct device *dev)
+@@ -10339,9 +10339,11 @@ static int dcp_platform_resume(struct device *dev)
  	if (dcp_is_external_h17p(dcp))
  		dcp_typec_route_unpark(dcp);
  	dcp_enable_typec_work(dcp);
@@ -133,9 +133,9 @@ index e7b6844b14e2..45972f18a3e7 100644
 +	 * (T6030, T6050; a no-op elsewhere).
 +	 */
 +	dcp_fabric_hdmi_reinit(dcp, "after system sleep");
- 	/* Observe future edges before sampling any edges lost in sleep. */
+ 	/* Before the HPD IRQ comes back: an edge from now on is replayed. */
  	if (dcp->hdmi_hpd_irq)
- 		dcp_fabric_run_resume(&dcp_resume_ops, dcp);
+ 		dcp_hdmi_unplugged_in_sleep(dcp);
 -- 
-2.56.0
+2.56.1
 

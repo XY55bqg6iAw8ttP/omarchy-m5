@@ -141,6 +141,53 @@ Recipes: [`installer/recipes/linux-aurora-j714s`](../../installer/recipes/linux-
 [`installer/recipes/m1n1-aurora-j714s`](../../installer/recipes/m1n1-aurora-j714s)
 (`aura-j714s-27.2.patch` is `aura/*.patch` concatenated).
 
+## v272-19 (2026-11-24): re-pinned on aurora-silicon/linux main `0c1f7e707784`
+
+The 26 patches of v272-18 (plus #30-#32) were rebased from `677be395b9d2`; 11 remain. Upstream now
+carries the 27.2 GPU, ANE and K114/K116 identities, the IRQ_HPD forwarder, #1721 and a new camera tuning
+(#2233), so those patches are gone. Decisions taken here (the "NEEDS DECISION" rows below): the camera
+follows upstream #2233 (setfile 2224_01, computed noise reduction, binned config 8) and the old 0007-0013
+are dropped, so **the camera's green light stays off** (upstream shows an indicator on the display
+instead); 0014 (VRR, off since j714s15, #25) and 0006 (27.3-beta ANE) are dropped; 0009 (LSC 84, scene
+metering) is dropped as untested with #2233. The first base, `93e92d293a25`, did not build
+(`drm/asahi/m3/m3_recovery.rs`); upstream's 5de20ebf39e5 fixed it, hence `0c1f7e707784`.
+
+New numbering: 0001-0003 = old 0002-0004, 0004 = old 0015 (AVE half), 0005 = 0017, 0006 = 0018,
+0007 = 0021, 0008 = 0022, 0009-0011 = 0024-0026.
+
+| Old | New | Status |
+| --- | --- | --- |
+| 0001 GPU InitData 27.2/27.3 (rolotrealanis98) | - | DROPPED: upstream #1173 (merged 2026-11-24); same 26B123 G17S row, digest 2b4613c6...913f0fd9 identical. The 27.3 beta 1 (26C5035r) GPU row is not upstream (unused on the 27.2 stub) |
+| 0002 fw27 adaptive sync parameter name | 0001 | applied clean |
+| 0003 no panel brightness after a DCP crash | 0002 | applied clean |
+| 0004 27.3 IOMFB method table | 0003 | applied clean |
+| 0005 K114/K116 26B8125 G17S (axboe) | - | DROPPED: upstream #1650 (merged) |
+| 0006 ANE on 27.3; AVE builds by TEXT CRC | - | NEEDS DECISION (proposed: drop). AVE-by-CRC is upstream (#1747 and later); ANE on the 27.3 beta is not upstream and does not port cleanly (ane_fw_platform redesigned by #1957). Only matters on a 27.3 stub |
+| 0007 IMX958 setfile 2226_02 (edimoldovan) | - | NEEDS DECISION (proposed: drop). Upstream #2233 (Isaac-Duarte, merged 2026-11-20) keeps 2224_01 on every T6050, computes the noise-filter gains from lens shading for every setfile, and moves the J714s to binned config 8; measured on a J714s (luma noise 18.6 -> 1.2). Our J714s camera changes from 2226_02 to upstream's tuning |
+| 0008 computed noise reduction radial gains | - | DROPPED: same technique upstream in #2233, for every setfile |
+| 0009 LSC ideal percent 84 + FD scene metering | 0005 | ported: only `lsc_ideal_percent`/`ae_fd_scene_metering` kept in apple_isp_hw_t6050 (`imx958_2226`, `setfile_radial_gain` belonged to 0007/0008). Not tested with 2224_01 + #2233 |
+| 0010 J714s 2560x1440 preset (config 6) | - | NEEDS DECISION (proposed: drop). Upstream moved the J714s presets to binned config 8 (1520x1440); a config-6 preset beside them mixes sensor modes |
+| 0011-0012 camera light driven by the driver (edimoldovan) | - | NEEDS DECISION. Upstream added a best-effort software camera indicator via the DCP in the same place (isp-cam.c) with its own ISP watchdog handling; merging the hardware light pin into that design is new logic, not a port. The camera streams upstream without it (#2233 tested on a J714s); the green light stays off |
+| 0013 J714s camera light DT | - | NEEDS DECISION: goes with 0011-0012 |
+| 0014 VRR on the fw27 panel (rolotrealanis98) | - | NEEDS DECISION (proposed: drop). Upstream reworked VRR_ENABLED/adaptive sync (#3052 and others) in the same code; ours is off by default since firmware j714s15 (#25) |
+| 0015 ANE + AVE on 27.2 | 0004 | ANE half DROPPED (upstream #1957: T6050 27.2 build with a code pin). AVE half ported: 26B123 (CRC 0xd33ed3b4) recognised, probe only unless apple_ave.ave_t6050_27_2_layout=1 |
+| 0016 27.2 ANE TEXT pin b15dd8fb | - | DROPPED: upstream #1957 admits 26B123 with a code pin over TEXT with the loader-filled sections zeroed |
+| 0017 J714s HDMI port DT (FatBoy721) | 0006 | applied clean |
+| 0018 HDMI hold presents (FatBoy721) | 0007 | ported: conflict was 0014's VRR function in the context (left out); hold call placed before the new ext26 early return in iomfb_poweron |
+| 0019 HDMI IRQ_HPD on T6050 | - | DROPPED: upstream dcp-hdmi.c now forwards IRQ_HPD for every coprocessor with a fixed HDMI-A connector and HPD GPIO |
+| 0020 no LDCM to a dry SN201202x port | - | DROPPED: upstream #1721 (merged) |
+| 0021 HDMI set up again after sleep (FatBoy721, #22) | 0008 | ported: resume calls dcp_fabric_hdmi_reinit() unconditionally (0021 gates it in dcp_fixed_hdmi_sleeps()), upstream's new dcp_hdmi_unplugged_in_sleep() call kept |
+| 0022 N1 WPA/WPA2 mixed (ja-818) | 0009 | applied clean |
+| 0023 IMX958 setfile by board (ja-818) | - | DROPPED: built on 0007's imx958_2226; upstream already selects 2224_01 (what the J716s wants) on every T6050. 0024's `apple,imx958-setfile = <0x2224>` is now an unread property and its comment about imx958_setfile=0x2226 is stale |
+| 0024 J716s front camera DT | 0010 | applied clean |
+| 0025 J716 macaudio, jack only | 0011 | applied clean |
+| 0026 J716s AOP, jack, mics, light sensor | 0012 | applied (on top of 0024, as fixed in d7fe51d) |
+
+Tested on our J714s (unattended boot, 2026-11-24): boots by itself, no failed units, 15 CPUs, GPU firmware
+admitted at once (v272-18 logged 14 "not admitted" errors first), Hyprland on the GPU at 3024x1964@120,
+Wi-Fi (CCMP network) and Bluetooth, AppleJ714 and DisplayPort sound cards, speakerguardd v2 running,
+camera streams 1080p on 2224_01, ANE device present. Not yet: s2idle and HDMI after a sleep (need the owner).
+
 ## Bases (kernel re-pinned 2026-11-14 for v272-6; Aura as of release 2)
 
 - **Kernel (v272-6):** aurora-silicon/linux `integration/aurora` at `a5ebec5fd092` (2026-11-14,
