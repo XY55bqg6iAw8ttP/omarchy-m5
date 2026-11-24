@@ -1,0 +1,81 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: TripleU <182648541+TripleU613@users.noreply.github.com>
+Date: Tue, 24 Nov 2026 15:57:29 -0500
+Subject: [PATCH] J714s image: trust the new developer signer
+ 547AF6CC...BC5DF9F6
+
+The private half of the developer signer 0DA040FF...B6D116B1 (installer/patches
+0007) was lost on 2026-11-24 with the work PC's build directory, so release 10's
+inputs could not be signed. The owner approved a new developer signer:
+547AF6CCD493E92950561EE94C6BC7CCBC5DF9F6 (ed25519, sign and certify, no
+subkeys, "omarchy-m5 J714s developer image inputs (not a production
+release)"). The profile's candidate-trust now names it as primary and signing
+fingerprint, with its public key (sha256 9ab5d873...); the stage 1
+qualification test follows. Nothing else in the policy changes. Images from
+release 10 on verify their package set against this key only.
+
+image-builder/test/all on the build host: every suite passes except
+test_edge_dispatch_filter's test_the_template_is_the_one_build_mac_image_reads,
+which fails the same way on release 9's tree (3469845) and is unrelated.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ .../profiles/j714s/candidate-trust/policy.json     |  6 +++---
+ .../profiles/j714s/candidate-trust/public.asc      | 14 +++++++-------
+ image-builder/test/test_stage1_qualification.py    |  2 +-
+ 3 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/image-builder/builder/profiles/j714s/candidate-trust/policy.json b/image-builder/builder/profiles/j714s/candidate-trust/policy.json
+index 7eb85fe..572dc26 100644
+--- a/image-builder/builder/profiles/j714s/candidate-trust/policy.json
++++ b/image-builder/builder/profiles/j714s/candidate-trust/policy.json
+@@ -1,8 +1,8 @@
+ {
+   "schema": 1,
+-  "primary_fingerprint": "0DA040FF52D5EC6FB6538769DBFEBBB2B6D116B1",
+-  "signing_fingerprint": "0DA040FF52D5EC6FB6538769DBFEBBB2B6D116B1",
+-  "public_key_sha256": "0c540dda6469bdf9c9cc024de5692e88ac07450f9e48d608b62dc9330374f041",
++  "primary_fingerprint": "547AF6CCD493E92950561EE94C6BC7CCBC5DF9F6",
++  "signing_fingerprint": "547AF6CCD493E92950561EE94C6BC7CCBC5DF9F6",
++  "public_key_sha256": "9ab5d87342af0472762e459e3b6004148483ee92cb23b57e40e80864788cb5a8",
+   "source_repositories": [
+     "omacom/omarchy",
+     "omacom/omarchy-mac"
+diff --git a/image-builder/builder/profiles/j714s/candidate-trust/public.asc b/image-builder/builder/profiles/j714s/candidate-trust/public.asc
+index bed620c..715b6a8 100644
+--- a/image-builder/builder/profiles/j714s/candidate-trust/public.asc
++++ b/image-builder/builder/profiles/j714s/candidate-trust/public.asc
+@@ -1,10 +1,10 @@
+ -----BEGIN PGP PUBLIC KEY BLOCK-----
+ 
+-mDMEavNpJxYJKwYBBAHaRw8BAQdAc7u27A+ecpz0LVw8JaHayY54vPGEzefmIx2C
+-DVKPYIS0Qm9tYXJjaHktbTUgSjcxNHMgZGV2ZWxvcGVyIGltYWdlIGlucHV0cyAo
+-bm90IGEgcHJvZHVjdGlvbiByZWxlYXNlKYiQBBMWCgA4FiEEDaBA/1LV7G+2U4dp
+-2/67srbRFrEFAmrzaScCGwMFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQ2/67
+-srbRFrGkHAD+Pfl/97GDE6qxhbKC0ADdBAhrsnbemKSR5YcNE9A1Nk8BAMikV/bE
+-WyNLoZNWGTqQveQyX1n7zhko57/+4EcbJdMF
+-=K/tc
++mDMEawX5dxYJKwYBBAHaRw8BAQdAQUGXI87N3VcB3ep3Ja839kVru7NZ2en5da5R
++WLpCDCC0Qm9tYXJjaHktbTUgSjcxNHMgZGV2ZWxvcGVyIGltYWdlIGlucHV0cyAo
++bm90IGEgcHJvZHVjdGlvbiByZWxlYXNlKYiQBBMWCgA4FiEEVHr2zNST6SlQVh7p
++TGvHzLxd+fYFAmsF+XcCGwMFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQTGvH
++zLxd+fYdigEAiBu/LBSM+swwsUxq7N55U1gc6DsP1N3QwHQZq2o4k9YBAKFfMixQ
++XWvFJHvUNq4uct4cxR9ftk+pgnYBoCThSlwF
++=Fw9W
+ -----END PGP PUBLIC KEY BLOCK-----
+diff --git a/image-builder/test/test_stage1_qualification.py b/image-builder/test/test_stage1_qualification.py
+index f30c20c..2277941 100644
+--- a/image-builder/test/test_stage1_qualification.py
++++ b/image-builder/test/test_stage1_qualification.py
+@@ -42,7 +42,7 @@ class Stage1QualificationTest(unittest.TestCase):
+         self.assertEqual(qualification.expected_arguments(self.policy), qualification.J714S_ARGUMENTS)
+         self.assertEqual(qualification.board_macho(self.policy)["raw"], "esp/aurora/stage1-j714s.bin")
+         self.assertEqual(qualification.board_macho(self.policy)["macho"], "esp/aurora/stage1-j714s.macho")
+-        self.assertEqual(policy['primary_fingerprint'], '0DA040FF52D5EC6FB6538769DBFEBBB2B6D116B1')
++        self.assertEqual(policy['primary_fingerprint'], '547AF6CCD493E92950561EE94C6BC7CCBC5DF9F6')
+         self.assertEqual(policy['signing_fingerprint'], policy['primary_fingerprint'])
+         self.assertEqual(policy['public_key_sha256'], hashlib.sha256((trust / 'public.asc').read_bytes()).hexdigest())
+         self.assertNotIn('linux-aurora-headers', policy['boot_packages'])
+-- 
+2.56.1
+

@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: TripleU <182648541+TripleU613@users.noreply.github.com>
-Date: Tue, 24 Nov 2026 15:33:10 -0500
-Subject: [PATCH] J714s release 10: kernel v272-19 and firmware j714s15
+Date: Tue, 24 Nov 2026 15:54:57 -0500
+Subject: [PATCH] J714s release 10: kernel v272-19 and firmware j714s16
 
 Re-pinned from betizzel/omarchy-m5:
 - linux-aurora 7.3.0.aurora17.v272-19 (7ddee362..., 44635498 bytes) from
@@ -10,11 +10,12 @@ Re-pinned from betizzel/omarchy-m5:
   series, DP pin D, upstream camera tuning #2233). CONFIG_APPLE_SOC_SLEEP
   stays off. Built on the build host (x86_64 cross, clang 23.1.5, Rust
   1.98.1). The qualification pins follow 7.3.0-17.v272-19-ARCH.
-- omarchy-aurora-firmware 20261014.j714s15 from 5acbae7: no VRR drop-in
-  (aurora-m5-vrr.conf), VRR crashed the K114s DCP (betizzel/omarchy-m5#25).
-  The aarch64 .pkg.tar.xz (ccfae7a9...) recompressed to zstd with the same
-  tar inside (d99d4dd9...), 2f9493dd..., 53899 bytes.
-Nothing else changes. Set j714s-dev-runtime-1438d54ecdd3.
+- omarchy-aurora-firmware 20261014.j714s16 (2c4d90d5..., 55182 bytes) from
+  a7a463a: no VRR drop-in (VRR crashed the K114s DCP,
+  betizzel/omarchy-m5#25); no own aurora_drv_video.so, which
+  libva-v4l2_request-avd 1.3.r11.r169.gc653eaa-2 now ships (it depends on
+  that version, betizzel/omarchy-m5#34).
+Nothing else changes. Set j714s-dev-runtime-07717f8c82db.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 ---
@@ -23,7 +24,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  2 files changed, 14 insertions(+), 14 deletions(-)
 
 diff --git a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
-index f85c1a0..89ab9bc 100644
+index f85c1a0..4fcc4b0 100644
 --- a/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
 +++ b/Integration/M5/J714s-Normal-System/candidate-package-manifest.json
 @@ -1,7 +1,7 @@
@@ -31,7 +32,7 @@ index f85c1a0..89ab9bc 100644
    "schema": 1,
    "candidate_only": true,
 -  "set": "j714s-dev-runtime-7bb16931891c",
-+  "set": "j714s-dev-runtime-1438d54ecdd3",
++  "set": "j714s-dev-runtime-07717f8c82db",
    "source": {
      "repository": "omacom/omarchy",
      "commit": "a948d8a6871f446b335258c827648ac5f4e9428b",
@@ -61,19 +62,19 @@ index f85c1a0..89ab9bc 100644
      {
        "name": "omarchy-aurora-firmware",
 -      "version": "20261014.j714s14-1",
-+      "version": "20261014.j714s15-1",
++      "version": "20261014.j714s16-1",
        "arch": "aarch64",
 -      "filename": "omarchy-aurora-firmware-20261014.j714s14-1-aarch64.pkg.tar.zst",
 -      "sha256": "d50de8e7b18c367be0919109ec180c375e6c85c287ef5e6f596f1bbda397bbe5",
-+      "filename": "omarchy-aurora-firmware-20261014.j714s15-1-aarch64.pkg.tar.zst",
-+      "sha256": "2f9493dda3e178a0a05093fa6a7f46861b3ba7c837c340864594e48239158d07",
++      "filename": "omarchy-aurora-firmware-20261014.j714s16-1-aarch64.pkg.tar.zst",
++      "sha256": "2c4d90d5d6f10c830ecf058d4569c6435d198929ed6fa2cde41b90efc7ff68b4",
        "source": {
          "repository": "betizzel/omarchy-m5",
 -        "commit": "eb989452fc2a3f3c8253bb1078579895a56d2830"
-+        "commit": "5acbae7f9f4b5fc0a66a237f411281253aa68ea1"
++        "commit": "a7a463a88d205c0b966a09d4d5ba0bfefd3bbee6"
        },
 -      "size_bytes": 55694
-+      "size_bytes": 53899
++      "size_bytes": 55182
      },
      {
        "name": "omarchy-mac",
@@ -82,7 +83,7 @@ index f85c1a0..89ab9bc 100644
      "No supported release or catalog promotion"
    ],
 -  "set_sha256": "7bb16931891cdc5a58c44a9f385e1c6e2c1926fdb1f13d3a02bd2ec582505fbb"
-+  "set_sha256": "1438d54ecdd3eeec9e9a93562b38a144eee8fb19420767d5fcb478a5e9c47628"
++  "set_sha256": "07717f8c82dbfc1415eb5b03ef088c1824e401920c9fd2d29b3645b99a4b76c2"
  }
 diff --git a/image-builder/builder/stage1_qualification.py b/image-builder/builder/stage1_qualification.py
 index c7f9c98..e570cd0 100644
