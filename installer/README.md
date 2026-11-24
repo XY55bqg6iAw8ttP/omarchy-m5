@@ -284,3 +284,18 @@ initialised, speakerguardd v2 owns the speakers, VA-API decode (8 profiles) with
 variable, Wi-Fi, no failed units, `mem_sleep` `[s2idle]`, three DisplayPort audio cards (#2079).
 HDMI to a Samsung Odyssey G9 at 5120x1440 at 60 Hz was seen on v272-16. Known: HDMI stays dark
 after an s2idle wake until a reboot (#22). Release 9's image has not been installed from scratch.
+
+## omarchy-j714s 10 (image built 2026-11-24, not published)
+
+Release 9 plus `patches-j714s-r2` 0013 and 0014 (above): kernel v272-19 and firmware j714s16, and the new
+developer signer `547AF6CCD493E92950561EE94C6BC7CCBC5DF9F6` (the old one's private key was lost with the
+work PC's build directory; the owner approved a new one). Same U-Boot, m1n1-aurora (v272-4), hyprland-m5
+(0.57.2-4), engine (`v0.9.2-omarchy.20261115.d33f2cef00c4`) and Recovery app (run 43477703681; `Recovery/`
+tree `2f10aee7`) as release 9; the other 18 packages in the signed set are byte-identical to release 9's.
+Outside the signed set, `libva-v4l2_request-avd 1.3.r11.r169.gc653eaa-2` is installed (the firmware's new
+dependency, #34).
+
+- Inputs: release [`installer-build-inputs-j714s-be1d4b253d13`](https://github.com/betizzel/omarchy-m5/releases/tag/installer-build-inputs-j714s-be1d4b253d13) (finish-inputs on the tree `rebuild-installer-tree.sh DEST upstream-27.3 j714s j714s-r2` makes, HEAD 0f6b939, TREE `01350e1a`; signed by `547AF6CC…`; 20 packages, set `j714s-dev-runtime-07717f8c82db`); the two changed packages are also attached there on their own for `pacman -U` on releases 2 to 9.
+- Image: `installer-image.yml` run [45486430336](https://github.com/betizzel/omarchy-m5/actions/runs/45486430336) (headSha 1fc56a3, `image-version` 10) → release [`j714s-developer-image-omarchy-j714s-10`](https://github.com/betizzel/omarchy-m5/releases/tag/j714s-developer-image-omarchy-j714s-10), `omarchy-j714s-10-aarch64-apple-silicon-mac-os-package.zip` 3689530676 bytes, sha256 `fb1974d5f5b0110797cb3331da98f43ecea7c7396700d5edf0f315a7bd7903e0` (root.img 13065256960 bytes). Every inspection check passed, and the descriptor, image, payload and provenance contracts; `m1n1/boot-ctxr.bin` is 10389172 bytes (the same size as the file v272-19's package wrote on TripleU613's J714s), under the 11 MB Stage 1 loader limit. The Stage 1 files are release 9's. The boot guard did not run during the build.
+- update-check: run [45490197032](https://github.com/betizzel/omarchy-m5/actions/runs/45490197032). `pacman -Syu` exit 0; every pinned J714s package kept (kernel v272-19, firmware j714s16, m1n1, U-Boot, Mesa, Hyprland, omarchy, omarchy-mac 0.2.3-2 over 0.2.7-2). Ten packages changed: `asahi-scripts`/`asahi-fwextract` replaced by `aurora-scripts`/`aurora-fwextract` (omacom's rename), `limine-mkinitcpio-hook` 1.41.0-2, `speakersafetyd` 2.0.1-2, `bankstown`, `triforce-lv2`, `lzfse`, `widevine`, and **two signed-set packages that are not in `IgnorePkg`: `alsa-ucm-conf-aurora` 10.aurora3-1 → -2 and `aurora-audio` 4.1.aurora3-3 → -6**. The ESP hook's "Boot path '/boot/efi' is not a mounted FAT32 boot partition" is the CI container (no ESP mounted), as in release 9's check.
+- App: not built. `installer-app.yml` and the `omarchy-j714s-10` prerelease wait for the owner's G9 test.

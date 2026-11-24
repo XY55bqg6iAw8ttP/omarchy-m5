@@ -31,10 +31,11 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 
 ## Release pipeline state (2026-11-24)
 
-- Done: `installer/patches-j714s-r2/0013` (53e1b5c): set `j714s-dev-runtime-1438d54ecdd3`, TREE `ec7ae12a`; `rebuild-installer-tree.sh DEST upstream-27.3 j714s j714s-r2` reproduces it. The two changed packages (`.zst`) are on ush in `~/m5/pkgs/r10/`.
-- **Blocked: the inputs bundle can't be signed.** `finish-inputs.py --signing-home` needs the private half of the developer signer `0DA040FF…B6D116B1`, kept in the work PC's `~/m5/private/installer-dev-signing`, which was deleted with `~/m5` on 2026-11-24. There is no other copy on the work PC or ush. Options: find a backup of that directory, or make a new developer signer and change the profile's trust (`image-builder/builder/profiles/j714s/candidate-trust/{policy.json,public.asc}`) in a new patch, as 0007 of `installer/patches` did when the fork's key was lost. That changes which key the image trusts, so it's the owner's call.
-- Not started (wait for the bundle): inputs release, `installer-image.yml` image-version 10, update-check. `installer-app.yml` and the `omarchy-j714s-10` prerelease wait for the owner's sleep test anyway.
-- PR #29 changed only `installer-app.yml`, `installer/app/*` and `installer/patches-j716s`; none of them feeds `installer-image.yml`, so the J714s image is unaffected.
+- `installer/patches-j714s-r2` 0013 (kernel v272-19, firmware j714s16, set `j714s-dev-runtime-07717f8c82db`) and 0014 (new developer signer `547AF6CC…BC5DF9F6`): TREE `01350e1a` (1fc56a3).
+- Inputs: [`installer-build-inputs-j714s-be1d4b253d13`](https://github.com/betizzel/omarchy-m5/releases/tag/installer-build-inputs-j714s-be1d4b253d13), signed with the new key.
+- Image: run 45486430336 → [`j714s-developer-image-omarchy-j714s-10`](https://github.com/betizzel/omarchy-m5/releases/tag/j714s-developer-image-omarchy-j714s-10), zip sha256 `fb1974d5…`, every inspection check passed, `boot-ctxr.bin` 10389172 bytes.
+- update-check: run 45490197032, pacman exit 0, every pinned J714s package kept. **To decide:** `alsa-ucm-conf-aurora` and `aurora-audio` (signed set, speaker path) are not in `IgnorePkg` and update from omacom's repo (10.aurora3-2, 4.1.aurora3-6), with `speakersafetyd` 2.0.1-2. Pin them, or check the new versions with speakerguardd-v2 on the Mac.
+- Left: the owner's G9 test (#22), then `installer-app.yml` and the `omarchy-j714s-10` prerelease, then close #25 and #34.
 
 ## Watching for the next kernel (open upstream, 2026-11-24)
 
@@ -52,8 +53,3 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 - Test 5 (G9 picture across a sleep, #22): still to do with the owner.
 - The owner removed the auto-unlock key (2026-11-24): every boot now needs the disk passphrase, so kernel tests
   need the owner at the Mac.
-
-## Blocked
-
-The image build needs a developer signing key; the old one was lost with the work PC's `~/m5`. Waiting for the
-owner's OK to create a new one (installer/patches 0007 did the same once before).
