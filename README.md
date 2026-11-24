@@ -6,12 +6,12 @@ We don't reinvent anything. A lot of people are getting Linux running on the M5 
 in their own repo. We collect the parts that already work, put them together in **one image
 with one installer**, test it on a real J714s, and say who made each part.
 
-> **`omarchy update` failing with `aurora_drv_video.so exists in filesystem`?** Install [firmware j714s16](https://github.com/betizzel/omarchy-m5/releases/tag/firmware-j714s16) once, then update again ([#34](https://github.com/betizzel/omarchy-m5/issues/34)).
+> **On release 7 to 9 and `omarchy update` fails with `aurora_drv_video.so exists in filesystem`?** Install [firmware j714s16](https://github.com/betizzel/omarchy-m5/releases/tag/firmware-j714s16) once, then update again ([#34](https://github.com/betizzel/omarchy-m5/issues/34)).
 
-**The image: [omarchy-j714s 9](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-9)** (prerelease): kernel v272-17
-on a newer aurora-silicon/linux (DisplayPort audio on docks), hardware video decode without settings
-(firmware j714s14), chrisohearn's Hyprland EDID guard (#24) and Aura 0008 (#18). Lid sleep (s2idle)
-and the boot guard for every M5 board are kept from release 8.
+**The image: [omarchy-j714s 10](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-10)** (prerelease, 2026-11-24): kernel
+v272-19 on a newer aurora-silicon/linux (M5 Pro sleep work, DisplayPort and Wi-Fi fixes; 11 own patches, was 26),
+firmware j714s16 (`omarchy update` works again, #34; VRR off by default, #25), Wi-Fi on WPA/WPA2 mixed routers (#30)
+and a new developer signer. The camera's green light stays off on v272-19 (#33).
 
 **Send your M5 work here.** If you have something working on an M5 Mac, open a pull request
 under your own name ([how](CONTRIBUTING.md)); keep your upstream pull request, and we drop our
