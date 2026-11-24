@@ -2,6 +2,18 @@
 
 Pull requests and issues on this repo: what came in, what we did, where it stands. Newest first.
 
+## 2026-11-19 to 2026-11-24: #27 to #32
+
+| Item | Who | What happened | State |
+| --- | --- | --- | --- |
+| [#27](https://github.com/betizzel/omarchy-m5/pull/27) aurora-sep read-only loader with a modprobe.d install command | cameroncooper | An `install` line in modprobe.d no longer reads as an xART writes request; the loader reports the driver's own state and exits 0 when it is read-only | merged 2026-11-19 |
+| [#28](https://github.com/betizzel/omarchy-m5/issues/28) J716s test report (release 9's image on the 27.2 stub) | ja-818 | CPUs, panel, keyboard, trackpad, USB, Bluetooth, lid sleep work; Wi-Fi needs the N1 port's `pwren-gpios` gone (macsmc has no T6050 smc-gpio cell); recorded in the README | open for the follow-ups |
+| [#29](https://github.com/betizzel/omarchy-m5/pull/29) admit the J716s in developer builds | ja-818 | `installer/patches-j716s/0001`, a board input in `installer-app.yml`; the J714s logic is unchanged, the engine pin moves | merged 2026-11-24 |
+| [#30](https://github.com/betizzel/omarchy-m5/pull/30) linux 0022: N1 joins WPA/WPA2 mixed networks | ja-818 | TKIP accepted only as the group cipher with CCMP pairwise; pairwise TKIP and SAE with a TKIP group stay refused. Upstream aurora-silicon/linux #2872 (open). Tested on a J716s; applies to every M5 Pro | merged 2026-11-24; in the next kernel |
+| [#31](https://github.com/betizzel/omarchy-m5/pull/31), [#32](https://github.com/betizzel/omarchy-m5/pull/32) linux 0023-0026: J716s camera; jack, mics, light sensor (speakers held off) | ja-818 | Both made on main, so 0026 did not apply after 0024; both blocks kept in 0026, and a stray `t6050-j716s.dts.orig` dropped from 0024 and 0026 (d7fe51d). On ush 0001-0026 apply on 677be395b9d2 and the J716s and J714s DTBs build | merged 2026-11-24; in the next kernel |
+| Upstream: [omacom/omarchy-mac-installer#228](https://github.com/omacom/omarchy-mac-installer/pull/228) Finish setup text; [#229](https://github.com/omacom/omarchy-mac-installer/pull/229) boot mounts (allanclempe, for #219) | TripleU613; allanclempe | #228 opened from TripleU613's fork; allanclempe opened #229 after the #219 comment | both open, no review yet |
+| Local work folders lost | this repo | The work PC's `~/m5` (test plans, the watch queue, built v272-18/j714s15 packages) was deleted for space; builds and packages now live on ush, notes in the repo. The packages rebuild from the recipes here | done |
+
 ## 2026-11-16 to 2026-11-17: #21 to #26
 
 | Item | Who | What happened | State |

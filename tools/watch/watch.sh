@@ -25,7 +25,7 @@ done
 
 # People: every repo they pushed to in the last 3 days, each branch head
 PEOPLE=(maralcbr scottjones chriskearney malik-na DjDeveloperr joshuaswarren themartiano riverscn RyanTheTide Acelogic LiamRay11 erykwieliczko subedijaidip shawnyeager jondkinney
-        rolotrealanis98 edimoldovan betizzel erikwb satchlj joske TripleU613 FatBoy721 cameroncooper
+        rolotrealanis98 edimoldovan betizzel erikwb satchlj joske TripleU613 FatBoy721 cameroncooper ja-818 allanclempe
         IronsideXXVI jgoyvaerts kazuhidet andreinita21 fbalazsy Blueemi pixbroker sithglan nickyrice04 Isaac-Duarte MikaVohl chrisohearn)
 since=$(date -u -d '3 days ago' +%Y-%m-%dT%H:%M:%SZ)
 for u in "${PEOPLE[@]}"; do

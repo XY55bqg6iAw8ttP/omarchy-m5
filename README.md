@@ -102,9 +102,9 @@ being sent upstream, and what waits on a test first, is in [`docs/upstream.md`](
 
 - **K114s** (14-inch OLED, M5 Pro, `apple,k114s`): admitted in developer builds, experimental, tested on one machine by chrisohearn; no image here, and admission alone gives a keyboard-only system.
   Notes: [`docs/boards/k114s.md`](docs/boards/k114s.md) and [chrisohearn/omarchy-m5p-oled](https://github.com/chrisohearn/omarchy-m5p-oled).
-- **J716s** (16-inch, M5 Pro): not admitted here and no image; runs on rolotrealanis98's own kernel and aura Stage 2 ([aurora-silicon/aura#274](https://github.com/aurora-silicon/aura/pull/274)).
-  Report: [#23](https://github.com/betizzel/omarchy-m5/issues/23) (firmware 27.3: CPUs, panel, GPU, Wi-Fi, USB4 dock, s2idle work; speakers, Bluetooth pairing and deep sleep open).
-
+- **J716s** (16-inch, M5 Pro, `apple,j716s`): admitted in developer builds, experimental, tested on one machine by ja-818 on the 27.2 stub with release 9's image ([#28](https://github.com/betizzel/omarchy-m5/issues/28), [#29](https://github.com/betizzel/omarchy-m5/pull/29)). Works there: all 18 CPUs, panel, keyboard, trackpad, USB, Bluetooth, lid sleep; Wi-Fi with a device-tree change not carried here yet.
+  Carried in the patch series for the next kernel: front camera (0023-0024, [#31](https://github.com/betizzel/omarchy-m5/pull/31)); jack, microphones and light sensor with the speakers held off (0025-0026, [#32](https://github.com/betizzel/omarchy-m5/pull/32)). Not built or released yet.
+  Earlier report on the 27.3 beta with rolotrealanis98's own kernel: [#23](https://github.com/betizzel/omarchy-m5/issues/23).
 ---
 
 ## Who we collect from
@@ -123,6 +123,7 @@ gets pulled in here.
 | [betizzel](https://github.com/betizzel) | 14" M5 Pro (J714s) | this repo | the first J714s boot, display, GPU |
 | [TripleU613](https://github.com/TripleU613) | 14" M5 Pro (J714s) | this repo | Wi-Fi, GPU, the installer image |
 | [FatBoy721](https://github.com/FatBoy721) | 14" M5 Pro (J714s) | | lid sleep fixes; first install by someone else (#293) |
+| [ja-818](https://github.com/ja-818) | 16" M5 Pro (J716s) | [omarchy-m5 fork](https://github.com/ja-818/omarchy-m5) | J716s admission, camera, jack and mics; N1 joins WPA/WPA2 mixed networks (0022, every M5 Pro) |
 | [cameroncooper](https://github.com/cameroncooper) | 16" M5 Max (J716c) | | watched (Aura stage 1, accelerated Hyprland on J716c) |
 | [joshuaswarren](https://github.com/joshuaswarren) | | | J714c PMP and USB-C upstream, PMP analysis in #293 |
 | [sithglan](https://github.com/sithglan) | K116s (M5 Pro/Max) | via [aurora-silicon/linux](https://github.com/aurora-silicon/linux) and [aura](https://github.com/aurora-silicon/aura) | watched: K116s bring-up on 27.2, camera hand-off (aura #188) |
