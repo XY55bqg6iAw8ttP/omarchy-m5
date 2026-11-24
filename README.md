@@ -6,6 +6,8 @@ We don't reinvent anything. A lot of people are getting Linux running on the M5 
 in their own repo. We collect the parts that already work, put them together in **one image
 with one installer**, test it on a real J714s, and say who made each part.
 
+> **`omarchy update` failing with `aurora_drv_video.so exists in filesystem`?** Install [firmware j714s16](https://github.com/betizzel/omarchy-m5/releases/tag/firmware-j714s16) once, then update again ([#34](https://github.com/betizzel/omarchy-m5/issues/34)).
+
 **The image: [omarchy-j714s 9](https://github.com/betizzel/omarchy-m5/releases/tag/omarchy-j714s-9)** (prerelease): kernel v272-17
 on a newer aurora-silicon/linux (DisplayPort audio on docks), hardware video decode without settings
 (firmware j714s14), chrisohearn's Hyprland EDID guard (#24) and Aura 0008 (#18). Lid sleep (s2idle)
