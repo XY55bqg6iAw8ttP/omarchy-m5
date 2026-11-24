@@ -212,6 +212,8 @@ Release 1 was built on linux `572eb88e8642` and Aura `2232ae7a` (git history of 
 | 0022 | **N1 joins WPA/WPA2 mixed networks** (new): accept a TKIP group cipher with CCMP as the only pairwise cipher (a common ISP router default); pairwise TKIP and SAE with a TKIP group stay refused, and the firmware still runs the handshake and installs the keys. Tested on a J716s with v272-17 as a module (#28); not tested on a J714s | ja-818 (aurora-silicon/linux #2872, open) |
 | 0023 | **J716s camera, setfile by board** (new): the IMX958 setfile can be named by the board's tree (`apple,imx958-setfile`), the SoC default otherwise; `apple_isp.imx958_setfile=` for A/B. The J716s runs 2224_01. Seen on one J716s | ja-818 |
 | 0024 | **J716s front camera** (new): the shared T6050 ISP nodes (upstream #2275 adds the same include), the camera light, 1080p/720p presets on config 5, setfile 2224. Seen on one J716s: streams with the light on | ja-818 |
+| 0025 | **J716 macaudio entry** (new): jack only, speakers refused (no safe level, speakers disabled, as the J873) | ja-818 (aurora-silicon/linux, to be opened) |
+| 0026 | **J716s AOP, jack, microphones, light sensor** (new): the J714s's nodes checked against the J716sAP ADT (upstream #2285 and #2277 add the same), a jack-only card, the six amps not described and their shutdown line (AP pin 107) held low. Seen on one J716s: jack plug detected, mics record, light sensor reads; jack playback not listened to | ja-818 |
 
 Dropped in v272-16 (upstream merged them): old 0020-0023 (#1921: own tunnel slots for DP IN 2/3, `apple,tunnel-only`
 routes, dcpext1 on the right port) and old 0024 (#1930's first commit), all patch-identical per `git cherry`; old 0025
