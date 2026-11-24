@@ -7,7 +7,7 @@ Started 2026-11-24. Builds and packages live on ush (`~/m5/work`, `~/m5/pkgs`), 
 | Piece | Version | State |
 | --- | --- | --- |
 | Kernel | v272-19: patches/j714s-27.2/linux rebased from 677be395b9d2 onto aurora-silicon/linux main 93e92d293a25; drops what upstream merged (0020 = #1721 at least); adds 0022 (N1 WPA/WPA2 mixed, ja-818) and 0023-0026 (J716s camera and sound) | **built and booted on the J714s 2026-11-24** (pin 0c1f7e707784, 11 patches; draft release build-linux-v272-19). Tests 1-3 and 6 pass; 4-5 need the owner |
-| Firmware | omarchy-aurora-firmware j714s15 (VRR off by default, #25) | rebuilt on ush 2026-11-24, byte-identical to the Mac's; draft release build-fw-j714s15 |
+| Firmware | omarchy-aurora-firmware **j714s16** (VRR off, #25; no own aurora_drv_video.so, depends on libva-v4l2_request-avd -2, #34). Installer 0013 still names j714s15: re-pin it to j714s16 (2c4d90d5…, release firmware-j714s16) before building | rebuilt on ush 2026-11-24, byte-identical to the Mac's; draft release build-fw-j714s15 |
 | Hyprland | hyprland-m5 0.57.2-4 | in release 9 already |
 | m1n1-aurora | v272-4 (Aura 0008) | stays v272-4: Aura b15-b17 have nothing for the T6050 |
 
