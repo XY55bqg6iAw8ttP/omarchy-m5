@@ -42,3 +42,18 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 - aurora-silicon/linux #2201 (K116s deep sleep), #2007 (PMIC RTC alarm: unattended s2idle tests), #2190 (idle power).
 - aurora-silicon/aura #506: PMP values onto aliasless PMP nodes, handoff hardening.
 - #33 here: the camera light on top of upstream's indicator.
+
+## Results on our J714s (2026-11-24)
+
+- Tests 1-3 and 6 pass on v272-19 (see the v272-19 section of patches/j714s-27.2/README.md).
+- Test 4, s2idle with the owner: suspended 15:44, woken by a key 15:51 in the same boot; eDP-1 back at 120 Hz,
+  Wi-Fi reconnected with internet, Bluetooth on, 5 sound cards, no failed units, no kernel errors after the wake.
+  The HDMI re-setup ran on wake ("HDMI: setting up the output again (after system sleep)"); no G9 attached.
+- Test 5 (G9 picture across a sleep, #22): still to do with the owner.
+- The owner removed the auto-unlock key (2026-11-24): every boot now needs the disk passphrase, so kernel tests
+  need the owner at the Mac.
+
+## Blocked
+
+The image build needs a developer signing key; the old one was lost with the work PC's `~/m5`. Waiting for the
+owner's OK to create a new one (installer/patches 0007 did the same once before).
