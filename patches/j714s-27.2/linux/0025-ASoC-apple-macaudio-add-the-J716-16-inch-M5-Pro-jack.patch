@@ -1,4 +1,4 @@
-From 815c711634afa855b4fbcb0b081f9b0f3a2bdf4c Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Arango <95070226+ja-818@users.noreply.github.com>
 Date: Sun, 22 Nov 2026 21:46:25 -0500
 Subject: [PATCH 25/26] ASoC: apple: macaudio: add the J716 (16-inch M5 Pro),
@@ -25,7 +25,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 24 insertions(+)
 
 diff --git a/sound/soc/apple/macaudio.c b/sound/soc/apple/macaudio.c
-index 1648831..ae09fd5 100644
+index 16488315b399..ae09fd556231 100644
 --- a/sound/soc/apple/macaudio.c
 +++ b/sound/soc/apple/macaudio.c
 @@ -4121,6 +4121,28 @@ struct macaudio_platform_cfg macaudio_j714_cfg = {
@@ -67,5 +67,5 @@ index 1648831..ae09fd5 100644
  	{ .compatible = "apple,j713-macaudio", .data = &macaudio_j713_cfg },
  	/* The J713 jack runs on the AOP like the J616s one. */
 -- 
-2.56.0
+2.56.1
 
