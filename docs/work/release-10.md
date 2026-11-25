@@ -40,7 +40,7 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 ## Watching for the next kernel (open upstream, 2026-11-24)
 
 - aurora-silicon/linux #3023, #3025, #3036 (DjDeveloperr): G17 (M5 GPU) idle housekeeping, sync-input chains, event worker placement.
-- aurora-silicon/linux #2201 (K116s deep sleep), #2007 (PMIC RTC alarm: unattended s2idle tests), #2190 (idle power).
+- aurora-silicon/linux #2201 (K116s deep sleep), #2007 (PMIC RTC alarm: unattended s2idle tests); #2190 (idle power) merged 2026-11-25, in the v272-20 candidate.
 - aurora-silicon/aura #506: PMP values onto aliasless PMP nodes, handoff hardening.
 - #33 here: the camera light on top of upstream's indicator.
 - Merged since v272-19's base (take at the next re-pin): aurora-silicon/linux #3110 (N1 Wi-Fi: gate commands during host sleep, 2026-11-25), #3120 (centauri Wi-Fi/Bluetooth: scan lock stalls, abort sync, BT ring, 2026-11-25).
@@ -55,9 +55,14 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 - The owner removed the auto-unlock key (2026-11-24): every boot now needs the disk passphrase, so kernel tests
   need the owner at the Mac.
 
-## Next kernel candidate: v272-20 (built 2026-11-25, not booted)
+## Next kernel candidate: v272-20 (rebuilt 2026-11-25, not booted)
 
-aurora-silicon/linux main `4d8a19b2e415` (adds #3110 and #3120) plus the same 11 patches, all applied clean.
-Built on ush (`~/m5/work/k20`), sha256 `dc9cde66…`, draft release build-linux-v272-20. Boot test needs the
-owner at the Mac (the disk passphrase); then commit the recipe (pin, pkgrel 20, sums) and publish to
+aurora-silicon/linux main `7a4afed5b4d1` (2026-11-25; adds #2190 idle power from the watch list, #3110 and
+#3120, and about 100 other upstream commits) plus the same 11 patches. 0006 (HDMI hold presents) needed a
+context-only fix: upstream now sets `WRITE_ONCE(dcp->pipe_off, false)` on the line where 0006 adds
+`dcp_hdmi_hold_presents(dcp, "power on")`; both lines kept. The other ten applied clean. Built on ush
+(`~/m5/work/k20b`, series in `~/m5/work/v272-20b-patches`), sha256 `a79ce90c…`, draft release
+build-linux-v272-20. It replaces the first v272-20 build (`4d8a19b2e415`, `dc9cde66…`, `~/m5/work/k20`),
+which was never booted. Boot test needs the owner at the Mac (the disk passphrase); then commit the recipe
+(pin `7a4afed5b4d1df7489c4be316d05e3b6c98b23dc`, pkgrel 20, the regenerated patches and sums) and publish to
 [omarchy-m5] if it passes tests 1-4.
