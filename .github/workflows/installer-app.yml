@@ -71,9 +71,9 @@ on:
         type: string
         default: 2.3.16
       board:
-        description: The one developer board this build admits (apple,j716s is EXPERIMENTAL and needs the j716s patch set and a j716s-developer-image-* release)
+        description: The one developer board this build admits (apple,j716s and apple,j714c are EXPERIMENTAL and need their patch set and a <board>-developer-image-* release)
         type: choice
-        options: ['apple,j714s', 'apple,j716s']
+        options: ['apple,j714s', 'apple,j716s', 'apple,j714c']
         default: apple,j714s
 
 permissions:
@@ -112,9 +112,9 @@ jobs:
       - name: Check the inputs
         run: |
           set -euo pipefail
-          [[ $BOARD == apple,j714s || $BOARD == apple,j716s ]] || { echo "::error::bad board"; exit 1; }
+          [[ $BOARD == apple,j714s || $BOARD == apple,j716s || $BOARD == apple,j714c ]] || { echo "::error::bad board"; exit 1; }
           if [[ -n $IMAGE_TAG ]]; then
-            [[ $IMAGE_TAG =~ ^(j714s|j716s)-developer-image-[A-Za-z0-9._-]+$ ]] || { echo "::error::bad image-tag"; exit 1; }
+            [[ $IMAGE_TAG =~ ^(j714s|j716s|j714c)-developer-image-[A-Za-z0-9._-]+$ ]] || { echo "::error::bad image-tag"; exit 1; }
             [[ $RELEASE_TAG =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$ ]] || { echo "::error::bad or missing release-tag"; exit 1; }
             name_pattern='^[A-Za-z0-9][A-Za-z0-9 ._()+-]{0,99}$'
             [[ $RELEASE_NAME =~ $name_pattern ]] || { echo "::error::bad or missing release-name"; exit 1; }
@@ -188,11 +188,12 @@ jobs:
           case $BOARD in
             apple,j714s) label=J714s; model="MacBook Pro 14-inch M5 Pro" ;;
             apple,j716s) label=J716s; model="MacBook Pro 16-inch M5 Pro, EXPERIMENTAL, one machine" ;;
+            apple,j714c) label=J714c; model="MacBook Pro 14-inch M5 Max, EXPERIMENTAL, one machine" ;;
             *) echo "::error::bad board"; exit 1 ;;
           esac
           { echo "BOARD_LABEL=$label"; echo "BOARD_MODEL=$model"; } >>"$GITHUB_ENV"
           if [[ -n $IMAGE_TAG ]]; then
-            [[ $IMAGE_TAG =~ ^(j714s|j716s)-developer-image-[A-Za-z0-9._-]+$ ]]
+            [[ $IMAGE_TAG =~ ^(j714s|j716s|j714c)-developer-image-[A-Za-z0-9._-]+$ ]]
             [[ $RELEASE_TAG =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$ ]]
             if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
               echo "::error::release $RELEASE_TAG already exists"; exit 1

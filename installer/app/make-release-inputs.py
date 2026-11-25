@@ -52,7 +52,11 @@ DEVICE_CLASS = "j714sap"
 # apple,j716s is the EXPERIMENTAL J716s (MacBook Pro 16-inch, M5 Pro, Mac17,8,
 # board 0x0c), tested on one machine; it takes a J716s image
 # (allowed_device_classes [j716sap]) and installer/patches-j716s.
-BOARDS = {"apple,j714s": "j714sap", "apple,k114s": "k114sap", "apple,j716s": "j716sap"}
+# apple,j714c is the EXPERIMENTAL J714c (MacBook Pro 14-inch, M5 Max, Mac17,7,
+# board 0x0a), tested on one machine; it takes a J714c image
+# (allowed_device_classes [j714cap]) and installer/patches-j714c.
+BOARDS = {"apple,j714s": "j714sap", "apple,k114s": "k114sap", "apple,j716s": "j716sap",
+          "apple,j714c": "j714cap"}
 READ_BLOCK = 8 * 1024 * 1024
 VERSION = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 EVIDENCE = re.compile(r"^[0-9a-z.-]+$")
