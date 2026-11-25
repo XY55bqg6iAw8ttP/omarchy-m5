@@ -19,6 +19,11 @@ and a new developer signer. The camera's green light stays off on v272-19 (#33).
 WFI idle on the M5 Pro (aurora-silicon/linux #2190, less power at idle), N1 Wi-Fi commands held during sleep (#3110) and Wi-Fi
 scan and Bluetooth ring fixes (#3120). Booted on our J714s: Wi-Fi, s2idle, camera, speaker protection and video decoding pass.
 
+**Release 10's installer ran on hardware (2026-11-25):** a from-scratch install on our J714s (macOS shrunk to 160 GB, 769 GB for
+Omarchy) booted, including release 10's new Stage 1. If you keep a fallback kernel, set `LIMIT_USAGE_PERCENT=50` in
+`/etc/limine-snapper-sync.conf` first: otherwise the 500 MB ESP fills up and the next kernel update can't write its boot image
+([details](docs/work/release-10.md#release-10-installed-on-hardware-2026-11-25)).
+
 **Send your M5 work here.** If you have something working on an M5 Mac, open a pull request
 under your own name ([how](CONTRIBUTING.md)); keep your upstream pull request, and we drop our
 copy when it merges there. Every release is an edge prerelease: it works on the hardware listed

@@ -78,3 +78,29 @@ fix: upstream now sets `WRITE_ONCE(dcp->pipe_off, false)` on the line where 0006
   `pacman -Sw omarchy-m5/linux-aurora` passed the keyring and integrity checks and matched `a79ce90c…`.
 - Recipe committed: pin `7a4afed5b4d1df7489c4be316d05e3b6c98b23dc`, pkgrel 20, regenerated
   `patches/j714s-27.2/linux/0001-0011`.
+
+## Release 10 installed on hardware (2026-11-25)
+
+The owner moved the J714s to daily use, so it was reinstalled from scratch with release 10's online
+installer (app 2.3.16 build 2611242133, checksum OK).
+
+- Before: the old Linux (release 6 install, updated to v272-20) was backed up to ush
+  `~/m5/mac-backup-20261125` (full root 3.5 GB, home/etc 670 MB, `/boot` + ESP 985 MB, package list).
+- macOS cleanup: 330 GB -> 114 GB used (Content Caching store 61 GB, VMs, simulator runtimes,
+  Configurator restore images).
+- Removal by hand, in the app's order: `bless --mount / --setBoot`, `diskutil apfs deleteContainer` on the
+  stub, `diskutil eraseVolume free none` on the ESP, /boot and root, then
+  `diskutil apfs resizeContainer disk0s2 160g`: 834.6 GB free.
+- The app installed into the free space: stub 5.6 GB, ESP 500 MB, /boot 2 GB, LUKS root 769.2 GB.
+  **Release 10's Stage 1 (never enrolled before) booted**; first boot on v272-19.
+- After: `tools/update-source/enable`, v272-19 copied as the Limine fallback, `pacman -S
+  omarchy-m5/linux-aurora` -> v272-20.
+
+**ESP too small for a fallback plus snapshot UKIs.** A fresh install's 500 MB ESP holds one 81 MB UKI,
+m1n1, and limine-snapper-sync's copy of the UKI for snapshot 2 (78 MB). With a v272-19 fallback copy
+added, 25 MB was left, and the kernel upgrade's `limine-mkinitcpio` failed (`No space left on device`
+writing `omarchy_linux-aurora.efi.new`; pacman printed `error: command failed to execute correctly`) while
+m1n1 had already been updated. Fixed on this Mac by moving the snapshot UKI to `/boot/esp-overflow`,
+rerunning `limine-mkinitcpio`, and setting `LIMIT_USAGE_PERCENT=50` in `/etc/limine-snapper-sync.conf` so
+snapshot entries stop copying UKIs to the ESP. Any release-10 owner who keeps a fallback UKI hits the same
+wall on the next kernel update; the image should ship a lower limit (or a larger ESP).
