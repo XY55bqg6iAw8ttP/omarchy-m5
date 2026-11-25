@@ -19,7 +19,9 @@ on:
         default: ''
 
 permissions:
-  contents: read
+  # write only so the preinstall step can download assets of draft releases (unbooted candidates);
+  # this workflow publishes nothing.
+  contents: write
 
 jobs:
   update:
