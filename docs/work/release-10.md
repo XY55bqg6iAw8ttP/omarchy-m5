@@ -54,3 +54,10 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 - Test 5 (G9 picture across a sleep, #22): still to do with the owner.
 - The owner removed the auto-unlock key (2026-11-24): every boot now needs the disk passphrase, so kernel tests
   need the owner at the Mac.
+
+## Next kernel candidate: v272-20 (built 2026-11-25, not booted)
+
+aurora-silicon/linux main `4d8a19b2e415` (adds #3110 and #3120) plus the same 11 patches, all applied clean.
+Built on ush (`~/m5/work/k20`), sha256 `dc9cde66…`, draft release build-linux-v272-20. Boot test needs the
+owner at the Mac (the disk passphrase); then commit the recipe (pin, pkgrel 20, sums) and publish to
+[omarchy-m5] if it passes tests 1-4.
