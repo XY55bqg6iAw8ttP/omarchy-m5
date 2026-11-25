@@ -43,7 +43,7 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 - aurora-silicon/linux #2201 (K116s deep sleep), #2007 (PMIC RTC alarm: unattended s2idle tests), #2190 (idle power).
 - aurora-silicon/aura #506: PMP values onto aliasless PMP nodes, handoff hardening.
 - #33 here: the camera light on top of upstream's indicator.
-- Merged since v272-19's base (take at the next re-pin): aurora-silicon/linux #3110 (N1 Wi-Fi: gate commands during host sleep, 2026-11-25).
+- Merged since v272-19's base (take at the next re-pin): aurora-silicon/linux #3110 (N1 Wi-Fi: gate commands during host sleep, 2026-11-25), #3120 (centauri Wi-Fi/Bluetooth: scan lock stalls, abort sync, BT ring, 2026-11-25).
 
 ## Results on our J714s (2026-11-24)
 
