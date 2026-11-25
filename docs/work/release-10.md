@@ -40,7 +40,7 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 ## Watching for the next kernel (open upstream, 2026-11-24)
 
 - aurora-silicon/linux #3023, #3025, #3036 (DjDeveloperr): G17 (M5 GPU) idle housekeeping, sync-input chains, event worker placement.
-- aurora-silicon/linux #2201 (K116s deep sleep), #2007 (PMIC RTC alarm: unattended s2idle tests); #2190 (idle power) merged 2026-11-25, in the v272-20 candidate.
+- aurora-silicon/linux #2201 (K116s deep sleep), #2007 (PMIC RTC alarm: unattended s2idle tests); #2190 (idle power) merged 2026-11-25, in v272-20.
 - aurora-silicon/aura #506: PMP values onto aliasless PMP nodes, handoff hardening.
 - #33 here: the camera light on top of upstream's indicator.
 - Merged since v272-19's base (take at the next re-pin): aurora-silicon/linux #3110 (N1 Wi-Fi: gate commands during host sleep, 2026-11-25), #3120 (centauri Wi-Fi/Bluetooth: scan lock stalls, abort sync, BT ring, 2026-11-25).
@@ -55,14 +55,26 @@ Close #25 (VRR off ships). Post the 0022 J714s result on #28. Update README, doc
 - The owner removed the auto-unlock key (2026-11-24): every boot now needs the disk passphrase, so kernel tests
   need the owner at the Mac.
 
-## Next kernel candidate: v272-20 (rebuilt 2026-11-25, not booted)
+## v272-20: booted and published (2026-11-25)
 
-aurora-silicon/linux main `7a4afed5b4d1` (2026-11-25; adds #2190 idle power from the watch list, #3110 and
-#3120, and about 100 other upstream commits) plus the same 11 patches. 0006 (HDMI hold presents) needed a
-context-only fix: upstream now sets `WRITE_ONCE(dcp->pipe_off, false)` on the line where 0006 adds
-`dcp_hdmi_hold_presents(dcp, "power on")`; both lines kept. The other ten applied clean. Built on ush
-(`~/m5/work/k20b`, series in `~/m5/work/v272-20b-patches`), sha256 `a79ce90c…`, draft release
-build-linux-v272-20. It replaces the first v272-20 build (`4d8a19b2e415`, `dc9cde66…`, `~/m5/work/k20`),
-which was never booted. Boot test needs the owner at the Mac (the disk passphrase); then commit the recipe
-(pin `7a4afed5b4d1df7489c4be316d05e3b6c98b23dc`, pkgrel 20, the regenerated patches and sums) and publish to
-[omarchy-m5] if it passes tests 1-4.
+aurora-silicon/linux main `7a4afed5b4d1` (adds #2190 idle power from the watch list, #3110 and #3120, and
+about 100 other upstream commits) plus the same 11 patches. 0006 (HDMI hold presents) needed a context-only
+fix: upstream now sets `WRITE_ONCE(dcp->pipe_off, false)` on the line where 0006 adds
+`dcp_hdmi_hold_presents(dcp, "power on")`; both lines kept. Built on ush (`~/m5/work/k20b`), sha256
+`a79ce90c…`. A first build on `4d8a19b2e415` (`~/m5/work/k20`) was never booted.
+
+- CI: update-check run 45654077437 (release 10's image, v272-20 pre-installed from the draft
+  build-linux-v272-20, then `pacman -Syu`): pacman exit 0, linux-aurora v272-19 -> v272-20. The workflow now
+  has `contents: write` so it can read draft-release assets.
+- On the owner's J714s, 2026-11-25, with the owner at the Mac: the v272-18 fallback UKI and m1n1 moved to
+  `/boot/fallback-272-18`, `boot-ctxr.bin.v272-15` to `/boot/fallback-272-15`; v272-19's UKI copied to
+  `EFI/Linux/omarchy_v272-19-proven.efi` (Limine entry "linux-aurora v272-19 (proven, fallback)") and its
+  m1n1 to `boot-ctxr.bin.v272-19`. The new `boot-ctxr.bin` is 10,459,344 bytes (under 11 MB).
+- Results: boots (owner typed the passphrase), no Oops/BUG/WARNING, no failed units; `Apple: idling in WFI,
+  ignoring idle=nop (after built-in probes)`, cpuidle driver `apple_idle` (#2190 works); Wi-Fi up; camera
+  frame captured (IMX958 setfile 2224_01); speakerguardd "protection ready"; VA-API driver loads; GPU up
+  (6 EPROBE_DEFER retries at boot, the same as v272-19); s2idle 16:32 -> 16:39 entered and exited, Wi-Fi back.
+- Published to [omarchy-m5] (release repo-aarch64); v272-19 moved to ush `~/m5/pkgs/old-repo`. On the Mac
+  `pacman -Sw omarchy-m5/linux-aurora` passed the keyring and integrity checks and matched `a79ce90c…`.
+- Recipe committed: pin `7a4afed5b4d1df7489c4be316d05e3b6c98b23dc`, pkgrel 20, regenerated
+  `patches/j714s-27.2/linux/0001-0011`.

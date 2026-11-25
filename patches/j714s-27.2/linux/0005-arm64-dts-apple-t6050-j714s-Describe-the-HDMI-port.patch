@@ -1,4 +1,4 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 7f00ed9d933a5e92d9f1214321403a66d551e334 Mon Sep 17 00:00:00 2001
 From: FatBoy721 <203330788+FatBoy721@users.noreply.github.com>
 Date: Fri, 13 Nov 2026 13:30:00 -0500
 Subject: [PATCH 05/11] arm64: dts: apple: t6050-j714s: Describe the HDMI port
@@ -142,10 +142,10 @@ index 000000000000..7677e05b0d6f
 +	/delete-property/ resets;
 +};
 diff --git a/arch/arm64/boot/dts/apple/t6050-j714s.dts b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-index 01b051388894..71c71d66f602 100644
+index 3ed3baaf05fd..25e35a61b4a4 100644
 --- a/arch/arm64/boot/dts/apple/t6050-j714s.dts
 +++ b/arch/arm64/boot/dts/apple/t6050-j714s.dts
-@@ -1090,3 +1090,6 @@ &ave0_dart1 {
+@@ -1120,3 +1120,6 @@ &ave0_dart1 {
  &ave0 {
  	status = "okay";
  };

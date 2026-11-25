@@ -15,6 +15,10 @@ v272-19 on a newer aurora-silicon/linux (M5 Pro sleep work, DisplayPort and Wi-F
 firmware j714s16 (`omarchy update` works again, #34; VRR off by default, #25), Wi-Fi on WPA/WPA2 mixed routers (#30)
 and a new developer signer. The camera's green light stays off on v272-19 (#33).
 
+**Kernel v272-20 (2026-11-25), through `omarchy update` with [`[omarchy-m5]`](tools/update-source/README.md) on:** upstream's
+WFI idle on the M5 Pro (aurora-silicon/linux #2190, less power at idle), N1 Wi-Fi commands held during sleep (#3110) and Wi-Fi
+scan and Bluetooth ring fixes (#3120). Booted on our J714s: Wi-Fi, s2idle, camera, speaker protection and video decoding pass.
+
 **Send your M5 work here.** If you have something working on an M5 Mac, open a pull request
 under your own name ([how](CONTRIBUTING.md)); keep your upstream pull request, and we drop our
 copy when it merges there. Every release is an edge prerelease: it works on the hardware listed

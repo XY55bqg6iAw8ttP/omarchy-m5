@@ -141,6 +141,13 @@ Recipes: [`installer/recipes/linux-aurora-j714s`](../../installer/recipes/linux-
 [`installer/recipes/m1n1-aurora-j714s`](../../installer/recipes/m1n1-aurora-j714s)
 (`aura-j714s-27.2.patch` is `aura/*.patch` concatenated).
 
+## v272-20 (2026-11-25): re-pinned on aurora-silicon/linux main `7a4afed5b4d1`
+
+Adds #2190 (WFI idle once built-in drivers probe), #3110, #3120 and about 100 other upstream commits. The
+same 11 patches; 0006 needed a context-only fix (upstream's `WRITE_ONCE(dcp->pipe_off, false)` sits on the
+line where 0006 adds `dcp_hdmi_hold_presents(dcp, "power on")`; both kept). Booted on the J714s 2026-11-25
+(docs/work/release-10.md).
+
 ## v272-19 (2026-11-24): re-pinned on aurora-silicon/linux main `0c1f7e707784`
 
 The 26 patches of v272-18 (plus #30-#32) were rebased from `677be395b9d2`; 11 remain. Upstream now

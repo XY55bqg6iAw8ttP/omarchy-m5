@@ -1,4 +1,4 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 34bf0746db02d49144fce22b217d3d39b5c078d3 Mon Sep 17 00:00:00 2001
 From: Rolando Trevino <rolotrealanis@gmail.com>
 Date: Sat, 7 Nov 2026 18:21:40 -0500
 Subject: [PATCH 02/11] drm/apple: Refuse panel brightness once the display
@@ -21,7 +21,7 @@ Signed-off-by: Rolando Trevino <rolotrealanis@gmail.com>
  1 file changed, 6 insertions(+)
 
 diff --git a/drivers/gpu/drm/apple/dcp_backlight.c b/drivers/gpu/drm/apple/dcp_backlight.c
-index a487e9b770aa..22453430d023 100644
+index 1019180517be..5746c318e54c 100644
 --- a/drivers/gpu/drm/apple/dcp_backlight.c
 +++ b/drivers/gpu/drm/apple/dcp_backlight.c
 @@ -252,6 +252,9 @@ static int dcp_get_brightness(struct backlight_device *bd)
@@ -34,7 +34,7 @@ index a487e9b770aa..22453430d023 100644
  
  	if (dcp_backlight_active(dcp) || dcp_backlight_desktop(dcp)) {
  		/*
-@@ -857,6 +860,9 @@ static int dcp_set_brightness(struct backlight_device *bd)
+@@ -885,6 +888,9 @@ static int dcp_set_brightness(struct backlight_device *bd)
  
  	if (READ_ONCE(dcp->quiescing))
  		return -ENODEV;
